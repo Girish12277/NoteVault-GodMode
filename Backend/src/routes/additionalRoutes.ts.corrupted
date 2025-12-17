@@ -1,0 +1,533 @@
+import { Router } from 'express';
+import { prisma } from '../config/database';
+import { authenticate, requireSeller, requireAdmin } from '../middleware/auth';
+import { AuthRequest } from '../middleware/auth';
+import emailService from '../services/emailService';
+
+const sellerRouter = Router();
+const adminRouter = Router();
+const cartRouter = Router();
+const orderRouter = Router();
+
+// ========================================
+// SELLER ROUTES
+// ========================================
+
+/**
+ * GET /api/seller/dashboard
+ * Get seller dashboard with real stats
+ */
+sellerRouter.get('/dashboard', authenticate, requireSeller, async (req: AuthRequest, res) => {
+    try {
+        const sellerId = req.user!.id;
+
+        // Get seller wallet
+        const wallet = await prisma.sellerWallet.findUnique({
+            where: { sellerId }
+        });
+
+        // Get notes stats
+        const notesStats = await prisma.note.aggregate({
+            where: { sellerId, isDeleted: false },
+            _count: true,
+            _sum: { viewCount: true, purchaseCount: true }
+        });
+
+        // Get average rating
+        const ratingStats = await prisma.review.aggregate({
+            where: {
+                note: { sellerId },
+                isApproved: true
+            },
+            _avg: { rating: true },
+            _count: true
+        });
+
+        // Get recent transactions
+        const recentTransactions = await prisma.transaction.findMany({
+            where: { sellerId, status: 'SUCCESS' },
+            orderBy: { createdAt: 'desc' },
+            take: 5,
+            select: {
+                id: true,
+                amountInr: true,
+                sellerEarningInr: true,
+                createdAt: true,
+                note: { select: { title: true } }
+            }
+        });
+
+        return res.json({
+            success: true,
+            data: {
+                earnings: {
+                    totalEarned: Number(wallet?.totalEarnedInr || 0),
+                    availableBalance: Number(wallet?.availableBalanceInr || 0),
+                    pendingBalance: Number(wallet?.pendingBalanceInr || 0),
+                    totalWithdrawn: Number(wallet?.totalWithdrawnInr || 0)
+                },
+                notes: {
+                    total: notesStats._count || 0,
+                    totalViews: notesStats._sum.viewCount || 0,
+                    totalSales: notesStats._sum.purchaseCount || 0
+                },
+                reviews: {
+                    averageRating: Math.round((ratingStats._avg.rating || 0) * 10) / 10,
+                    totalReviews: ratingStats._count || 0
+                },
+                recentTransactions
+            }
+        });
+    } catch (error: unknown) {
+        console.error('Seller dashboard error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch dashboard',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * GET /api/seller/notes
+ * Get seller's uploaded notes
+ */
+sellerRouter.get('/notes', authenticate, requireSeller, async (req: AuthRequest, res) => {
+    try {
+        const sellerId = req.user!.id;
+        const { page = '1', limit = '20', status = 'all' } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const where: Record<string, unknown> = { sellerId, isDeleted: false };
+        if (status === 'approved') where.isApproved = true;
+        if (status === 'pending') where.isApproved = false;
+        if (status === 'active') { where.isApproved = true; where.isActive = true; }
+
+        const [notes, total] = await Promise.all([
+            prisma.note.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: Number(limit),
+                include: {
+                    category: { select: { name: true } },
+                    university: { select: { shortName: true } },
+                    _count: { select: { reviews: true, purchases: true } }
+                }
+            }),
+            prisma.note.count({ where })
+        ]);
+
+        return res.json({
+            success: true,
+            data: {
+                notes,
+                pagination: {
+                    total,
+                    page: Number(page),
+                    limit: Number(limit),
+                    totalPages: Math.ceil(total / Number(limit))
+                }
+            }
+        });
+    } catch (error: unknown) {
+        console.error('Seller notes error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch notes',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * GET /api/seller/wallet
+ * Get seller wallet details
+ */
+sellerRouter.get('/wallet', authenticate, requireSeller, async (req: AuthRequest, res) => {
+    try {
+        const wallet = await prisma.sellerWallet.findUnique({
+            where: { sellerId: req.user!.id }
+        });
+
+        if (!wallet) {
+            return res.json({
+                success: true,
+                data: {
+                    availableBalance: 0,
+                    pendingBalance: 0,
+                    totalEarned: 0,
+                    totalWithdrawn: 0,
+                    minimumWithdrawal: 100
+                }
+            });
+        }
+
+        return res.json({
+            success: true,
+            data: {
+                availableBalance: Number(wallet.availableBalanceInr),
+                pendingBalance: Number(wallet.pendingBalanceInr),
+                totalEarned: Number(wallet.totalEarnedInr),
+                totalWithdrawn: Number(wallet.totalWithdrawnInr),
+                minimumWithdrawal: Number(wallet.minimumWithdrawalAmount)
+            }
+        });
+    } catch (error: unknown) {
+        console.error('Seller wallet error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch wallet',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * GET /api/seller/payouts
+ * Get payout history
+ */
+sellerRouter.get('/payouts', authenticate, requireSeller, async (req: AuthRequest, res) => {
+    try {
+        const payouts = await prisma.payoutRequest.findMany({
+            where: { sellerId: req.user!.id },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return res.json({
+            success: true,
+            data: payouts
+        });
+    } catch (error: unknown) {
+        console.error('Seller payouts error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch payouts',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * POST /api/seller/payouts/request
+ * Request a payout
+ */
+sellerRouter.post('/payouts/request', authenticate, requireSeller, async (req: AuthRequest, res) => {
+    try {
+        const { amount, bankDetails } = req.body;
+        const sellerId = req.user!.id;
+
+        if (!amount || amount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid amount',
+                code: 'INVALID_AMOUNT'
+            });
+        }
+
+        // Transaction to ensure atomicity
+        const result = await prisma.$transaction(async (prisma) => {
+            const wallet = await prisma.sellerWallet.findUnique({ where: { sellerId } });
+
+            if (!wallet) {
+                throw new Error('Wallet not found');
+            }
+            if (Number(wallet.availableBalanceInr) < amount) {
+                throw new Error('Insufficient available balance');
+            }
+            if (amount < Number(wallet.minimumWithdrawalAmount)) {
+                throw new Error(`Minimum withdrawal amount is ₹${wallet.minimumWithdrawalAmount}`);
+            }
+
+            // Deduct balance
+            await prisma.sellerWallet.update({
+                where: { sellerId },
+                data: { availableBalanceInr: { decrement: amount } }
+            });
+
+            // Create Request
+            return await prisma.payoutRequest.create({
+                data: {
+                    sellerId,
+                    amountInr: amount,
+                    bankDetails: JSON.stringify(bankDetails),
+                    status: 'PENDING'
+                }
+            });
+        });
+
+        return res.json({
+            success: true,
+            message: 'Payout requested successfully',
+            data: result
+        });
+    } catch (error: any) {
+        console.error('Payout request error:', error);
+        return res.status(400).json({
+            success: false,
+            message: error.message || 'Failed to request payout',
+            code: 'PAYOUT_ERROR'
+        });
+    }
+});
+
+// ========================================
+// ADMIN ROUTES
+// ========================================
+
+/**
+ * GET /api/admin/dashboard
+ * Get admin dashboard with FIXED stats - counts ALL users
+ */
+adminRouter.get('/dashboard', authenticate, requireAdmin, async (_req, res) => {
+    try {
+        const [
+            totalUsers,
+            totalSellers,
+            totalNotes,
+            approvedNotes,
+            pendingNotes,
+            totalTransactions,
+            revenueStats
+        ] = await Promise.all([
+            prisma.user.count(), // FIX: Count ALL users (active + suspended)
+            prisma.user.count({ where: { isSeller: true } }), // FIX: All sellers
+            prisma.note.count({ where: { isDeleted: false } }),
+            prisma.note.count({ where: { isApproved: true, isDeleted: false } }),
+            prisma.note.count({ where: { isApproved: false, isDeleted: false } }),
+            prisma.transaction.count({ where: { status: 'SUCCESS' } }),
+            prisma.transaction.aggregate({
+                where: { status: 'SUCCESS' },
+                _sum: { amountInr: true, commissionInr: true }
+            })
+        ]);
+
+        return res.json({
+            success: true,
+            data: {
+                users: {
+                    total: totalUsers,
+                    sellers: totalSellers,
+                    buyers: totalUsers - totalSellers
+                },
+                notes: {
+                    total: totalNotes,
+                    approved: approvedNotes,
+                    pending: pendingNotes
+                },
+                revenue: {
+                    totalTransactions,
+                    totalRevenue: Number(revenueStats._sum.amountInr || 0),
+                    totalCommission: Number(revenueStats._sum.commissionInr || 0)
+                }
+            }
+        });
+    } catch (error: unknown) {
+        console.error('Admin dashboard error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch dashboard',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * GET /api/admin/users
+ * List all users (admin only)
+ */
+adminRouter.get('/users', authenticate, requireAdmin, async (req, res) => {
+    try {
+        const { page = '1', limit = '50', role = 'all' } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const where: Record<string, unknown> = {};
+        if (role === 'seller') where.isSeller = true;
+        if (role === 'admin') where.isAdmin = true;
+
+        const [users, total] = await Promise.all([
+            prisma.user.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: Number(limit),
+                select: {
+                    id: true,
+                    email: true,
+                    fullName: true,
+                    isSeller: true,
+                    isAdmin: true,
+                    isActive: true,
+                    isVerified: true,
+                    createdAt: true,
+                    _count: { select: { notesCreated: true, purchases: true } }
+                }
+            }),
+            prisma.user.count({ where })
+        ]);
+
+        return res.json({
+            success: true,
+            data: {
+                users,
+                pagination: {
+                    total,
+                    page: Number(page),
+                    limit: Number(limit),
+                    totalPages: Math.ceil(total / Number(limit))
+                }
+            }
+        });
+    } catch (error: unknown) {
+        console.error('Admin users error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch users',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * GET /api/admin/notes/pending
+ * Get pending notes for approval
+ */
+adminRouter.get('/notes/pending', authenticate, requireAdmin, async (req, res) => {
+    try {
+        const { page = '1', limit = '20' } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const [notes, total] = await Promise.all([
+            prisma.note.findMany({
+                where: { isApproved: false, isDeleted: false },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: Number(limit),
+                include: {
+                    seller: { select: { fullName: true, email: true } },
+                    category: { select: { name: true } },
+                    university: { select: { name: true } }
+                }
+            }),
+            prisma.note.count({ where: { isApproved: false, isDeleted: false } })
+        ]);
+
+        return res.json({
+            success: true,
+            data: {
+                notes,
+                pagination: {
+                    total,
+                    page: Number(page),
+                    limit: Number(limit),
+                    totalPages: Math.ceil(total / Number(limit))
+                }
+            }
+        });
+    } catch (error: unknown) {
+        console.error('Admin pending notes error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch pending notes',
+            code: 'FETCH_ERROR'
+        });
+    }
+});
+
+/**
+ * PUT /api/admin/notes/:id/approve
+ * Approve a note
+ */
+adminRouter.put('/notes/:id/approve', authenticate, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const note = await prisma.note.update({
+            where: { id },
+            data: { isApproved: true },
+            include: { seller: { select: { email: true, fullName: true } } }
+        });
+
+        // Send confirmation email
+        emailService.sendNoteApprovedEmail(note.seller.email, {
+            sellerName: note.seller.fullName || 'Partner',
+            noteTitle: note.title,
+            noteId: note.id
+        }).catch(err => console.error('Failed to send note approved email:', err));
+
+        // Create Notification
+        await prisma.notification.create({
+            data: {
+                userId: note.sellerId,
+                type: 'APPROVAL',
+                title: 'Note Approved',
+                message: `Your note "${note.title}" has been approved and is now live.`
+            }
+        });
+
+        return res.json({
+            success: true,
+            message: 'Note approved successfully',
+            data: { noteId: note.id }
+        });
+    } catch (error: unknown) {
+        console.error('Admin approve note error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to approve note',
+            code: 'APPROVE_ERROR'
+        });
+    }
+});
+
+/**
+ * PUT /api/admin/notes/:id/reject
+ * Reject a note
+ */
+adminRouter.put('/notes/:id/reject', authenticate, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason: _reason } = req.body;
+
+        const note = await prisma.note.update({
+            where: { id },
+            data: { isApproved: false },
+            include: { seller: { select: { email: true, fullName: true } } }
+        });
+
+        // Send rejection email
+        emailService.sendNoteRejectedEmail(note.seller.email, {
+            sellerName: note.seller.fullName || 'Partner',
+            noteTitle: note.title,
+            reason: _reason || 'Content policy violation'
+        }).catch(err => console.error('Failed to send note rejected email:', err));
+
+        // Create Notification
+        await prisma.notification.create({
+            data: {
+                userId: note.sellerId,
+                type: 'ERROR',
+                title: 'Note Rejected',
+                message: `Your note "${note.title}" was rejected. Reason: ${_reason || 'Policy violation'}`
+            }
+        });
+
+        return res.json({
+            success: true,
+            message: 'Note rejected'
+        });
+    } catch (error: unknown) {
+        console.error('Admin reject note error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to reject note',
+            code: 'REJECT_ERROR'
+        });
+    }
+});
+
+// ========================================
+// ORDER ROUTES (Placeholder for future)
+// ========================================
+
+export { sellerRouter, adminRouter, cartRouter, orderRouter };

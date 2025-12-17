@@ -1,0 +1,164 @@
+
+import axios from 'axios';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+import crypto from 'crypto';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+const prisma = new PrismaClient();
+const API_URL = 'http://localhost:5001/api';
+
+// Config
+const SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production-min-32-characters-long';
+const RAZORPAY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+if (!RAZORPAY_SECRET) {
+    console.error('❌ RAZORPAY_KEY_SECRET missing in .env');
+    process.exit(1);
+}
+
+async function main() {
+    try {
+        console.log('🚀 Starting End-to-End Payment Verification Simulation...');
+
+        // 1. Get Test Users
+        console.log('🔍 Locating Test Users...');
+        const buyer = await prisma.users.findFirst({ where: { email: 'buyer@studyvault.com' } });
+        if (!buyer) throw new Error('Buyer user not found (buyer@studyvault.com)');
+
+        // Find a note NOT owned by buyer
+        const note = await prisma.notes.findFirst({
+            where: {
+                seller_id: { not: buyer.id },
+                is_active: true,
+                is_approved: true
+            }
+        });
+
+        if (!note) throw new Error('No valid notes found to purchase');
+
+        console.log(`✅ Buyer: ${buyer.full_name} (${buyer.id})`);
+        console.log(`✅ Note: "${note.title}" (${note.id}) - Price: ₹${note.price_inr}`);
+
+        // 2. Generate Auth Token
+        const token = jwt.sign({ userId: buyer.id, email: buyer.email, role: 'STUDENT' }, SECRET, { expiresIn: '1h' });
+        const headers = { Authorization: `Bearer ${token}` };
+
+        // 3. Create Order
+        console.log('\n💳 Step 3: Creating Razorpay Order...');
+        try {
+            const createRes = await axios.post(`${API_URL}/payments/create-order`, {
+                noteIds: [note.id]
+            }, { headers });
+
+            console.log('   Response:', createRes.data);
+
+            if (!createRes.data.success) throw new Error('Create Order API failed');
+
+            const { orderId, amount } = createRes.data.data;
+
+            if (orderId.includes('order_mock')) {
+                console.error('❌ CRITICAL FAILURE: API returned Mock Order ID instead of Real Razorpay ID.');
+                console.error('   Ensure RAZORPAY_KEY_ID is correct and valid.');
+                throw new Error('Simulation Failed: Mock Order Detected');
+            }
+
+            console.log(`✅ Order Created: ${orderId} (Amount: ${amount / 100} INR)`);
+
+            // 4. Simulate Payment Success (Client Side)
+            const fakePaymentId = `pay_ SimonTest${Date.now()}`;
+            console.log(`\n🤖 Step 4: Simulating Razorpay Payment Success (${fakePaymentId})...`);
+
+            // Generate Correct Signature
+            const signature = crypto
+                .createHmac('sha256', RAZORPAY_SECRET!)
+                .update(`${orderId}|${fakePaymentId}`)
+                .digest('hex');
+
+            console.log(`   Generated valid signature: ${signature.substring(0, 10)}...`);
+
+            // 5. Verify Payment (Server Side)
+            console.log('\n🔐 Step 5: Verifying Payment on Backend...');
+            const verifyRes = await axios.post(`${API_URL}/payments/verify`, {
+                razorpayOrderId: orderId,
+                razorpayPaymentId: fakePaymentId,
+                razorpaySignature: signature
+            }, { headers });
+
+            console.log('   Response:', verifyRes.data);
+
+            if (!verifyRes.data.success) throw new Error('Verify Payment API failed');
+
+            // 6. DB Verification
+            console.log('\n🗄️ Step 6: Verifying Database State...');
+
+            // Check Purchase
+            const purchase = await prisma.purchases.findFirst({
+                where: { user_id: buyer.id, note_id: note.id }
+            });
+
+            if (!purchase) throw new Error('❌ Purchase record NOT found in DB!');
+            console.log(`✅ Purchase Record Found: ${purchase.id}`);
+
+            // 4. Verify Database State
+            console.log('\n[4] Verifying Database State...');
+            const transaction = await prisma.transactions.findFirst({
+                where: { payment_gateway_order_id: orderId },
+                include: { notes: true }
+            });
+
+            if (!transaction) throw new Error('Transaction record not found in DB!');
+            if (transaction.status !== 'SUCCESS') throw new Error(`Transaction status incorrect: ${transaction.status}`);
+            if (transaction.notes.length !== 1) throw new Error(`Incorrect note count in transaction: ${transaction.notes.length}`);
+
+            console.log('✅ Database verification passed!');
+            console.log(`   Transaction ID: ${transaction.id}`);
+            console.log(`   Payment ID: ${transaction.payment_gateway_payment_id}`);
+
+            // 5. Verify Invoice Generation (God-Level Requirement)
+            console.log('\n[5] Verifying Invoice Generation PDF...');
+            try {
+                const invoiceRes = await axios.get(`${API_URL}/payments/invoice/${transaction.payment_gateway_payment_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    responseType: 'arraybuffer' // Important for PDF
+                });
+
+                const contentType = invoiceRes.headers['content-type'];
+                const pdfBuffer = invoiceRes.data;
+
+                if (!contentType || !contentType.includes('application/pdf')) {
+                    throw new Error(`Invalid invoice content type: ${contentType}`);
+                }
+
+                // Check if body has content
+                if (pdfBuffer.byteLength < 100) {
+                    throw new Error(`Invoice PDF is too small (${pdfBuffer.byteLength} bytes). Likely empty.`);
+                }
+
+                console.log('✅ Invoice PDF Generated Successfully!');
+                console.log(`   Size: ${pdfBuffer.byteLength} bytes`);
+                console.log(`   Type: ${contentType}`);
+
+                console.log('\n🎉 GOD-LEVEL PAYMENT FLOW VERIFICATION PASSED! NO ERRORS. 🎉');
+            } catch (err: any) {
+                throw new Error(`Invoice verification failed: ${err.message}`);
+            }
+        }
+    } catch (error: any) {
+        const errorMsg = error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message;
+        console.error('\n❌ SIMULATION FAILED:', errorMsg);
+        const fs = require('fs');
+        fs.writeFileSync('simulate_error.log', errorMsg);
+        process.exit(1);
+    }
+}
+
+main()
+    .catch(console.error)
+    .finally(async () => await prisma.$disconnect());

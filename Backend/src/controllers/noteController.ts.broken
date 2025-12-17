@@ -1,0 +1,197 @@
+import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
+import { prisma } from '../config/database';
+import crypto from 'crypto';
+import { cloudinary } from '../config/cloudinary';
+
+const prismaAny = prisma as any;
+
+const sanitizeInput = async (content: string) => {
+    if (!content) return content;
+
+    // Lazy load JSDOM and DOMPurify to prevent global scope crash and handle ESM
+    const { JSDOM } = await import('jsdom');
+    const { default: createDOMPurify } = await import('dompurify');
+
+    const window = new JSDOM('').window;
+    const DOMPurify = createDOMPurify(window as any);
+
+    return DOMPurify.sanitize(content, {
+        ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'li', 'ol'], // Allow basic formatting
+        ALLOWED_ATTR: ['href', 'target']
+    });
+};
+
+export const noteController = {
+    list: async (req: Request, res: Response) => {
+        try {
+            const { page = '1', limit = '20', degree, semester, universityId, categoryId, search, sort } = req.query;
+            const skip = (Number(page) - 1) * Number(limit);
+
+            const where: any = {
+                is_active: true,
+                is_approved: true,
+                is_deleted: false
+            };
+
+            if (degree) where.degree = degree;
+            if (semester) where.semester = parseInt(semester as string);
+            if (universityId) where.university_id = universityId;
+            if (categoryId) where.category_id = categoryId;
+
+            if (search) {
+                const searchQuery = search as string;
+                where.OR = [
+                    { title: { contains: searchQuery, mode: 'insensitive' } },
+                    { description: { contains: searchQuery, mode: 'insensitive' } },
+                    { subject: { contains: searchQuery, mode: 'insensitive' } },
+                    { tags: { has: searchQuery } }
+                ];
+            }
+
+            const [notes, total] = await Promise.all([
+                prismaAny.notes.findMany({
+                    where,
+                    skip,
+                    take: Number(limit),
+                    include: {
+                        users: {
+                            select: { id: true, full_name: true, profile_picture_url: true }
+                        },
+                        categories: {
+                            select: { name: true, name_hi: true, slug: true, icon: true }
+                        },
+                        universities: {
+                            select: { name: true, short_name: true }
+                        }
+                    },
+                    orderBy: (() => {
+                        switch (sort) {
+                            case 'oldest': return { created_at: 'asc' };
+                            case 'popular': return { purchase_count: 'desc' };
+                            case 'price_low': return { price_inr: 'asc' };
+                            case 'price_high': return { price_inr: 'desc' };
+                            case 'rating': return { average_rating: 'desc' };
+                            default: return { created_at: 'desc' };
+                        }
+                    })()
+                }),
+                prismaAny.notes.count({ where })
+            ]);
+
+            // Map to frontend format
+            const formattedNotes = notes.map((note: any) => ({
+                id: note.id,
+                title: note.title,
+                description: note.description,
+                subject: note.subject,
+                degree: note.degree,
+                specialization: note.specialization,
+                university: note.universities?.name || '',
+                collegeName: note.college_name,
+                semester: note.semester,
+                language: note.language,
+                price: parseFloat(note.price_inr.toString()),
+                pages: note.total_pages,
+                format: note.file_type.includes('pdf') ? 'pdf' : 'docx',
+                // FIXED: Direct access to parsed Json
+                coverImage: note.cover_image || (note.preview_pages && note.preview_pages.length > 0 ? note.preview_pages[0] : ''),
+                previewPages: note.preview_pages || [],
+                tableOfContents: note.table_of_contents ? note.table_of_contents.split('\\n') : [],
+                viewCount: note.view_count,
+                sellerId: note.seller_id,
+                sellerName: note.users?.full_name,
+                rating: note.average_rating,
+                reviewCount: note.total_reviews,
+                downloadCount: note.download_count,
+                createdAt: note.created_at,
+                updatedAt: note.updated_at,
+                isActive: note.is_active
+            }));
+
+            return res.json({
+                success: true,
+                data: {
+                    notes: formattedNotes,
+                    pagination: {
+                        total,
+                        page: Number(page),
+                        limit: Number(limit),
+                        totalPages: Math.ceil(total / Number(limit))
+                    }
+                }
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch notes',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
+    },
+
+    // GET /api/notes/:id
+    getById: async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+
+            const note = await prismaAny.notes.findUnique({
+                where: { id },
+                include: {
+                    users: {
+                        select: { id: true, full_name: true, profile_picture_url: true }
+                    },
+                    categories: {
+                        select: { name: true, name_hi: true, slug: true, icon: true }
+                    },
+                    universities: {
+                        select: { name: true, short_name: true }
+                    },
+                    reviews: {
+                        where: { is_approved: true },
+                        take: 5,
+                        orderBy: { created_at: 'desc' },
+                        include: {
+                            users: {
+                                select: { full_name: true, profile_picture_url: true }
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (!note) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Note not found'
+                });
+            }
+
+            if (note.is_deleted || !note.is_active) {
+                return res.status(404).json({ success: false, message: 'Note not found or deleted' });
+            }
+
+            await prismaAny.notes.update({
+                where: { id },
+
+            }
+            await prismaAny.notes.update({
+                where: { id },
+                data: { download_count: { increment: 1 } }
+            });
+
+            return res.json({
+                success: true,
+                data: {
+                    downloadUrl: signedUrl,
+                    noteId: note.id,
+                    title: note.title
+                }
+            });
+
+        } catch (error: any) {
+            console.error('Download error:', error);
+            return res.status(500).json({ success: false, message: 'Download failed' });
+        }
+    }
+};

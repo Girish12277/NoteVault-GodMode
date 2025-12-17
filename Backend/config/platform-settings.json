@@ -1,0 +1,10 @@
+{
+  "defaultCommission": 15,
+  "premiumCommission": 10,
+  "minPayoutAmount": 500,
+  "payoutProcessingDays": 7,
+  "maintenanceMode": true,
+  "requireEmailVerify": true,
+  "platformName": "StudyVault",
+  "supportEmail": "support@studyvault.com"
+}

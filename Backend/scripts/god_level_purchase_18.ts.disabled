@@ -1,0 +1,130 @@
+
+import axios from 'axios';
+import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+
+dotenv.config();
+
+const prisma = new PrismaClient();
+const API_URL = 'http://localhost:5001/api';
+const JWT_SECRET = process.env.JWT_SECRET || 'test_secret';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'mock_secret';
+
+async function main() {
+    console.log('🚀 INITIALIZING GOD-LEVEL E2E TEST (18 NOTES PURCHASE)...');
+
+    // 1. Create a Test Buyer
+    const buyerEmail = `god_buyer_${Date.now()}@test.com`;
+    console.log(`👤 Creating Buyer: ${buyerEmail}`);
+    const buyer = await prisma.users.create({
+        data: {
+            id: crypto.randomUUID(),
+            email: buyerEmail,
+            referral_code: `REF_BUYER_${Date.now()}`,
+            updated_at: new Date(),
+            password_hash: 'hashed_password', // Mock hash
+            full_name: 'God Level Buyer',
+            is_active: true,
+            is_verified: true
+        }
+    });
+
+    // 2. Create a Test Seller
+    const sellerEmail = `god_seller_${Date.now()}@test.com`;
+    console.log(`👤 Creating Seller: ${sellerEmail}`);
+    const seller = await prisma.users.create({
+        data: {
+            id: crypto.randomUUID(),
+            email: sellerEmail,
+            referral_code: `REF_SELLER_${Date.now()}`,
+            updated_at: new Date(),
+            password_hash: 'hashed_password',
+            full_name: 'God Level Seller',
+            is_active: true,
+            is_seller: true,
+            is_verified: true
+        }
+    });
+
+    // 3. Create 18 Notes
+    console.log('📚 Seeding 18 Notes...');
+    const noteIds: string[] = [];
+    for (let i = 1; i <= 18; i++) {
+        const note = await prisma.notes.create({
+            data: {
+                title: `God Level Note ${i}`,
+                description: `Description for note ${i}`,
+                subject: 'Advanced Engineering',
+                price_inr: 100, // 100 INR each
+                seller_id: seller.id,
+                file_url: 'https://res.cloudinary.com/demo/image/upload/v1/sample.pdf',
+                preview_pages: [],
+                file_type: 'pdf',
+                total_pages: 10,
+                is_approved: true,
+                is_active: true
+            }
+        });
+        noteIds.push(note.id);
+    }
+    console.log(`✅ Created ${noteIds.length} notes.`);
+
+    // 4. Generate Auth Token
+    const token = jwt.sign({ id: buyer.id, email: buyer.email, role: 'USER' }, JWT_SECRET, { expiresIn: '1h' });
+    const headers = { Authorization: `Bearer ${token}` };
+
+    // 5. Create Order
+    console.log('🛒 Creating Order for 18 items...');
+    try {
+        const orderRes = await axios.post(`${API_URL}/payments/create-order`, { noteIds }, { headers });
+        const { orderId, amount } = orderRes.data.data;
+        console.log(`✅ Order Created: ${orderId} (Amount: ₹${amount / 100})`);
+
+        // 6. Verify Payment (Mock Signature)
+        // Generate Mock Payment ID
+        const paymentId = `pay_God_${Date.now()}`;
+
+        // Calculate Signature
+        const signature = crypto
+            .createHmac('sha256', RAZORPAY_KEY_SECRET)
+            .update(`${orderId}|${paymentId}`)
+            .digest('hex');
+
+        console.log(`🔐 Verifying Payment...`);
+        const verifyRes = await axios.post(`${API_URL}/payments/verify`, {
+            razorpayOrderId: orderId,
+            razorpayPaymentId: paymentId,
+            razorpaySignature: signature
+        }, { headers });
+
+        if (verifyRes.data.success) {
+            console.log('✅ Payment Verified Successfully!');
+
+            // 7. Get Invoice URL
+            const invoiceUrl = `${API_URL}/payments/invoice/${paymentId}`;
+            console.log(`\n📄 INVOICE LINK: ${invoiceUrl}`);
+
+            // 8. Download Invoice Verification
+            console.log('⬇️  Downloading Invoice to verify PDF generation...');
+            const pdfRes = await axios.get(invoiceUrl, { headers, responseType: 'arraybuffer' });
+            const outputPath = path.join(process.cwd(), 'god_invoice.pdf');
+            fs.writeFileSync(outputPath, pdfRes.data);
+            console.log(`✅ Invoice downloaded to: ${outputPath}`);
+            console.log(`✅ Size: ${pdfRes.data.length} bytes`);
+
+        } else {
+            console.error('❌ Payment Verification Failed:', verifyRes.data);
+        }
+
+    } catch (error: any) {
+        console.error('❌ Test Failed:', error.response ? error.response.data : error.message);
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+main();

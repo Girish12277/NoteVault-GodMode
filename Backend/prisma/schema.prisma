@@ -1,0 +1,622 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Report {
+  id        String   @id
+  reason    String
+  details   String?
+  status    String   @default("PENDING")
+  userId    String
+  noteId    String?
+  reviewId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  notes     notes?   @relation(fields: [noteId], references: [id])
+  reviews   reviews? @relation(fields: [reviewId], references: [id])
+  users     users    @relation(fields: [userId], references: [id])
+
+  @@index([status])
+}
+
+model Wishlist {
+  id        String   @id
+  userId    String
+  noteId    String
+  createdAt DateTime @default(now())
+  notes     notes    @relation(fields: [noteId], references: [id])
+  users     users    @relation(fields: [userId], references: [id])
+
+  @@unique([userId, noteId])
+  @@index([userId])
+}
+
+model categories {
+  id         String   @id
+  name       String   @unique
+  name_hi    String
+  slug       String   @unique
+  icon       String?
+  created_at DateTime @default(now())
+  updated_at DateTime
+  notes      notes[]
+
+  @@index([slug])
+}
+
+model notes {
+  id                    String         @id
+  title                 String
+  description           String
+  subject               String
+  degree                String
+  specialization        String?
+  university_id         String
+  college_name          String?
+  semester              Int
+  year                  Int?
+  language              Language       @default(en)
+  cover_image           String?
+  file_url              String
+  file_type             String
+  file_size_bytes       BigInt
+  total_pages           Int
+  preview_pages         Json?
+  table_of_contents     String[]
+  tags                  String[]
+  price_inr             Decimal        @db.Decimal(10, 2)
+  commission_percentage Decimal        @db.Decimal(5, 2)
+  commission_amount_inr Decimal        @db.Decimal(10, 2)
+  seller_earning_inr    Decimal        @db.Decimal(10, 2)
+  seller_id             String
+  category_id           String?
+  is_approved           Boolean        @default(true)
+  is_flagged            Boolean        @default(false)
+  is_active             Boolean        @default(true)
+  is_deleted            Boolean        @default(false)
+  view_count            Int            @default(0)
+  download_count        Int            @default(0)
+  purchase_count        Int            @default(0)
+  average_rating        Float          @default(0)
+  total_reviews         Int            @default(0)
+  created_at            DateTime       @default(now())
+  updated_at            DateTime
+  is_featured           Boolean        @default(false)
+  Report                Report[]
+  Wishlist              Wishlist[]
+  categories            categories?    @relation(fields: [category_id], references: [id])
+  users                 users          @relation(fields: [seller_id], references: [id])
+  universities          universities   @relation(fields: [university_id], references: [id])
+  purchases             purchases[]
+  reviews               reviews[]
+  transactions          transactions[]
+
+  @@index([category_id])
+  @@index([degree, semester])
+  @@index([seller_id])
+  @@index([university_id])
+}
+
+
+
+
+model Conversation {
+  id              String     @id @default(uuid())
+  user_a_id       String
+  user_b_id       String
+  created_at      DateTime   @default(now())
+  last_message_at DateTime   @default(now())
+  
+  user_a          users      @relation("UserA", fields: [user_a_id], references: [id])
+  user_b          users      @relation("UserB", fields: [user_b_id], references: [id])
+  messages        messages[]
+  
+  @@unique([user_a_id, user_b_id])
+  @@index([user_a_id])
+  @@index([user_b_id])
+  @@index([last_message_at])
+}
+
+model messages {
+  id              String       @id
+  conversation_id String?      // Made nullable for migration, but logic should enforce it
+  sender_id       String
+  receiver_id     String
+  content         String
+  content_type    String       @default("text") // Supported: text, link, system
+  is_read         Boolean      @default(false)
+  is_edited       Boolean      @default(false)
+  is_deleted      Boolean      @default(false) // Soft delete
+  created_at      DateTime     @default(now())
+  updated_at      DateTime?    @updatedAt
+  deleted_at      DateTime?
+  
+  sender          users        @relation("SentMessages", fields: [sender_id], references: [id])
+  receiver        users        @relation("ReceivedMessages", fields: [receiver_id], references: [id])
+  conversation    Conversation? @relation(fields: [conversation_id], references: [id])
+
+  @@index([sender_id])
+  @@index([receiver_id])
+  @@index([conversation_id])
+}
+
+model ChatAudit {
+  id              String   @id @default(uuid())
+  viewer_user_id  String
+  target_user_id  String
+  field_accessed  String   // e.g., 'email', 'phone'
+  conversation_id String?
+  timestamp       DateTime @default(now())
+
+  viewer          users    @relation("AuditViewer", fields: [viewer_user_id], references: [id])
+  target          users    @relation("AuditTarget", fields: [target_user_id], references: [id])
+
+  @@index([viewer_user_id])
+  @@index([target_user_id])
+  @@index([timestamp])
+}
+
+model posts {
+  id          String   @id
+  seller_id   String
+  content     String?
+  image_url   String?
+  link_url    String?
+  likes       Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  seller      users    @relation(fields: [seller_id], references: [id])
+
+  @@index([seller_id])
+}
+
+model notifications {
+  id                String                   @id
+  user_id           String
+  type              NotificationType
+  title             String                   @db.VarChar(100)
+  message           String                   @db.VarChar(500)
+  is_read           Boolean                  @default(false)
+  status            NotificationDeliveryStatus @default(PENDING)
+  sent_by           String?                  // Admin user ID who sent it (null = system)
+  broadcast_id      String?                  // FK to notification_broadcasts
+  idempotency_key   String?                  // For targeted sends deduplication
+  delivery_attempts Int                      @default(0)
+  last_error        String?                  @db.Text
+  created_at        DateTime                 @default(now())
+  delivered_at      DateTime?
+  users             users                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  broadcast         notification_broadcasts? @relation(fields: [broadcast_id], references: [id], onDelete: SetNull)
+
+  @@unique([user_id, broadcast_id])  // Prevent duplicate notifications per broadcast
+  @@unique([user_id, idempotency_key])  // Prevent duplicate targeted sends
+  @@index([is_read])
+  @@index([user_id])
+  @@index([broadcast_id])
+  @@index([sent_by])
+  @@index([status])
+}
+
+// Broadcast job queue with atomic processing support
+model notification_broadcasts {
+  id              String          @id
+  admin_id        String
+  type            NotificationType
+  title           String          @db.VarChar(100)
+  message         String          @db.VarChar(500)
+  target_count    Int             @default(0)
+  sent_count      Int             @default(0)
+  failed_count    Int             @default(0)
+  status          BroadcastStatus @default(PENDING)
+  idempotency_key String          @unique  // Required, prevents duplicate broadcasts
+  last_cursor_id  String?         // For cursor-based resumability
+  last_cursor_at  DateTime?       // Cursor timestamp
+  processing_started_at DateTime?
+  created_at      DateTime        @default(now())
+  completed_at    DateTime?
+  last_error      String?         @db.Text
+  admin           users           @relation("broadcast_admin", fields: [admin_id], references: [id])
+  notifications   notifications[]
+
+  @@index([admin_id])
+  @@index([status])
+  @@index([created_at])
+}
+
+model payout_requests {
+  id                    String       @id
+  seller_id             String
+  amount_inr            Decimal      @db.Decimal(10, 2)
+  status                PayoutStatus @default(PENDING)
+  bank_details          String?
+  transaction_reference String?
+  processed_at          DateTime?
+  rejection_reason      String?
+  created_at            DateTime     @default(now())
+  updated_at            DateTime
+  users                 users        @relation(fields: [seller_id], references: [id])
+
+  @@index([seller_id])
+  @@index([status])
+}
+
+model purchases {
+  id                    String   @id
+  user_id               String
+  note_id               String
+  transaction_id        String
+  watermarked_file_url  String
+  watermark_id          String   @unique
+  download_count        Int      @default(0)
+  is_active             Boolean  @default(true)
+  created_at            DateTime @default(now())
+  watermarked_public_id String?
+  file_sha256           String?  @db.VarChar(128)
+  downloads_used        Int?     @default(0)
+  download_limit        Int?     @default(10)
+  watermark_job_status  String?  @default("pending")
+  notes                 notes    @relation(fields: [note_id], references: [id])
+  users                 users    @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, note_id])
+  @@index([note_id])
+  @@index([user_id])
+  @@index([watermarked_public_id], map: "idx_purchases_watermarked_public_id")
+}
+
+model reviews {
+  id                   String       @id
+  note_id              String
+  user_id              String
+  transaction_id       String
+  rating               Int
+  title                String?
+  comment              String?
+  is_verified_purchase Boolean      @default(false)
+  is_approved          Boolean      @default(true)
+  created_at           DateTime     @default(now())
+  updated_at           DateTime
+  Report               Report[]
+  notes                notes        @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  transactions         transactions @relation(fields: [transaction_id], references: [id])
+  users                users        @relation(fields: [user_id], references: [id])
+
+  @@index([note_id])
+  @@index([transaction_id])
+  @@index([user_id])
+}
+
+model seller_wallets {
+  id                        String   @id
+  seller_id                 String   @unique
+  available_balance_inr     Decimal  @default(0) @db.Decimal(10, 2)
+  pending_balance_inr       Decimal  @default(0) @db.Decimal(10, 2)
+  total_earned_inr          Decimal  @default(0) @db.Decimal(10, 2)
+  total_withdrawn_inr       Decimal  @default(0) @db.Decimal(10, 2)
+  minimum_withdrawal_amount Decimal  @default(100) @db.Decimal(10, 2)
+  is_active                 Boolean  @default(true)
+  created_at                DateTime @default(now())
+  updated_at                DateTime
+  users                     users    @relation(fields: [seller_id], references: [id])
+}
+
+model transactions {
+  id                                  String            @id
+  transaction_id                      String            @unique
+  buyer_id                            String
+  seller_id                           String
+  note_id                             String
+  amount_inr                          Decimal           @db.Decimal(10, 2)
+  commission_inr                      Decimal           @db.Decimal(10, 2)
+  seller_earning_inr                  Decimal           @db.Decimal(10, 2)
+  coupon_discount_inr                 Decimal?          @db.Decimal(10, 2)
+  final_amount_inr                    Decimal           @db.Decimal(10, 2)
+  status                              TransactionStatus @default(PENDING)
+  payment_method                      PaymentMethod
+  payment_gateway_order_id            String?
+  payment_gateway_payment_id          String?
+  payment_gateway_signature           String?
+  invoice_id                          String?           @unique
+  invoice_hash                        String?
+  invoice_generated_at                DateTime?
+  escrow_release_at                   DateTime?
+  is_released_to_seller               Boolean           @default(false)
+  created_at                          DateTime          @default(now())
+  updated_at                          DateTime
+  disputes                            Dispute[]
+  ledgerEntries                       LedgerEntry[]
+  refundRecords                       RefundRecord[]
+  reviews                             reviews[]
+  users_transactions_buyer_idTousers  users             @relation("transactions_buyer_idTousers", fields: [buyer_id], references: [id])
+  notes                               notes             @relation(fields: [note_id], references: [id])
+  users_transactions_seller_idTousers users             @relation("transactions_seller_idTousers", fields: [seller_id], references: [id])
+
+  @@index([buyer_id])
+  @@index([note_id])
+  @@index([seller_id])
+  @@index([status])
+}
+
+model universities {
+  id              String   @id
+  name            String   @unique
+  short_name      String
+  state           String
+  city            String
+  type            String
+  courses_offered String[]
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime
+  notes           notes[]
+  users           users[]
+
+  @@index([state, city])
+}
+
+model users {
+  id                                         String            @id
+  email                                      String            @unique
+  password_hash                              String?
+  full_name                                  String
+  profile_picture_url                        String?
+  degree                                     String?
+  university_id                              String?
+  college_name                               String?
+  current_semester                           Int?
+  current_year                               Int?
+  location                                   Json?
+  phone                                      String?
+  subjects                                   String[]
+  bio                                        String?
+  preferred_language                         Language          @default(en)
+  is_seller                                  Boolean           @default(false)
+  sent_messages                              messages[]        @relation("SentMessages")
+  received_messages                          messages[]        @relation("ReceivedMessages")
+  conversations_a                            Conversation[]    @relation("UserA")
+  conversations_b                            Conversation[]    @relation("UserB")
+  audit_viewer                               ChatAudit[]       @relation("AuditViewer")
+  audit_target                               ChatAudit[]       @relation("AuditTarget")
+  posts                                      posts[]
+  
+  is_admin                                   Boolean           @default(false)
+  is_verified                                Boolean           @default(false)
+  is_active                                  Boolean           @default(true)
+  google_id                                  String?           @unique
+  failed_login_attempts                      Int               @default(0)
+  lockout_until                              DateTime?
+  referral_code                              String            @unique
+  referred_by                                String?
+  password_reset_token                       String?
+  password_reset_expires                     DateTime?
+  email_verification_token                   String?
+  last_login_at                              DateTime?
+  created_at                                 DateTime          @default(now())
+  updated_at                                 DateTime
+  reported_disputes                          Dispute[]         @relation("reporter")
+  Report                                     Report[]
+  Wishlist                                   Wishlist[]
+  notes                                      notes[]
+  notifications                              notifications[]
+  notification_broadcasts                    notification_broadcasts[] @relation("broadcast_admin")
+  payout_requests                            payout_requests[]
+  purchases                                  purchases[]
+  reviews                                    reviews[]
+  seller_wallets                             seller_wallets?
+  transactions_transactions_buyer_idTousers  transactions[]    @relation("transactions_buyer_idTousers")
+  transactions_transactions_seller_idTousers transactions[]    @relation("transactions_seller_idTousers")
+  universities                               universities?     @relation(fields: [university_id], references: [id])
+
+  @@index([email])
+  @@index([university_id])
+}
+
+model Dispute {
+  id             String        @id @default(uuid())
+  transaction_id String
+  reporter_id    String
+  reason         String
+  status         DisputeStatus @default(OPEN)
+  resolution     String?
+  refunded       Boolean       @default(false)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  version        Int           @default(1)
+  reporter       users         @relation("reporter", fields: [reporter_id], references: [id])
+  transaction    transactions  @relation(fields: [transaction_id], references: [id])
+
+  @@index([transaction_id])
+  @@index([reporter_id])
+}
+
+model Audit {
+  id             String   @id @default(uuid())
+  actorId        String
+  action         String
+  targetType     String
+  targetId       String
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  backupRef      String?
+  gatewayRef     String?
+  idempotencyKey String?
+  payload        Json?
+  result         String?
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@index([idempotencyKey])
+}
+
+model RefundRecord {
+  id             String       @id @default(uuid())
+  transactionId  String
+  amount         Decimal      @db.Decimal(10, 2)
+  currency       String       @default("INR")
+  gatewayRef     String?
+  status         String       @default("PENDING")
+  idempotencyKey String?      @unique
+  reason         String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  transaction    transactions @relation(fields: [transactionId], references: [id])
+
+  @@index([transactionId])
+  @@index([gatewayRef])
+}
+
+model LedgerEntry {
+  id            String       @id @default(uuid())
+  transactionId String
+  type          LedgerType
+  amount        Decimal      @db.Decimal(10, 2)
+  balanceBefore Decimal      @db.Decimal(10, 2)
+  balanceAfter  Decimal      @db.Decimal(10, 2)
+  description   String?
+  createdAt     DateTime     @default(now())
+  transaction   transactions @relation(fields: [transactionId], references: [id])
+
+  @@index([transactionId])
+  @@index([type])
+}
+
+model audit_logs {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actor_id   String?
+  action     String
+  target_id  String?
+  metadata   Json?
+  request_id String?
+  ip         String?   @db.Inet
+  user_agent String?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([actor_id, action, created_at], map: "idx_audit_logs_actor_action")
+}
+
+model device_sessions {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id            String
+  session_id         String
+  device_fingerprint String?
+  ip                 String?   @db.Inet
+  user_agent         String?
+  created_at         DateTime? @default(now()) @db.Timestamptz(6)
+  last_seen          DateTime? @default(now()) @db.Timestamptz(6)
+  is_revoked         Boolean?  @default(false)
+
+  @@index([user_id, is_revoked], map: "idx_device_sessions_user")
+}
+
+model webhook_idempotency {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  gateway_order_id String    @unique
+  webhook_event_id String?
+  payload_hash     String?
+  processed_at     DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([gateway_order_id], map: "idx_webhook_gateway_order")
+}
+
+enum Language {
+  en
+  hi
+  both
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PURCHASE
+  SALE
+  APPROVAL
+  SYSTEM
+  ANNOUNCEMENT
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum BroadcastStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NETBANKING
+  WALLET
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSED
+  REJECTED
+}
+
+enum LedgerType {
+  SALE
+  COMMISSION
+  REFUND
+  PAYOUT
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  REJECTED
+}
+
+enum InquiryStatus {
+  NEW
+  READ
+  REPLIED
+}
+
+model ContactInquiry {
+  id        String        @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String        @db.Text
+  status    InquiryStatus @default(NEW)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([createdAt])
+  @@index([email])
+}
+
+model SiteContent {
+  id        String   @id @default(uuid())
+  section   String   @unique // e.g. 'home-hero', 'auth-hero'
+  content   Json     // e.g. { title, subtitle, stats: [] }
+  updatedAt DateTime @updatedAt
+
+  @@index([section])
+}
