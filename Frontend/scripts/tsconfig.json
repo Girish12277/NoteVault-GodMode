@@ -1,0 +1,21 @@
+{
+    "extends": "../tsconfig.app.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es2020",
+        "baseUrl": "..",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ]
+        },
+        "noImplicitAny": false,
+        "resolveJsonModule": true,
+        "esModuleInterop": true
+    },
+    "include": [
+        "../src/**/*",
+        "./**/*"
+    ]
+}

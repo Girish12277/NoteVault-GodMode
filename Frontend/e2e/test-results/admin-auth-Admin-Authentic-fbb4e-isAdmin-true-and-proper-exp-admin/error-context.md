@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - link "Back to Home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - text: Back to Home
+      - generic [ref=e9]:
+        - img [ref=e11]
+        - generic [ref=e13]: NoteSnap
+      - generic [ref=e14]:
+        - heading "Welcome back!" [level=1] [ref=e15]
+        - paragraph [ref=e16]: Sign in to access your notes and purchases
+      - generic [ref=e17]:
+        - button "Email" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+          - text: Email
+        - button "Phone" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+          - text: Phone
+      - button "Continue with Google" [ref=e25] [cursor=pointer]:
+        - img
+        - text: Continue with Google
+      - generic [ref=e30]: Or continue with email
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - text: Email
+          - generic [ref=e33]:
+            - img [ref=e34]
+            - textbox "Email" [ref=e37]:
+              - /placeholder: you@example.com
+        - generic [ref=e38]:
+          - text: Password
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - textbox "Password" [ref=e43]:
+              - /placeholder: ••••••••
+            - button [ref=e44] [cursor=pointer]:
+              - img [ref=e45]
+        - link "Forgot password?" [ref=e49] [cursor=pointer]:
+          - /url: /forgot-password
+        - button "Sign In" [ref=e50] [cursor=pointer]
+      - paragraph [ref=e51]:
+        - text: Don't have an account?
+        - button "Sign up" [ref=e52] [cursor=pointer]
+      - paragraph [ref=e53]:
+        - text: By continuing, you agree to our
+        - link "Terms of Service" [ref=e54] [cursor=pointer]:
+          - /url: /terms
+        - text: and
+        - link "Privacy Policy" [ref=e55] [cursor=pointer]:
+          - /url: /privacy
+    - generic [ref=e58]:
+      - heading "Your Academic Success Starts Here" [level=2] [ref=e59]
+      - paragraph [ref=e60]: Access thousands of quality notes from students across India. Learn smarter, not harder.
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]: 10,000+
+          - generic [ref=e64]: Quality Notes
+        - generic [ref=e65]:
+          - generic [ref=e66]: 500+
+          - generic [ref=e67]: Universities
+        - generic [ref=e68]:
+          - generic [ref=e69]: 50,000+
+          - generic [ref=e70]: Happy Students
+        - generic [ref=e71]:
+          - generic [ref=e72]: 24hr
+          - generic [ref=e73]: Refund Policy
+```
