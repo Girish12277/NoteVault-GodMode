@@ -16,6 +16,7 @@ export default tseslint.config(
             "@typescript-eslint/no-unused-vars": "off",
             "no-console": "off",
             "no-control-regex": "off",
+            "no-useless-escape": "off",
             "@typescript-eslint/no-require-imports": "off",
             "@typescript-eslint/explicit-function-return-type": "off",
             "@typescript-eslint/explicit-module-boundary-types": "off",
