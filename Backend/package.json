@@ -12,7 +12,7 @@
         "seed": "ts-node prisma/seed.ts",
         "migrate:search": "node scripts/run-search-migration.js",
         "sync-gorse": "ts-node scripts/syncDataToGorse.ts",
-        "vercel-build": "prisma generate && npm run build"
+        "vercel-build": "npx prisma generate && npm run build"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.954.0",
