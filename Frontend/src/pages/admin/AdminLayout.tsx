@@ -230,8 +230,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ml-1 ring-2 ring-transparent hover:ring-border transition-all">
                   <Avatar className="h-9 w-9 border border-border">
-                    <AvatarImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=0f172a&color=fff`} />
-                    <AvatarFallback>{user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AD'}</AvatarFallback>
+                    <AvatarImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=0f172a&color=fff`} />
+                    <AvatarFallback>{user?.name?.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'AD'}</AvatarFallback>
                   </Avatar>
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background" />
                 </Button>
@@ -239,7 +239,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.fullName || 'Administrator'}</p>
+                    <p className="text-sm font-medium leading-none">{user?.name || 'Administrator'}</p>
                     <p className="text-xs leading-none text-muted-foreground">{user?.email || 'admin@studyvault.com'}</p>
                   </div>
                 </DropdownMenuLabel>
