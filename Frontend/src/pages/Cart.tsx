@@ -198,14 +198,6 @@ export default function Cart() {
                         >
                           <Heart className={`h-4 w-4 ${isInWishlist(item.noteId) ? 'fill-current' : ''}`} />
                         </motion.button>
-
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          className="h-9 w-9 rounded-full bg-background border border-border text-muted-foreground hover:text-destructive hover:bg-destructive/5 hover:border-destructive/20 items-center justify-center transition-colors"
-                          onClick={() => removeFromCart(item.noteId)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </motion.button>
                       </div>
                     </div>
                   </div>
