@@ -74,7 +74,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for some inline scripts, investigate removal later
             styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"], // Allow images from https (Cloudinary)
-            connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000'],
+            connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:8080'],
             frameSrc: ["'none'"],
             objectSrc: ["'none'"],
             upgradeInsecureRequests: [],
