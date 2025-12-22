@@ -213,7 +213,7 @@ export function Header() {
                     <AvatarFallback>{user?.name?.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <SheetTitle className="font-bold text-base leading-none">{user?.name}</SheetTitle>
+                    <SheetTitle className="font-bold text-base leading-none">{user?.name?.split(' ')[0] || 'User'}</SheetTitle>
                     <span className="text-xs text-muted-foreground mt-1">{user?.email}</span>
                   </div>
                 </div>
