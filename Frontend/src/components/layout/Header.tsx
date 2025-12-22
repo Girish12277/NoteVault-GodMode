@@ -210,7 +210,7 @@ export function Header() {
                 <div className="flex items-center gap-3 pb-3 border-b border-border/50">
                   <Avatar className="h-10 w-10 border border-border">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
-                    <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                    <AvatarFallback>{user?.name?.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
                     <SheetTitle className="font-bold text-base leading-none">{user?.name}</SheetTitle>
@@ -466,14 +466,14 @@ export function Header() {
                 <Button variant="ghost" className="relative h-10 w-10 min-h-[44px] min-w-[44px] rounded-full ml-1" aria-label="User menu">
                   <Avatar className="h-9 w-9 border border-border">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
-                    <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                    <AvatarFallback>{user?.name?.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.name}</p>
+                    <p className="text-sm font-medium leading-none">{user?.name?.split(' ')[0] || 'User'}</p>
                     <p className="text-sm leading-none text-muted-foreground">
                       {user?.email}
                     </p>
