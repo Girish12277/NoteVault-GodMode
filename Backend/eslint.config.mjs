@@ -24,9 +24,10 @@ export default tseslint.config(
     },
     // Allow @ts-nocheck and @ts-ignore in test files only
     {
-        files: ["**/*.test.ts", "**/*.spec.ts", "**/tests/**/*.ts"],
+        files: ["**/*.test.ts", "**/*.spec.ts", "tests/**/*.ts", "**/tests/**/*.ts"],
         rules: {
             "@typescript-eslint/ban-ts-comment": "off",
+            "@typescript-eslint/no-unsafe-function-type": "off",
         },
     },
 );
