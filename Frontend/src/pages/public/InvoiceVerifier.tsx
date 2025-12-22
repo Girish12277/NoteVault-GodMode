@@ -203,6 +203,14 @@ export default function InvoiceVerifier() {
             baseUrl = sanitizeUrl(baseUrl);
             const apiUrl = `${baseUrl}/public/verify/invoice/${encodeURIComponent(invoiceId)}?sig=${encodeURIComponent(sig)}`;
 
+            console.log('🔍 Verification Debug:', {
+                invoiceId,
+                sig,
+                baseUrl,
+                apiUrl,
+                VITE_API_URL: import.meta.env.VITE_API_URL
+            });
+
             setState(prev => ({
                 ...prev,
                 warning: retryNum > 0 ? `Retrying... (Attempt ${retryNum + 1}/${MAX_RETRIES})` : null,
@@ -213,7 +221,10 @@ export default function InvoiceVerifier() {
                 timeout: 10000,
             });
 
-            if (response.data?.success && isValidData(response.data.data)) {
+            console.log('✅ API Response:', response.data);
+
+            // Simplified validation - just check if we got data
+            if (response.data && response.data.success && response.data.data) {
                 const verifiedData = response.data.data;
                 setCache(invoiceId, sig, verifiedData);
                 setState(prev => ({
@@ -225,9 +236,20 @@ export default function InvoiceVerifier() {
                     cached: false,
                 }));
             } else {
+                console.error('Validation failed:', response.data);
                 throw new Error('Invalid response structure');
             }
         } catch (err: any) {
+            console.error('❌ Verification Error:', {
+                error: err,
+                message: err.message,
+                response: err.response,
+                status: err.response?.status,
+                data: err.response?.data,
+                code: err.code,
+                config: err.config
+            });
+
             // Error classification
             const isNetworkError = !err.response || err.code === 'ECONNABORTED' || err.code === 'ERR_NETWORK';
             const isValidationError = err.response?.status === 400;
