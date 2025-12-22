@@ -201,9 +201,9 @@ export default function InvoiceVerifier() {
             abortControllerRef.current = new AbortController();
 
             // Build API URL with sanitization and encoding
-            let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+            let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
             baseUrl = sanitizeUrl(baseUrl);
-            const apiUrl = `${baseUrl}/api/public/verify/invoice/${encodeURIComponent(invoiceId)}?sig=${encodeURIComponent(sig)}`;
+            const apiUrl = `${baseUrl}/public/verify/invoice/${encodeURIComponent(invoiceId)}?sig=${encodeURIComponent(sig)}`;
 
             setState(prev => ({
                 ...prev,
