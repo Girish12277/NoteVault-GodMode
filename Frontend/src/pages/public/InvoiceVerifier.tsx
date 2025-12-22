@@ -55,9 +55,7 @@ const validateInvoiceId = (id: string): boolean => /^[a-zA-Z0-9_-]{1,50}$/.test(
 const sanitizeUrl = (baseUrl: string): string => {
     return baseUrl
         .trim()
-        .replace(/\/$/, '')
-        .replace(/\/api\/?$/, '')
-        .replace(/[^a-zA-Z0-9:/.%-]/g, '');
+        .replace(/\/+$/, ''); // Remove trailing slashes only
 };
 
 // Cache helpers
