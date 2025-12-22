@@ -514,7 +514,7 @@ export default function NoteDetail() {
                 <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" /> {note.language === 'en' ? 'English' : note.language === 'hi' ? 'Hindi' : 'Mix'}</Badge>
               </div>
 
-              <h1 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold leading-tight break-words">
+              <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight break-words">
                 {note.title}
               </h1>
 
