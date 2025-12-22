@@ -514,7 +514,7 @@ export default function NoteDetail() {
                 <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" /> {note.language === 'en' ? 'English' : note.language === 'hi' ? 'Hindi' : 'Mix'}</Badge>
               </div>
 
-              <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight break-words">
+              <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-semibold leading-tight break-words">
                 {note.title}
               </h1>
 
@@ -685,7 +685,7 @@ export default function NoteDetail() {
                   </div>
 
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold font-display text-foreground">{formatCurrency(note.price)}</span>
+                    <span className="text-3xl font-semibold font-display text-foreground">{formatCurrency(note.price)}</span>
                     {!hasAccess && <span className="text-xs text-muted-foreground line-through">₹{Math.round(note.price * 1.5)}</span>}
                   </div>
                 </div>
