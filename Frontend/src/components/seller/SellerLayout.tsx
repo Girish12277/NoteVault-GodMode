@@ -52,7 +52,7 @@ interface SellerLayoutProps {
 
 export default function SellerLayout({ children }: SellerLayoutProps) {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [notifications] = useState(3); // Preserved existing mock state
 
   const NavLinks = () => (
@@ -178,8 +178,8 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-transparent hover:ring-border transition-all p-0">
                   <Avatar className="h-9 w-9 border border-border">
-                    <AvatarImage src={`https://ui-avatars.com/api/?name=Rahul+Seller&background=10b981&color=fff`} />
-                    <AvatarFallback>RL</AvatarFallback>
+                    <AvatarImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=10b981&color=fff`} />
+                    <AvatarFallback>{user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
                 </Button>
@@ -188,10 +188,10 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium leading-none">Rahul</p>
+                      <p className="text-sm font-medium leading-none">{user?.fullName?.split(' ')[0] || 'User'}</p>
                       <Badge variant="outline" className="text-xs h-4 px-1 border-primary/30 text-primary bg-primary/5">PRO</Badge>
                     </div>
-                    <p className="text-xs leading-none text-muted-foreground">seller@studyvault.com</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email || 'user@studyvault.com'}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

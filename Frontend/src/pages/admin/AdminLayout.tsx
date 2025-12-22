@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard,
   Users,
@@ -48,6 +49,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const { data: stats } = useQuery({
     queryKey: ['admin-sidebar-stats'],
@@ -228,8 +230,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ml-1 ring-2 ring-transparent hover:ring-border transition-all">
                   <Avatar className="h-9 w-9 border border-border">
-                    <AvatarImage src="https://ui-avatars.com/api/?name=Admin+User&background=0f172a&color=fff" />
-                    <AvatarFallback>AD</AvatarFallback>
+                    <AvatarImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=0f172a&color=fff`} />
+                    <AvatarFallback>{user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AD'}</AvatarFallback>
                   </Avatar>
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background" />
                 </Button>
@@ -237,8 +239,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Administrator</p>
-                    <p className="text-xs leading-none text-muted-foreground">admin@studyvault.com</p>
+                    <p className="text-sm font-medium leading-none">{user?.fullName || 'Administrator'}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email || 'admin@studyvault.com'}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -251,7 +253,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <span>Admin Guide</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
