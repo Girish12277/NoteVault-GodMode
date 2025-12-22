@@ -278,10 +278,10 @@ export default function UploadNotes() {
         title: formData.title,
         description: formData.description,
         subject: formData.subject,
-        degree: formData.degree,
-        specialization: formData.specialization,
-        universityId: formData.universityId,
-        collegeName: formData.college,
+        degree: formData.degree || null,
+        specialization: formData.specialization || null,
+        universityId: formData.universityId || null,
+        collegeName: formData.college || null,
         semester: parseInt(formData.semester) || 1,
         language: formData.language,
         fileUrl: formData.fileUrl,
@@ -291,7 +291,7 @@ export default function UploadNotes() {
         priceInr: parseFloat(formData.price),
         tableOfContents: formData.tableOfContents.split('\n').filter(line => line.trim()),
         previewPages: formData.previewPages || [],
-        coverImage: formData.coverImage,
+        coverImage: formData.coverImage || null,
         categoryId: formData.categoryId,
       };
 
@@ -303,9 +303,14 @@ export default function UploadNotes() {
       setTimeout(() => navigate('/seller/notes'), 3000); // Wait for confetti
 
     } catch (error: any) {
-      console.error(error);
+      console.error('Upload Error:', error.response?.data);
       const msg = error.response?.data?.message || 'Publish failed';
-      toast.error(msg);
+      const errors = error.response?.data?.errors;
+      if (errors && errors.length > 0) {
+        toast.error(`${msg}: ${errors.map((e: any) => e.message || e).join(', ')}`);
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setIsPublishing(false);
     }
