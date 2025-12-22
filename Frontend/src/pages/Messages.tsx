@@ -232,7 +232,7 @@ export default function Messages() {
                     <div className="p-5 border-b border-border/10 bg-gradient-to-b from-background to-transparent z-10">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-display font-bold text-2xl tracking-tight">Chats</h2>
-                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-full bg-muted/40 hover:bg-muted"><MoreVertical className="h-4 w-4" /></Button>
+                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-full bg-muted/40 hover:bg-muted" aria-label="Conversation options"><MoreVertical className="h-4 w-4" /></Button>
                         </div>
                         <div className="relative group transition-all duration-300 focus-within:scale-[1.02]">
                             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -283,7 +283,7 @@ export default function Messages() {
                                                     {convo.other_user.display_name}
                                                 </span>
                                                 {convo.last_message_at && (
-                                                    <span className="text-[10px] opacity-50 shrink-0 font-semibold uppercase tracking-wide">
+                                                    <span className="text-xs opacity-50 shrink-0 font-semibold uppercase tracking-wide">
                                                         {new Date(convo.last_message_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                                     </span>
                                                 )}
@@ -310,7 +310,7 @@ export default function Messages() {
                             <div className="px-5 py-3 border-b border-white/20 bg-background/70 backdrop-blur-xl flex items-center justify-between sticky top-0 z-20 shadow-sm transition-all duration-500">
                                 <div className="flex items-center gap-3">
                                     {isMobileView && (
-                                        <Button variant="ghost" size="icon" onClick={handleBackToConversations} className="-ml-2 rounded-full hover:bg-black/5">
+                                        <Button variant="ghost" size="icon" onClick={handleBackToConversations} className="-ml-2 rounded-full hover:bg-black/5" aria-label="Back to conversations">
                                             <ArrowLeft className="h-5 w-5" />
                                         </Button>
                                     )}
@@ -324,15 +324,15 @@ export default function Messages() {
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-sm leading-none mb-0.5 text-foreground/90">{partnerDisplay?.display_name || 'Loading...'}</h3>
-                                            <p className="text-[11px] text-green-600 font-bold leading-none tracking-wide">{statusText}</p>
+                                            <p className="text-xs text-green-600 font-bold leading-none tracking-wide">{statusText}</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1 text-muted-foreground">
-                                    <Button variant="ghost" size="icon" className="hidden md:flex rounded-full hover:bg-black/5 hover:text-foreground transition-colors"><Phone className="h-[18px] w-[18px]" /></Button>
-                                    <Button variant="ghost" size="icon" className="hidden md:flex rounded-full hover:bg-black/5 hover:text-foreground transition-colors"><Video className="h-[18px] w-[18px]" /></Button>
+                                    <Button variant="ghost" size="icon" className="hidden md:flex rounded-full hover:bg-black/5 hover:text-foreground transition-colors" aria-label="Start voice call"><Phone className="h-[18px] w-[18px]" /></Button>
+                                    <Button variant="ghost" size="icon" className="hidden md:flex rounded-full hover:bg-black/5 hover:text-foreground transition-colors" aria-label="Start video call"><Video className="h-[18px] w-[18px]" /></Button>
                                     <div className="w-px h-5 bg-border mx-2 hidden md:block" />
-                                    <Button variant="ghost" size="icon" onClick={() => setShowProfile(!showProfile)} className="rounded-full hover:bg-black/5 hover:text-foreground">
+                                    <Button variant="ghost" size="icon" onClick={() => setShowProfile(!showProfile)} className="rounded-full hover:bg-black/5 hover:text-foreground" aria-label={showProfile ? "Hide user profile" : "Show user profile"}>
                                         <Info className="h-5 w-5" />
                                     </Button>
                                 </div>
@@ -347,7 +347,7 @@ export default function Messages() {
                                         <div className="space-y-6 pb-24 md:pb-6">
                                             {/* Encryption Badge */}
                                             <div className="flex justify-center my-6">
-                                                <div className="bg-yellow-100/40 dark:bg-yellow-900/10 backdrop-blur-md text-yellow-700 dark:text-yellow-500 text-[10px] px-4 py-1.5 rounded-full border border-yellow-200/30 flex items-center gap-2 shadow-sm font-semibold tracking-tight">
+                                                <div className="bg-yellow-100/40 dark:bg-yellow-900/10 backdrop-blur-md text-yellow-700 dark:text-yellow-500 text-xs px-4 py-1.5 rounded-full border border-yellow-200/30 flex items-center gap-2 shadow-sm font-semibold tracking-tight">
                                                     <ShieldCheck className="h-3 w-3" /> End-to-end encrypted
                                                 </div>
                                             </div>
@@ -356,7 +356,7 @@ export default function Messages() {
                                             {processedGroups.map((group, groupIndex) => (
                                                 <div key={group.date} className="space-y-1 relative">
                                                     <div className="flex justify-center sticky top-4 z-10 mb-4 pointer-events-none">
-                                                        <span className="bg-muted/80 backdrop-blur-xl text-[10px] font-bold text-muted-foreground/80 px-3 py-1 rounded-full shadow-sm border border-white/20 uppercase tracking-widest">
+                                                        <span className="bg-muted/80 backdrop-blur-xl text-xs font-bold text-muted-foreground/80 px-3 py-1 rounded-full shadow-sm border border-white/20 uppercase tracking-widest">
                                                             {group.date}
                                                         </span>
                                                     </div>
@@ -387,7 +387,7 @@ export default function Messages() {
                                                                     <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-background" title="React">
                                                                         <Smile className="h-3 w-3" />
                                                                     </Button>
-                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-background">
+                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-background" aria-label="More options">
                                                                         <MoreVertical className="h-3 w-3" />
                                                                     </Button>
                                                                 </div>
@@ -405,7 +405,7 @@ export default function Messages() {
                                                                 )}>
 
                                                                     {!isMe && !isPreviousSameSender && (
-                                                                        <div className="text-[11px] font-bold text-primary mb-1 opacity-90 tracking-wide">
+                                                                        <div className="text-xs font-bold text-primary mb-1 opacity-90 tracking-wide">
                                                                             {partnerDisplay?.display_name}
                                                                         </div>
                                                                     )}
@@ -416,7 +416,7 @@ export default function Messages() {
                                                                         "flex items-center gap-1 mt-1 opacity-70 select-none",
                                                                         isMe ? "justify-end text-primary-foreground/90" : "justify-end text-muted-foreground"
                                                                     )}>
-                                                                        <span className="text-[9px] font-medium">{safeFormatTime(msg.createdAt)}</span>
+                                                                        <span className="text-xs font-medium">{safeFormatTime(msg.createdAt)}</span>
                                                                         {isMe && (
                                                                             <span className="ml-0.5">
                                                                                 {isOptimistic ? <Check className="h-3 w-3" /> : <CheckCheck className="h-3 w-3" />}
@@ -447,7 +447,7 @@ export default function Messages() {
                                                 <span className="font-bold text-primary">Replying to {replyingTo.senderId === user?.id ? 'Yourself' : partnerDisplay?.display_name}</span>
                                                 <span className="truncate opacity-70 max-w-[200px] md:max-w-md">{replyingTo.content}</span>
                                             </div>
-                                            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => setReplyingTo(null)}>
+                                            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full" onClick={() => setReplyingTo(null)} aria-label="Cancel reply">
                                                 <X className="h-3 w-3" />
                                             </Button>
                                         </div>
@@ -456,8 +456,8 @@ export default function Messages() {
                                     {/* Tools & Input */}
                                     <div className="flex items-end gap-2 px-1">
                                         <div className="flex gap-1 pb-1.5 pl-1">
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:bg-black/5 hover:text-foreground transition-all active:scale-90"><Paperclip className="h-5 w-5" /></Button>
-                                            <Button variant="ghost" size="icon" className="hidden sm:inline-flex h-9 w-9 rounded-full text-muted-foreground hover:bg-black/5 hover:text-foreground transition-all active:scale-90"><ImageIcon className="h-5 w-5" /></Button>
+                                            <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:bg-black/5 hover:text-foreground transition-all active:scale-90" aria-label="Attach file"><Paperclip className="h-5 w-5" /></Button>
+                                            <Button variant="ghost" size="icon" className="hidden sm:inline-flex rounded-full text-muted-foreground hover:bg-black/5 hover:text-foreground transition-all active:scale-90" aria-label="Attach image"><ImageIcon className="h-5 w-5" /></Button>
                                         </div>
 
                                         <Textarea
@@ -481,7 +481,7 @@ export default function Messages() {
                                                 <Send className="h-5 w-5 ml-0.5" />
                                             </Button>
                                         ) : (
-                                            <Button variant="ghost" size="icon" className="h-10 w-10 mb-1 mr-1 rounded-full bg-muted/30 text-muted-foreground hover:bg-muted/80">
+                                            <Button variant="ghost" size="icon" className="h-10 w-10 mb-1 mr-1 rounded-full bg-muted/30 text-muted-foreground hover:bg-muted/80" aria-label="Send message emoji">
                                                 <Mic className="h-5 w-5" />
                                             </Button>
                                         )}

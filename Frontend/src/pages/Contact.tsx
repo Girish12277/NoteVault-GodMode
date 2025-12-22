@@ -99,14 +99,14 @@ export default function Contact() {
           {/* 1. Header & Live Status */}
           <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
             <div className="space-y-4">
-              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 uppercase tracking-widest pl-1 pr-3 py-1">
+              <Badge variant="outline" className="chip-touch text-primary border-primary/20 bg-primary/5 uppercase tracking-widest">
                 <span className="relative flex h-2 w-2 mr-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
                 Support Online
               </Badge>
-              <h1 className="font-display text-4xl md:text-6xl font-black tracking-tight text-foreground">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black tracking-tight text-foreground">
                 How can we <span className="text-primary">help?</span>
               </h1>
               <p className="text-muted-foreground text-lg max-w-xl leading-relaxed">
@@ -163,7 +163,7 @@ export default function Contact() {
               {/* WhatsApp */}
               <Card className="overflow-hidden border-border/50 group hover:border-green-500/30 transition-colors">
                 <div className="p-1 absolute top-0 right-0">
-                  <div className="bg-green-500/10 text-green-600 text-[10px] uppercase font-bold px-2 py-0.5 rounded-bl-lg">Fastest</div>
+                  <div className="bg-green-500/10 text-green-600 text-xs uppercase font-bold px-2 py-0.5 rounded-bl-lg">Fastest</div>
                 </div>
                 <CardContent className="p-5 flex items-center gap-4">
                   <div className="h-12 w-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0 border border-green-100">
@@ -173,7 +173,7 @@ export default function Contact() {
                     <h3 className="font-bold">WhatsApp</h3>
                     <p className="text-muted-foreground text-sm">+91 98765 43210</p>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => copyToClipboard('+919876543210', 'WhatsApp number')}>
+                  <Button variant="ghost" size="icon" className="btn-touch" onClick={() => copyToClipboard('+919876543210', 'WhatsApp number')} aria-label="Copy WhatsApp number">
                     <Copy className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </CardContent>
@@ -189,7 +189,7 @@ export default function Contact() {
                     <h3 className="font-bold">Email Support</h3>
                     <p className="text-muted-foreground text-sm">support@notesmarket.in</p>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => copyToClipboard('support@notesmarket.in', 'Email')}>
+                  <Button variant="ghost" size="icon" className="btn-touch" onClick={() => copyToClipboard('support@notesmarket.in', 'Email')} aria-label="Copy email address">
                     <Copy className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </CardContent>

@@ -77,16 +77,16 @@ const NavTile = ({ active, icon: Icon, label, onClick }: any) => (
   <button
     onClick={onClick}
     className={cn(
-      "relative flex items-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 w-full text-left overflow-hidden group border",
+      "relative flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-4 rounded-lg sm:rounded-xl transition-all duration-300 w-full text-left overflow-hidden group border",
       active
         ? "bg-primary/5 border-primary/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
         : "bg-white/40 border-transparent hover:border-zinc-200 hover:bg-white/60"
     )}
   >
-    <div className={cn("p-2 rounded-lg transition-colors border", active ? "bg-primary/10 border-primary/20 text-primary" : "bg-zinc-50 border-zinc-100 text-zinc-500 group-hover:text-zinc-900 group-hover:border-zinc-200")}>
-      <Icon className="w-5 h-5" />
+    <div className={cn("p-1.5 sm:p-2 rounded-lg transition-colors border", active ? "bg-primary/10 border-primary/20 text-primary" : "bg-zinc-50 border-zinc-100 text-zinc-500 group-hover:text-zinc-900 group-hover:border-zinc-200")}>
+      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
     </div>
-    <span className={cn("font-medium tracking-wide transition-colors", active ? "text-primary" : "text-zinc-500 group-hover:text-zinc-900")}>
+    <span className={cn("font-medium text-xs sm:text-base tracking-wide transition-colors", active ? "text-primary" : "text-zinc-500 group-hover:text-zinc-900")}>
       {label}
     </span>
     {active && (
@@ -95,7 +95,7 @@ const NavTile = ({ active, icon: Icon, label, onClick }: any) => (
         className="absolute inset-0 bg-primary/5 rounded-xl z-[-1]"
       />
     )}
-    <ChevronRight className={cn("ml-auto w-4 h-4 transition-transform", active ? "text-primary translate-x-1" : "text-zinc-400 opacity-0 group-hover:opacity-100")} />
+    <ChevronRight className={cn("ml-auto w-3 h-3 sm:w-4 sm:h-4 transition-transform", active ? "text-primary translate-x-1" : "text-zinc-400 opacity-0 group-hover:opacity-100")} />
   </button>
 );
 
@@ -103,22 +103,22 @@ const SignalTile = ({ label, description, checked, onChange, icon: Icon, importa
   <div
     onClick={() => onChange(!checked)}
     className={cn(
-      "cursor-pointer group relative overflow-hidden rounded-xl border p-5 transition-all duration-300 hover:shadow-lg",
+      "cursor-pointer group relative overflow-hidden rounded-lg sm:rounded-xl border p-3 sm:p-5 transition-all duration-300 hover:shadow-lg",
       checked
         ? "bg-primary/5 border-primary/50 shadow-[0_4px_15px_rgba(16,185,129,0.1)]"
         : "bg-white/60 border-zinc-100 opacity-70 hover:opacity-100 hover:border-zinc-200"
     )}
   >
-    <div className="absolute right-3 top-3">
-      <div className={cn("w-2 h-2 rounded-full transition-all duration-500", checked ? "bg-primary shadow-[0_0_8px_#10b981]" : "bg-zinc-200")} />
+    <div className="absolute right-2 sm:right-3 top-2 sm:top-3">
+      <div className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-500", checked ? "bg-primary shadow-[0_0_8px_#10b981]" : "bg-zinc-200")} />
     </div>
 
-    <div className="mb-4">
-      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center transition-colors mb-4 border", checked ? "bg-primary/10 border-primary/20 text-primary" : "bg-zinc-50 border-zinc-100 text-zinc-400")}>
-        <Icon className="w-5 h-5" />
+    <div className="mb-2 sm:mb-4">
+      <div className={cn("w-7 h-7 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-colors mb-2 sm:mb-4 border", checked ? "bg-primary/10 border-primary/20 text-primary" : "bg-zinc-50 border-zinc-100 text-zinc-400")}>
+        <Icon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
       </div>
-      <h3 className={cn("font-bold text-sm tracking-wide mb-1 transition-colors", checked ? "text-zinc-900" : "text-zinc-500")}>{label}</h3>
-      <p className="text-xs text-zinc-500 leading-relaxed pr-4">{description}</p>
+      <h3 className={cn("font-bold text-[10px] sm:text-sm tracking-wide mb-0.5 sm:mb-1 transition-colors", checked ? "text-zinc-900" : "text-zinc-500")}>{label}</h3>
+      <p className="text-[9px] sm:text-xs text-zinc-500 leading-snug sm:leading-relaxed pr-3 sm:pr-4">{description}</p>
     </div>
 
     {/* Tech decoration */}
@@ -179,10 +179,10 @@ export default function SellerSettings() {
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-display font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-500">
+            <h1 className="text-2xl sm:text-4xl font-display font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-500">
               Control Deck
             </h1>
-            <p className="text-zinc-500 mt-1 font-mono text-sm tracking-wider">
+            <p className="text-zinc-500 mt-1 font-mono text-[10px] sm:text-sm tracking-wider">
               SYSTEM CONFIGURATION_V2.1
             </p>
           </div>
@@ -230,35 +230,35 @@ export default function SellerSettings() {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid xl:grid-cols-2 gap-6">
                 {/* INPUTS */}
                 <Card className="border-zinc-200 bg-white/60 backdrop-blur-xl shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-zinc-900">
-                      <User className="w-5 h-5 text-primary" /> Profile Parameters
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-zinc-900 text-sm sm:text-base">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /> Profile Parameters
                     </CardTitle>
-                    <CardDescription className="text-zinc-500">Public facing vector data.</CardDescription>
+                    <CardDescription className="text-zinc-500 text-[10px] sm:text-sm">Public facing vector data.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-xs uppercase text-zinc-500">Full Name</Label>
-                        <Input className="bg-white border-zinc-200 focus:border-primary/50 text-zinc-900 placeholder:text-zinc-300" value={profile.name} onChange={(e) => handleChange(setProfile, { ...profile, name: e.target.value })} />
+                  <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
+                    <div className="grid gap-3 sm:gap-4">
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label className="text-[10px] sm:text-xs uppercase text-zinc-500">Full Name</Label>
+                        <Input className="bg-white border-zinc-200 focus:border-primary/50 text-zinc-900 placeholder:text-zinc-300 h-9 sm:h-10 text-sm" value={profile.name} onChange={(e) => handleChange(setProfile, { ...profile, name: e.target.value })} />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-xs uppercase text-zinc-500">Email Link</Label>
-                          <Input className="bg-white border-zinc-200 text-zinc-900" value={profile.email} onChange={(e) => handleChange(setProfile, { ...profile, email: e.target.value })} />
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label className="text-[10px] sm:text-xs uppercase text-zinc-500">Email Link</Label>
+                          <Input className="bg-white border-zinc-200 text-zinc-900 h-9 sm:h-10 text-sm" value={profile.email} onChange={(e) => handleChange(setProfile, { ...profile, email: e.target.value })} />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs uppercase text-zinc-500">Comms Line</Label>
-                          <Input className="bg-white border-zinc-200 text-zinc-900" value={profile.phone} onChange={(e) => handleChange(setProfile, { ...profile, phone: e.target.value })} />
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label className="text-[10px] sm:text-xs uppercase text-zinc-500">Comms Line</Label>
+                          <Input className="bg-white border-zinc-200 text-zinc-900 h-9 sm:h-10 text-sm" value={profile.phone} onChange={(e) => handleChange(setProfile, { ...profile, phone: e.target.value })} />
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs uppercase text-zinc-500">University Node</Label>
-                        <Input className="bg-white border-zinc-200 text-zinc-900" value={profile.university} onChange={(e) => handleChange(setProfile, { ...profile, university: e.target.value })} />
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label className="text-[10px] sm:text-xs uppercase text-zinc-500">University Node</Label>
+                        <Input className="bg-white border-zinc-200 text-zinc-900 h-9 sm:h-10 text-sm" value={profile.university} onChange={(e) => handleChange(setProfile, { ...profile, university: e.target.value })} />
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs uppercase text-zinc-500">Bio / Manifest</Label>
-                        <Textarea className="bg-white border-zinc-200 min-h-[100px] resize-none text-zinc-900" value={profile.bio} onChange={(e) => handleChange(setProfile, { ...profile, bio: e.target.value })} />
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <Label className="text-[10px] sm:text-xs uppercase text-zinc-500">Bio / Manifest</Label>
+                        <Textarea className="bg-white border-zinc-200 min-h-[80px] sm:min-h-[100px] resize-none text-zinc-900 text-sm" value={profile.bio} onChange={(e) => handleChange(setProfile, { ...profile, bio: e.target.value })} />
                       </div>
                     </div>
                   </CardContent>
@@ -288,7 +288,7 @@ export default function SellerSettings() {
                           <p className="text-zinc-500 text-xs max-w-[80%] mt-2 line-clamp-2 leading-relaxed">{profile.bio}</p>
                         </div>
 
-                        <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-400 border-t border-zinc-100 pt-4 mt-4 uppercase">
+                        <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 border-t border-zinc-100 pt-4 mt-4 uppercase">
                           <span>ID: 884-X99</span>
                           <span>•</span>
                           <span>ACCESS LEVEL: SELLER</span>
@@ -314,10 +314,10 @@ export default function SellerSettings() {
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6">
 
                 <div>
-                  <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-zinc-800">
-                    <Zap className="w-4 h-4 text-amber-500" /> Critical Transmissions
+                  <h2 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2 text-zinc-800">
+                    <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" /> Critical Transmissions
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <SignalTile
                       label="New Sale Alert"
                       description="Instant notification when assets are purchased."
@@ -343,10 +343,10 @@ export default function SellerSettings() {
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-zinc-800">
-                    <Wifi className="w-4 h-4 text-blue-500" /> Standard Feeds
+                  <h2 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2 text-zinc-800">
+                    <Wifi className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" /> Standard Feeds
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <SignalTile
                       label="Email Summary"
                       description="Daily digest of performance metrics."
@@ -379,21 +379,23 @@ export default function SellerSettings() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-8">
 
                 {/* SHIELD HEALTH */}
-                <div className="flex items-center justify-between p-6 rounded-2xl bg-white border border-zinc-200 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-16 h-16 flex items-center justify-center">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-zinc-200 shadow-sm">
+                  <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center shrink-0">
                       <svg className="w-full h-full -rotate-90">
-                        <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-zinc-100" />
-                        <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-emerald-500" strokeDasharray="175.9" strokeDashoffset="40" strokeLinecap="round" />
+                        <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-zinc-100 sm:hidden" />
+                        <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-emerald-500 sm:hidden" strokeDasharray="125.6" strokeDashoffset="30" strokeLinecap="round" />
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-zinc-100 hidden sm:block" />
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-emerald-500 hidden sm:block" strokeDasharray="175.9" strokeDashoffset="40" strokeLinecap="round" />
                       </svg>
-                      <Shield className="absolute w-6 h-6 text-emerald-500" />
+                      <Shield className="absolute w-4 h-4 sm:w-6 sm:h-6 text-emerald-500" />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-zinc-900">Shield Integrity: 78%</h3>
-                      <p className="text-sm text-zinc-500">Encryption active. 2FA recommended.</p>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm sm:text-lg font-bold text-zinc-900">Shield Integrity: 78%</h3>
+                      <p className="text-xs sm:text-sm text-zinc-500">Encryption active. 2FA recommended.</p>
                     </div>
                   </div>
-                  <Button variant="outline" className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700">Run Diagnostic</Button>
+                  <Button variant="outline" className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm shrink-0">Run Diagnostic</Button>
                 </div>
 
                 <Card className="border-zinc-200 bg-white shadow-sm">
@@ -402,10 +404,10 @@ export default function SellerSettings() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-zinc-700">Current Passkey</Label>
+                      <Label htmlFor="current-password" className="text-zinc-700">Current Passkey</Label>
                       <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} className="bg-white border-zinc-200 pr-10 text-zinc-900" />
-                        <Button size="icon" variant="ghost" className="absolute right-0 top-0 text-zinc-400 hover:text-zinc-900" onClick={() => setShowPassword(!showPassword)}>
+                        <Input id="current-password" type={showPassword ? "text" : "password"} className="bg-white border-zinc-200 pr-10 text-zinc-900" />
+                        <Button size="icon" variant="ghost" className="absolute right-0 top-0 text-zinc-400 hover:text-zinc-900" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}>
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </Button>
                       </div>
@@ -429,25 +431,25 @@ export default function SellerSettings() {
 
             {/* DANGER ZONE */}
             {activeTab === 'danger' && (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-center items-center h-[400px]">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-center items-center min-h-[400px] py-8">
                 <div className="w-full max-w-lg p-1 rounded-2xl bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 animate-pulse">
-                  <div className="bg-white/90 backdrop-blur-xl rounded-xl p-8 border border-red-200/50 text-center space-y-6 shadow-xl">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4 border border-red-100">
-                      <AlertTriangle className="w-8 h-8 text-red-500" />
+                  <div className="bg-white/90 backdrop-blur-xl rounded-xl p-6 sm:p-8 border border-red-200/50 text-center space-y-4 sm:space-y-6 shadow-xl">
+                    <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-50 flex items-center justify-center mb-3 sm:mb-4 border border-red-100">
+                      <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
                     </div>
 
                     <div>
-                      <h2 className="text-2xl font-bold text-red-900">Red Alert Protocol</h2>
-                      <p className="text-red-700/80 mt-2 text-sm">Initiating this sequence will result in permanent data loss. This action cannot be overridden.</p>
+                      <h2 className="text-xl sm:text-2xl font-bold text-red-900">Red Alert Protocol</h2>
+                      <p className="text-red-700/80 mt-2 text-xs sm:text-sm">Initiating this sequence will result in permanent data loss. This action cannot be overridden.</p>
                     </div>
 
-                    <div className="p-4 bg-red-50 rounded-lg border border-red-100 flex flex-col items-center gap-4">
-                      <p className="font-mono text-xs text-red-600 font-bold">TYPE 'DELETE' TO UNLOCK ARMING MECHANISM</p>
-                      <Input className="text-center font-mono uppercase bg-white border-red-200 text-red-600 focus:border-red-500 w-32 tracking-[0.2em] placeholder:text-red-200" placeholder="______" />
+                    <div className="p-3 sm:p-4 bg-red-50 rounded-lg border border-red-100 flex flex-col items-center gap-3 sm:gap-4">
+                      <p className="font-mono text-[10px] sm:text-xs text-red-600 font-bold">TYPE 'DELETE' TO UNLOCK ARMING MECHANISM</p>
+                      <Input className="text-center font-mono uppercase bg-white border-red-200 text-red-600 focus:border-red-500 w-28 sm:w-32 tracking-[0.2em] placeholder:text-red-200 h-9 sm:h-10 text-sm" placeholder="______" />
                     </div>
 
-                    <Button variant="destructive" className="w-full font-bold tracking-widest bg-red-600 hover:bg-red-700 text-white" disabled>
-                      <Lock className="w-4 h-4 mr-2" /> ARMED
+                    <Button variant="destructive" className="w-full font-bold tracking-widest bg-red-600 hover:bg-red-700 text-white h-10 sm:h-11 text-sm" disabled>
+                      <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" /> ARMED
                     </Button>
                   </div>
                 </div>

@@ -13,8 +13,8 @@ const hoverAnimation = {
     transition: { type: "spring", stiffness: 300, damping: 20 }
 };
 
-// Create a Motion component from the Shadcn Button
-const MotionBtn = motion(Button);
+// Create a Motion component from the Shadcn Button (using motion.create for v11+)
+const MotionBtn = motion.create(Button) as any;
 
 export const MotionButton: React.FC<ButtonProps & React.ComponentProps<typeof motion.button>> = (props) => {
     return (

@@ -18,7 +18,7 @@ import {
   Image as ImageIcon,
   Images
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +28,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider'; // Assuming shadcn slider exists or we use input range
 import SellerLayout from '@/components/seller/SellerLayout';
-import { degrees, specializations, semesters } from '@/data/mockData';
+import { degrees, specializations, semesters } from '@/data/educationConstants';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -80,12 +80,12 @@ const NoteCardPreview = ({ data, categoryName }: { data: any, categoryName: stri
       <CardContent className="p-4 space-y-3">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 border-primary/20 text-primary bg-primary/5">
+            <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 border-primary/20 text-primary bg-primary/5">
               {categoryName || 'Category'}
             </Badge>
-            <span className="text-[10px] text-muted-foreground">{data.totalPages || 0} Pages</span>
+            <span className="text-xs text-muted-foreground">{data.totalPages || 0} Pages</span>
           </div>
-          <h3 className="font-bold text-sm leading-tight line-clamp-2">
+          <h3 className="font-bold text-xs leading-tight line-clamp-2">
             {data.title || 'Your Note Title Goes Here'}
           </h3>
           <p className="text-xs text-muted-foreground line-clamp-2">
@@ -93,7 +93,7 @@ const NoteCardPreview = ({ data, categoryName }: { data: any, categoryName: stri
           </p>
         </div>
         <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-purple-500 flex items-center justify-center text-[10px] text-white font-bold">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-xs text-white font-bold">
             ME
           </div>
           <span className="text-xs text-muted-foreground font-medium">By You</span>
@@ -205,7 +205,7 @@ export default function UploadNotes() {
         setCurrentStep(2); // Auto-advance after upload
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Upload failed');
+      toast.error(error.response?.data?.message || 'Upload failed. Check file size (max 10MB) and format (PDF only).');
     } finally {
       setIsUploading(false);
     }
@@ -334,13 +334,13 @@ export default function UploadNotes() {
             <h1 className="font-display text-2xl font-bold flex items-center gap-2">
               <Rocket className="w-6 h-6 text-primary" /> Publish Knowledge
             </h1>
-            <p className="text-muted-foreground text-sm">Mint your notes into a digital asset.</p>
+            <p className="text-muted-foreground text-xs">Mint your notes into a digital asset.</p>
           </div>
           <div className="flex items-center gap-2 bg-muted/50 p-1.5 rounded-full">
             {steps.map(step => (
               <div key={step.id} className={cn("h-2.5 w-2.5 rounded-full transition-all", step.id === currentStep ? "bg-primary w-6" : step.id < currentStep ? "bg-primary/50" : "bg-muted-foreground/20")} />
             ))}
-            <span className="text-[10px] text-muted-foreground ml-2 font-mono">Step {currentStep}/5</span>
+            <span className="text-xs text-muted-foreground ml-2 font-mono">Step {currentStep}/5</span>
           </div>
         </div>
 
@@ -353,7 +353,7 @@ export default function UploadNotes() {
                 <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
                   <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
                   <h3 className="font-bold text-lg">Analyzing Document...</h3>
-                  <p className="text-muted-foreground text-sm">Extracting metadata and generating preview.</p>
+                  <p className="text-muted-foreground text-xs">Extracting metadata and generating preview.</p>
                 </div>
               )}
 
@@ -369,18 +369,18 @@ export default function UploadNotes() {
 
                     <div className={cn(
                       "border-2 border-dashed rounded-2xl p-10 transition-all cursor-pointer group hover:bg-muted/50",
-                      formData.file ? "border-emerald-500/50 bg-emerald-500/5" : "border-border"
+                      formData.file ? "border-accent/50 bg-accent/5" : "border-border"
                     )}>
                       <input type="file" id="file-first" className="hidden" accept=".pdf,.docx" onChange={handleFileChange} />
                       <label htmlFor="file-first" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                         {formData.file ? (
                           <>
-                            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                            <div className="w-16 h-16 bg-accent/10 text-accent rounded-full flex items-center justify-center mb-4 shadow-sm">
                               <FileText className="w-8 h-8" />
                             </div>
-                            <h3 className="font-bold text-lg text-emerald-700">{formData.file.name}</h3>
-                            <p className="text-sm text-emerald-600/80 mb-6">{(formData.file.size / 1024 / 1024).toFixed(2)} MB • Ready to analyze</p>
-                            <Button size="sm" variant="outline" onClick={(e) => { e.preventDefault(); setFormData({ ...formData, file: null }) }} className="border-emerald-200 hover:bg-emerald-100 text-emerald-700">Change File</Button>
+                            <h3 className="font-bold text-lg text-accent text-center px-4 line-clamp-2 break-all max-w-full">{formData.file.name}</h3>
+                            <p className="text-xs text-accent/80 mb-6">{(formData.file.size / 1024 / 1024).toFixed(2)} MB • Ready to analyze</p>
+                            <Button size="sm" variant="outline" onClick={(e) => { e.preventDefault(); setFormData({ ...formData, file: null }) }} className="border-accent/20 hover:bg-accent/10 text-accent">Change File</Button>
                           </>
                         ) : (
                           <>
@@ -388,8 +388,8 @@ export default function UploadNotes() {
                               <Upload className="w-8 h-8" />
                             </div>
                             <h3 className="font-bold text-lg mb-1">Drop your brilliance here</h3>
-                            <p className="text-sm text-muted-foreground mb-6">PDF or DOCX (Max 50MB)</p>
-                            <Button size="sm">Select Document</Button>
+                            <p className="text-xs text-muted-foreground mb-6">PDF or DOCX (Max 50MB)</p>
+                            <div className={cn(buttonVariants({ size: 'sm' }), "pointer-events-none")}>Select Document</div>
                           </>
                         )}
                       </label>
@@ -442,7 +442,7 @@ export default function UploadNotes() {
                     {/* Description Section */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-orange-500/10 rounded-lg flex items-center justify-center"><FileText className="w-4 h-4 text-orange-500" /></div>
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center"><FileText className="w-4 h-4 text-primary" /></div>
                         <div><h2 className="text-lg font-bold">Describe It</h2></div>
                       </div>
 
@@ -464,7 +464,7 @@ export default function UploadNotes() {
                     {/* Media Section (RESTORED) */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center"><ImageIcon className="w-4 h-4 text-purple-500" /></div>
+                        <div className="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center"><ImageIcon className="w-4 h-4 text-secondary" /></div>
                         <div>
                           <h2 className="text-lg font-bold">Visuals</h2>
                           <p className="text-xs text-muted-foreground">Add a cover or preview pages to boost sales.</p>
@@ -483,7 +483,7 @@ export default function UploadNotes() {
                               ) : (
                                 <div className="h-24 flex flex-col items-center justify-center text-muted-foreground">
                                   <ImageIcon className="w-6 h-6 mb-1 opacity-50" />
-                                  <span className="text-[10px]">Upload Cover</span>
+                                  <span className="text-xs">Upload Cover</span>
                                 </div>
                               )}
                             </label>
@@ -497,7 +497,7 @@ export default function UploadNotes() {
                             <input type="file" id="preview-upload" className="hidden" multiple accept="image/*" onChange={handlePreviewUpload} />
                             <label htmlFor="preview-upload" className="cursor-pointer h-24 flex flex-col items-center justify-center text-muted-foreground">
                               <Images className="w-6 h-6 mb-1 opacity-50" />
-                              <span className="text-[10px]">Add Pages</span>
+                              <span className="text-xs">Add Pages</span>
                             </label>
                           </div>
                         </div>
@@ -511,26 +511,32 @@ export default function UploadNotes() {
                   <div className="space-y-8 animate-in slide-in-from-right-4">
                     <div className="text-center space-y-2">
                       <h2 className="text-xl font-bold">Value Your Work</h2>
-                      <p className="text-muted-foreground text-sm">Notes in <span className="font-semibold text-foreground">{selectedCategoryName || 'this category'}</span> usually sell for <span className="text-emerald-600 font-bold">₹250 - ₹500</span>.</p>
+                      <p className="text-muted-foreground text-xs">Notes in <span className="font-semibold text-foreground">{selectedCategoryName || 'this category'}</span> usually sell for <span className="text-accent font-bold">₹250 - ₹500</span>.</p>
                     </div>
 
-                    <div className="max-w-xs mx-auto space-y-8">
+                    <div className="max-w-md mx-auto space-y-8">
                       <div className="relative flex items-center justify-center">
                         <Input
                           type="number"
                           value={formData.price}
-                          onChange={e => setFormData({ ...formData, price: e.target.value })}
-                          className="text-4xl text-center font-bold h-20 border-border/50 bg-background shadow-inner rounded-2xl" placeholder="0"
+                          onChange={e => {
+                            const val = parseInt(e.target.value);
+                            if (val < 0) return;
+                            if (val > 9999) return;
+                            setFormData({ ...formData, price: e.target.value })
+                          }}
+                          className="!text-3xl sm:!text-4xl text-center font-bold h-20 border-border/50 bg-background shadow-lg rounded-xl px-12 focus:ring-4 ring-primary/10 transition-all placeholder:text-muted/20 tracking-tight"
+                          placeholder="0"
                         />
                         <IndianRupee className="absolute left-4 w-6 h-6 text-muted-foreground" />
                       </div>
 
                       {/* Revenue Simulator Badge */}
                       {priceValue > 0 && (
-                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 text-center animate-in zoom-in">
-                          <p className="text-xs text-emerald-700 font-medium uppercase tracking-wide mb-1">Projected Earnings</p>
-                          <div className="text-2xl font-bold text-emerald-700">₹{(earnings * 10).toFixed(0)}</div>
-                          <p className="text-[10px] text-emerald-600/80">if 10 students buy this</p>
+                        <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 text-center animate-in zoom-in">
+                          <p className="text-xs text-accent font-medium uppercase tracking-wide mb-1">Projected Earnings</p>
+                          <div className="text-2xl font-bold text-accent">₹{(earnings * 10).toFixed(0)}</div>
+                          <p className="text-xs text-accent/80">if 10 students buy this</p>
                         </div>
                       )}
 
@@ -562,14 +568,14 @@ export default function UploadNotes() {
                       <p className="text-muted-foreground max-w-sm mx-auto">You're about to publish <strong>{formData.title}</strong> to the marketplace.</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto text-sm text-left bg-muted/30 p-4 rounded-xl border border-border/50">
+                    <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto text-xs text-left bg-muted/30 p-4 rounded-xl border border-border/50">
                       <div>
                         <span className="text-muted-foreground text-xs block">Price</span>
                         <span className="font-semibold">{priceValue > 0 ? `₹${priceValue}` : 'Free'}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground text-xs block">Earnings/Sale</span>
-                        <span className="font-semibold text-emerald-600">{priceValue > 0 ? `₹${earnings.toFixed(0)}` : '₹0'}</span>
+                        <span className="font-semibold text-accent">{priceValue > 0 ? `₹${earnings.toFixed(0)}` : '₹0'}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground text-xs block">Category</span>
@@ -607,18 +613,18 @@ export default function UploadNotes() {
           {/* RIGHT PANEL: Live Preview (The Mirror) */}
           <div className="hidden lg:block lg:col-span-5 space-y-6">
             <div className="flex items-center justify-between text-muted-foreground">
-              <h3 className="text-sm font-medium flex items-center gap-2"><Eye className="w-4 h-4" /> Live Preview</h3>
+              <h3 className="text-xs font-medium flex items-center gap-2"><Eye className="w-4 h-4" /> Live Preview</h3>
               <span className="text-xs">What buyers see</span>
             </div>
             <NoteCardPreview data={formData} categoryName={selectedCategoryName} />
 
             {/* Pro Tips based on context */}
-            <Card className="bg-amber-500/5 border-amber-500/10">
+            <Card className="bg-warning/5 border-warning/10">
               <CardContent className="p-4 flex gap-3">
-                <Zap className="w-5 h-5 text-amber-500 shrink-0" />
+                <Zap className="w-5 h-5 text-warning shrink-0" />
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-amber-700">Pro Tip</p>
-                  <p className="text-xs text-amber-600/80 leading-relaxed">
+                  <p className="text-xs font-bold text-warning">Pro Tip</p>
+                  <p className="text-xs text-warning/80 leading-relaxed">
                     {currentStep === 1 ? "High-quality PDFs with OCR get 2x more search hits." :
                       currentStep === 3 ? "Detailed descriptions reduce refund requests by 40%." :
                         currentStep === 4 ? "Notes priced under ₹300 sell 5x volume." :

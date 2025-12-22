@@ -1,6 +1,10 @@
 import cron from 'node-cron';
 import { prisma } from '../config/database';
 import { notificationService } from './notificationService';
+import { financialReconciliationService } from './financialReconciliationService';
+import { PaymentIdempotencyService } from './paymentIdempotencyService';
+import { DatabaseBackupService } from './databaseBackupService';
+import { retryFailedUploads } from './cloudinaryCircuitBreaker';
 
 const prismaAny = prisma as any;
 
@@ -9,6 +13,8 @@ const prismaAny = prisma as any;
  * Handles scheduled tasks
  */
 export class CronService {
+    private static jobs: any[] = [];
+
     /**
      * Initialize all cron jobs
      */
@@ -17,31 +23,100 @@ export class CronService {
 
         // Job 1: Release Escrow Funds
         // Runs every hour at minute 0
-        cron.schedule('0 * * * *', async () => {
+        const escrowJob = cron.schedule('0 * * * *', async () => {
             console.log('running escrow release job');
             await this.releaseEscrow();
         });
 
-        // Job 2: Process Notification Broadcasts
-        // Runs every minute to process pending broadcasts
-        cron.schedule('* * * * *', async () => {
+        // Job 2: Process Broadcast Notifications
+        // Runs every 5 minutes
+        const broadcastJob = cron.schedule('*/5 * * * *', async () => {
             try {
                 const result = await notificationService.processPendingBroadcasts();
                 if (result.processed > 0 || result.errors.length > 0) {
                     console.log(`🔔 Broadcast processing: ${result.processed} sent, ${result.errors.length} errors`);
-                    if (result.errors.length > 0) {
-                        console.error('Broadcast errors:', result.errors);
-                    }
                 }
             } catch (err) {
                 console.error('❌ Broadcast processing error:', err);
             }
         });
 
+        // Job 3: Cleanup Expired Payment Reservations (GOD-LEVEL FIX #1)
+        // Runs every hour at minute 30
+        const paymentCleanupJob = cron.schedule('30 * * * *', async () => {
+            console.log('[CRON] Running expired payment reservations cleanup');
+            const count = await PaymentIdempotencyService.cleanupExpiredReservations();
+            console.log(`[CRON] Cleaned up ${count} expired reservations`);
+        });
+
+        // Job 4: Retry Failed Cloudinary Uploads (GOD-LEVEL FIX #3)
+        // Runs every hour at minute 45
+        const cloudinaryRetryJob = cron.schedule('45 * * * *', async () => {
+            try {
+                console.log('[CRON] Retrying failed Cloudinary uploads...');
+                const count = await retryFailedUploads();
+                if (count > 0) {
+                    console.log(`✅ Successfully retried ${count} uploads`);
+                }
+            } catch (error) {
+                console.error('❌ Cloudinary retry job failed:', error);
+            }
+        });
+
+        // Job 5: Financial Reconciliation (God-Level Enhancement #18)
+        // Runs daily at 2 AM IST
+        const reconciliationJob = cron.schedule('0 2 * * *', async () => {
+            try {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                console.log('Running daily financial reconciliation...');
+                const result = await financialReconciliationService.reconcileDaily(yesterday);
+
+                if (result.status === 'MATCH') {
+                    console.log(`✅ Financial reconciliation passed: ₹${result.ourTotal}`);
+                } else {
+                    console.error(`❌ Financial reconciliation MISMATCH: ₹${result.difference}`);
+                }
+            } catch (error) {
+                console.error('❌ Financial reconciliation job failed:', error);
+            }
+        });
+
+        // Job 6: Daily Database Backup (GOD-LEVEL FIX #2)
+        // Runs daily at 3 AM IST (after financial reconciliation)
+        const backupJob = cron.schedule('0 3 * * *', async () => {
+            try {
+                console.log('[CRON] Starting daily database backup...');
+                const result = await DatabaseBackupService.createFullBackup();
+
+                if (result.success) {
+                    console.log(`✅ Database backup successful: ${result.backupFile} (${Math.round(result.sizeBytes / 1024 / 1024)}MB)`);
+                } else {
+                    console.error(`❌ Database backup FAILED: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('❌ Database backup job failed:', error);
+            }
+        });
+
+        // Store jobs for cleanup
+        this.jobs.push(escrowJob, broadcastJob, paymentCleanupJob, cloudinaryRetryJob, reconciliationJob, backupJob);
+
+        console.log('✅ Cron jobs started');
+
         // Also run once on startup for development verification (optional)
         if (process.env.NODE_ENV === 'development') {
             // this.releaseEscrow().catch(console.error);
         }
+    }
+
+    /**
+     * Stop all cron jobs (Enhancement #8: Graceful Shutdown)
+     */
+    public static stop(): void {
+        this.jobs.forEach(job => job.stop());
+        this.jobs = [];
     }
 
     /**

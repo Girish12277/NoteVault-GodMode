@@ -96,9 +96,9 @@ export default function SellerProfile() {
         const badges = [];
         const { stats } = profile;
 
-        if (stats.avgRating >= 4.5) badges.push({ label: 'Top Rated', icon: Crown, color: 'text-amber-500 bg-amber-50 border-amber-200' });
-        if (stats.notesCount >= 5) badges.push({ label: 'Prolific Seller', icon: BookOpen, color: 'text-blue-500 bg-blue-50 border-blue-200' });
-        if (stats.reviewCount >= 10) badges.push({ label: 'Trusted', icon: ShieldCheck, color: 'text-emerald-500 bg-emerald-50 border-emerald-200' });
+        if (stats.avgRating >= 4.5) badges.push({ label: 'Top Rated', icon: Crown, color: 'text-warning bg-warning/10 border-warning/20' }); // Gold
+        if (stats.notesCount >= 5) badges.push({ label: 'Prolific Seller', icon: BookOpen, color: 'text-secondary bg-secondary/10 border-secondary/20' }); // Navy
+        if (stats.reviewCount >= 10) badges.push({ label: 'Trusted', icon: ShieldCheck, color: 'text-accent bg-accent/10 border-accent/20' }); // Green
 
         return badges;
     }, [profile?.stats]);
@@ -132,12 +132,12 @@ export default function SellerProfile() {
 
             {/* --- 1. CINEMATIC COVER HEADER --- */}
             <div className="relative h-48 md:h-64 bg-slate-900 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary/60 opacity-90" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
 
                 {/* Decorative Circles */}
                 <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-                <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl" />
+                <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
 
                 <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 flex gap-2">
                     {isOwner && (
@@ -163,7 +163,7 @@ export default function SellerProfile() {
                             </Avatar>
                         </div>
                         {user.is_seller && (
-                            <div className="absolute bottom-4 right-4 bg-blue-500 text-white p-1.5 rounded-full ring-4 ring-background shadow-lg text-xs font-bold flex items-center gap-1" title="Verified Seller">
+                            <div className="absolute bottom-4 right-4 bg-secondary text-white p-1.5 rounded-full ring-4 ring-background shadow-lg text-xs font-bold flex items-center gap-1" title="Verified Seller">
                                 <ShieldCheck className="h-4 w-4 fill-current" />
                             </div>
                         )}
@@ -247,7 +247,7 @@ export default function SellerProfile() {
                                         className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
                                     />
                                     <div className="absolute top-4 left-4">
-                                        <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-0 font-bold shadow-lg">Seller's Choice</Badge>
+                                        <Badge className="bg-warning hover:bg-warning/90 text-primary-foreground border-0 font-bold shadow-lg">Seller's Choice</Badge>
                                     </div>
                                 </div>
                                 {/* Content Side */}
@@ -263,7 +263,7 @@ export default function SellerProfile() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-3xl font-bold text-emerald-400">₹{featuredNote.price_inr}</div>
+                                            <div className="text-3xl font-bold text-accent">₹{featuredNote.price_inr}</div>
                                         </div>
                                     </div>
                                     <p className="text-slate-300 line-clamp-2 md:line-clamp-3 mb-6 leading-relaxed">

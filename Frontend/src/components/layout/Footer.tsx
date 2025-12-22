@@ -12,22 +12,22 @@ export function Footer() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary)/0.03)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary)/0.03)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-      <div className="container relative z-10 pt-20 pb-10">
-        <div className="grid gap-12 lg:gap-8 lg:grid-cols-12">
+      <div className="container relative z-10 pt-10 pb-6 lg:pt-20 lg:pb-10">
+        <div className="grid gap-8 lg:gap-8 lg:grid-cols-12">
 
           {/* Brand Column (Span 4) */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="lg:col-span-4 space-y-6 lg:space-y-8">
             <Link to="/" className="inline-flex items-center gap-3 group">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-sm">
-                <BookOpen className="h-6 w-6" />
+              <div className="flex h-10 w-10 lg:h-11 lg:w-11 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-sm">
+                <BookOpen className="h-5 w-5 lg:h-6 lg:w-6" />
               </div>
               <div>
-                <span className="font-display text-2xl font-bold text-foreground tracking-tight block">NotesMarket</span>
-                <span className="text-[10px] font-mono text-primary tracking-widest uppercase">Premium Academic Assets</span>
+                <span className="font-display text-xl lg:text-2xl font-bold text-foreground tracking-tight block">NotesMarket</span>
+                <span className="text-[10px] lg:text-xs font-mono text-primary tracking-widest uppercase">Premium Academic Assets</span>
               </div>
             </Link>
 
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-sm">
+            <p className="text-muted-foreground text-xs lg:text-sm leading-relaxed max-w-sm">
               The world's most advanced marketplace for academic intelligence. Empowering the next generation of scholars with premium resources.
             </p>
 
@@ -36,23 +36,23 @@ export function Footer() {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-20 animate-ping"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              <span className="text-xs font-semibold text-primary">Made for India</span>
-              <span className="text-sm grayscale opacity-80">🇮🇳</span>
+              <span className="text-[10px] lg:text-xs font-semibold text-primary">Made for India</span>
+              <span className="text-xs lg:text-sm grayscale opacity-80">🇮🇳</span>
             </div>
 
             <div className="flex gap-2 pt-2">
               {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <Button key={i} variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 transition-all duration-300">
-                  <Icon className="h-5 w-5" />
+                <Button key={i} variant="ghost" size="icon" className="h-9 w-9 lg:h-10 lg:w-10 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 transition-all duration-300">
+                  <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Button>
               ))}
             </div>
           </div>
 
           {/* Quick Links (Span 2) */}
-          <div className="lg:col-span-2 space-y-6">
-            <h3 className="text-foreground font-display font-semibold text-sm uppercase tracking-wider">Platform</h3>
-            <ul className="space-y-3">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+            <h3 className="text-foreground font-display font-semibold text-xs lg:text-sm uppercase tracking-wider">Platform</h3>
+            <ul className="space-y-2 lg:space-y-3">
               {[
                 { label: 'Browse Notes', path: '/browse' },
                 { label: 'How It Works', path: '/how-it-works' },
@@ -61,7 +61,7 @@ export function Footer() {
                 { label: 'About Us', path: '/about' },
               ].map((link) => (
                 <li key={link.path}>
-                  <Link to={link.path} className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                  <Link to={link.path} className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-xs lg:text-sm font-medium">
                     <ArrowRight className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary" />
                     <span className="group-hover:translate-x-1 transition-transform">{link.label}</span>
                   </Link>
@@ -70,18 +70,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Seller Links (Span 2) */}
-          <div className="lg:col-span-2 space-y-6">
-            <h3 className="text-foreground font-display font-semibold text-sm uppercase tracking-wider">Seller Zone</h3>
-            <ul className="space-y-3">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+            <h3 className="text-foreground font-display font-semibold text-xs lg:text-sm uppercase tracking-wider">Seller Zone</h3>
+            <ul className="space-y-2 lg:space-y-3">
               {[
                 { label: 'Become a Seller', path: '/seller' },
                 { label: 'Seller Dashboard', path: '/seller' },
                 { label: 'Guidelines', path: '/seller/guidelines' },
                 { label: 'FAQ', path: '/seller/faq' },
               ].map((link) => (
-                <li key={link.path}>
-                  <Link to={link.path} className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                <li key={`${link.path}-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <Link to={link.path} className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-xs lg:text-sm font-medium">
                     <ArrowRight className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary" />
                     <span className="group-hover:translate-x-1 transition-transform">{link.label}</span>
                   </Link>
@@ -91,9 +90,9 @@ export function Footer() {
           </div>
 
           {/* Contact & Newsletter (Span 4) */}
-          <div className="lg:col-span-4 space-y-6">
-            <h3 className="text-foreground font-display font-semibold text-sm uppercase tracking-wider">Stay Connected</h3>
-            <p className="text-muted-foreground text-sm">
+          <div className="lg:col-span-4 space-y-4 lg:space-y-6">
+            <h3 className="text-foreground font-display font-semibold text-xs lg:text-sm uppercase tracking-wider">Stay Connected</h3>
+            <p className="text-muted-foreground text-xs lg:text-sm">
               Join 50,000+ students receiving weekly exam hacks and trending resource summaries.
             </p>
 
@@ -102,30 +101,30 @@ export function Footer() {
                 <Input
                   type="email"
                   placeholder="enter.your@email.com"
-                  className="bg-transparent border-none text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-0 h-10 min-w-0 font-mono text-sm"
+                  className="bg-transparent border-none text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-0 h-9 lg:h-10 min-w-0 font-mono text-xs lg:text-sm"
                 />
-                <Button className="shrink-0 h-10 px-4 rounded-lg gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-bold transition-transform active:scale-95 shadow-md shadow-primary/20">
+                <Button className="shrink-0 h-9 lg:h-10 px-4 rounded-lg gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-bold transition-transform active:scale-95 shadow-md shadow-primary/20">
                   <span className="hidden sm:inline">Join</span> <Send className="h-3 w-3" />
                 </Button>
               </div>
             </div>
 
-            <ul className="space-y-4 pt-4 text-sm">
+            <ul className="space-y-3 lg:space-y-4 pt-2 lg:pt-4 text-xs lg:text-sm">
               <li className="flex items-start gap-3 group cursor-pointer">
                 <div className="p-2 rounded-lg bg-primary/5 text-primary border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Email Support</p>
+                  <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Email Support</p>
                   <p className="text-foreground font-medium font-mono group-hover:text-primary transition-colors">support@notesmarket.in</p>
                 </div>
               </li>
               <li className="flex items-start gap-3 group">
                 <div className="p-2 rounded-lg bg-primary/5 text-primary border border-primary/10">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Headquarters</p>
+                  <p className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Headquarters</p>
                   <p className="text-foreground font-medium">Raipur, Chhattisgarh, India</p>
                 </div>
               </li>
@@ -134,8 +133,8 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-primary/10 flex flex-col items-center justify-between gap-6 md:flex-row">
-          <p className="text-muted-foreground text-sm font-medium">
+        <div className="mt-8 lg:mt-16 pt-6 lg:pt-8 border-t border-primary/10 flex flex-col items-center justify-between gap-6 md:flex-row">
+          <p className="text-muted-foreground text-xs lg:text-sm font-medium">
             © 2024 NotesMarket <span className="mx-2 opacity-30">|</span> <span className="opacity-70">Architected for Excellence</span>
           </p>
           <div className="flex flex-wrap justify-center gap-8 text-xs font-semibold tracking-wide text-muted-foreground uppercase">

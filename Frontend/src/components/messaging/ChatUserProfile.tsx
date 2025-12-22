@@ -118,7 +118,7 @@ export function ChatUserProfile({ userId, isOpen, onClose, ...props }: ChatUserP
                                         <div className="pl-6">
                                             <p className="text-sm font-medium text-foreground">{data.university.name}</p>
                                             {data.trust_flags.student_verified && (
-                                                <Badge variant="outline" className="text-[10px] h-5 mt-1 text-green-600 border-green-200 bg-green-50">
+                                                <Badge variant="outline" className="text-xs h-5 mt-1 text-green-600 border-green-200 bg-green-50">
                                                     Verified Student
                                                 </Badge>
                                             )}
@@ -148,7 +148,7 @@ export function ChatUserProfile({ userId, isOpen, onClose, ...props }: ChatUserP
                                         <Shield className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
                                         <div className="space-y-0.5">
                                             <p className="text-xs font-semibold text-blue-900">End-to-End Encrypted</p>
-                                            <p className="text-[10px] text-blue-700">
+                                            <p className="text-xs text-blue-700">
                                                 Messages are private. Never share your password or payment info.
                                             </p>
                                         </div>

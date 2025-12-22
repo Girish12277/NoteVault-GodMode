@@ -27,7 +27,7 @@ export default function RefundPolicy() {
             <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full border border-primary/20 mb-8 shadow-sm">
               <ShieldCheck className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 text-foreground tracking-tight">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-6 text-foreground tracking-tight">
               24-Hour Purchase Protection
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">

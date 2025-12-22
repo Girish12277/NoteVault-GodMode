@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency } from '@/lib/formatters';
 
 export function FeaturedNotes() {
   const fetchNotes = async (sort: string) => {
@@ -90,41 +91,41 @@ export function FeaturedNotes() {
             </div>
 
             {/* Hero Content Area */}
-            <div className="flex-1 p-6 sm:p-8 flex flex-col justify-between bg-gradient-to-b from-card to-muted/5">
+            <div className="flex-1 p-5 sm:p-8 flex flex-col justify-between bg-gradient-to-b from-card to-muted/5">
               <div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                  <span className="font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md">{heroNote.subject}</span>
+                  <span className="font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md text-xs sm:text-sm">{heroNote.subject}</span>
                   <span>•</span>
-                  <span>{heroNote.university || 'University'}</span>
+                  <span className="text-xs sm:text-sm">{heroNote.university || 'University'}</span>
                 </div>
                 <Link to={`/notes/${heroNote.id}`}>
-                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                  <h3 className="font-display text-xl sm:text-3xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
                     {heroNote.title}
                   </h3>
                 </Link>
-                <p className="text-muted-foreground line-clamp-3 mb-6 leading-relaxed">
+                <p className="text-muted-foreground line-clamp-3 mb-6 leading-relaxed text-sm sm:text-base">
                   {heroNote.description || "Unlock comprehensive insights with this top-tier study resource. Perfect for exam preparation and deep diving into core concepts."}
                 </p>
               </div>
 
               <div className="flex items-center justify-between mt-auto">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border-2 border-background shadow-sm">
                     <AvatarImage src={heroNote.author?.avatar} />
                     <AvatarFallback>{heroNote.author?.name?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-foreground">{heroNote.author?.name}</span>
+                    <span className="text-sm font-semibold text-foreground line-clamp-1">{heroNote.author?.name}</span>
                     <div className="flex items-center text-xs text-muted-foreground">
                       <Star className="w-3 h-3 text-amber-500 fill-current mr-1" />
                       {heroNote.averageRating || 'New'} ({heroNote.totalReviews || 0})
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-primary">₹{heroNote.price}</div>
+                <div className="text-right shrink-0">
+                  <div className="text-lg sm:text-xl font-bold text-primary">{formatCurrency(heroNote.price)}</div>
                   <Link to={`/notes/${heroNote.id}`}>
-                    <Button size="sm" className="mt-1 rounded-full px-5 h-8">View Note</Button>
+                    <Button size="sm" className="mt-1 rounded-full px-4 sm:px-5 h-7 sm:h-8 text-xs sm:text-sm">View Note</Button>
                   </Link>
                 </div>
               </div>
@@ -172,7 +173,7 @@ export function FeaturedNotes() {
                     <span className="flex items-center text-xs text-muted-foreground">
                       <Star className="w-3 h-3 text-amber-500 mr-1 fill-current" /> {note.averageRating || 0}
                     </span>
-                    <span className="font-bold text-primary text-sm">₹{note.price}</span>
+                    <span className="font-bold text-primary text-sm">{formatCurrency(note.price)}</span>
                   </div>
                 </div>
               </div>
@@ -190,11 +191,11 @@ export function FeaturedNotes() {
   };
 
   return (
-    <section className="py-12 lg:py-24 bg-background">
+    <section className="py-8 lg:py-24 bg-background">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
           <div className="max-w-xl">
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl leading-tight">
+            <h2 className="font-display text-2xl font-bold text-foreground md:text-4xl leading-tight">
               Featured <span className="text-primary">Collections</span>
             </h2>
             <p className="text-muted-foreground mt-3 text-lg">
@@ -212,29 +213,32 @@ export function FeaturedNotes() {
         </div>
 
         <Tabs defaultValue="trending" className="w-full">
-          <TabsList className="w-full md:w-auto inline-flex h-12 items-center justify-start rounded-full bg-muted/50 p-1 text-muted-foreground mb-8">
-            <TabsTrigger
-              value="trending"
-              className="rounded-full px-6 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-sm font-medium"
-            >
-              <TrendingUp className="mr-2 h-4 w-4 text-orange-500" />
-              Trending Now
-            </TabsTrigger>
-            <TabsTrigger
-              value="top-rated"
-              className="rounded-full px-6 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-sm font-medium"
-            >
-              <Crown className="mr-2 h-4 w-4 text-yellow-500" />
-              Editor's Choice
-            </TabsTrigger>
-            <TabsTrigger
-              value="recent"
-              className="rounded-full px-6 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-sm font-medium"
-            >
-              <Clock className="mr-2 h-4 w-4 text-blue-500" />
-              New Arrivals
-            </TabsTrigger>
-          </TabsList>
+          {/* Scrollable Tabs Container for Mobile */}
+          <div className="w-full overflow-x-auto pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+            <TabsList className="w-auto inline-flex h-12 items-center justify-start rounded-full bg-muted/50 p-1 text-muted-foreground mb-4 md:mb-8">
+              <TabsTrigger
+                value="trending"
+                className="rounded-full px-4 md:px-6 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-sm font-medium whitespace-nowrap"
+              >
+                <TrendingUp className="mr-2 h-4 w-4 text-orange-500" />
+                Trending Now
+              </TabsTrigger>
+              <TabsTrigger
+                value="top-rated"
+                className="rounded-full px-4 md:px-6 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-sm font-medium whitespace-nowrap"
+              >
+                <Crown className="mr-2 h-4 w-4 text-yellow-500" />
+                Editor's Choice
+              </TabsTrigger>
+              <TabsTrigger
+                value="recent"
+                className="rounded-full px-4 md:px-6 py-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-sm font-medium whitespace-nowrap"
+              >
+                <Clock className="mr-2 h-4 w-4 text-blue-500" />
+                New Arrivals
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Content Area with Loading State Handling */}
           <div className="min-h-[500px]">

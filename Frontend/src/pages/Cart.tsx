@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { formatCurrency } from '@/lib/formatters';
 
 export default function Cart() {
   const { cartItems, removeFromCart, addToWishlist, removeFromWishlist, isInWishlist, cartTotal, clearCart } = useCart();
@@ -103,7 +104,7 @@ export default function Cart() {
         {/* Back Navigation */}
         <Link
           to="/browse"
-          className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors p-1 -ml-1"
+          className="inline-flex items-center text-[10px] sm:text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors p-1 -ml-1"
         >
           <ArrowRight className="mr-1 h-3 w-3 rotate-180" />
           Back to Browse
@@ -113,9 +114,9 @@ export default function Cart() {
           Shopping Cart ({cartItems.length})
         </h1>
 
-        <div className="grid gap-4 lg:gap-8 lg:grid-cols-3">
+        <div className="grid gap-3 lg:gap-8 lg:grid-cols-3">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4 min-w-0">
+          <div className="lg:col-span-2 space-y-3 min-w-0">
             <AnimatePresence mode="popLayout">
               {cartItems.map((item) => (
                 <motion.div
@@ -125,52 +126,67 @@ export default function Cart() {
                   exit={{ opacity: 0, x: -50, scale: 0.95 }}
                   key={item.noteId}
                   whileHover={{ y: -2, transition: { type: "spring", stiffness: 400 } }}
-                  className="group flex gap-4 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all relative overflow-hidden"
+                  className="group flex gap-3 p-3 rounded-xl bg-card border border-border/60 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all relative overflow-hidden"
                 >
                   {/* Decorative Gradient Blob on Hover */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                   <Link to={`/notes/${item.note.id}`} className="shrink-0 relative">
-                    <div className="relative overflow-hidden rounded-xl">
+                    <div className="relative overflow-hidden rounded-lg">
                       <img
                         src={item.note.coverImage}
                         alt={item.note.title}
-                        className="w-20 h-28 sm:w-24 sm:h-32 object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-16 h-20 sm:w-24 sm:h-32 object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
                     </div>
                   </Link>
 
-                  <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                  <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                     <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <Link to={`/notes/${item.note.id}`}>
-                          <h3 className="font-display font-bold text-base sm:text-lg text-foreground hover:text-primary transition-colors line-clamp-2 leading-tight">
+                      <div className="flex items-start justify-between gap-3">
+                        <Link to={`/notes/${item.note.id}`} className="min-w-0 flex-1">
+                          <h3 className="font-display font-medium text-sm sm:text-lg text-foreground hover:text-primary transition-colors line-clamp-2 leading-tight">
                             {item.note.title}
                           </h3>
                         </Link>
-                        {/* Remove Button Mobile (Top Right) */}
+
+                        {/* Mobile: Price & Delete aligned with Title */}
+                        <div className="flex items-center gap-2 shrink-0 sm:hidden self-start">
+                          <span className="text-sm font-bold text-foreground">
+                            {formatCurrency(item.note.price)}
+                          </span>
+                          <button
+                            onClick={() => removeFromCart(item.noteId)}
+                            className="text-muted-foreground hover:text-destructive p-1 -mr-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        {/* Desktop: Delete button only (top right) */}
                         <button
                           onClick={() => removeFromCart(item.noteId)}
-                          className="sm:hidden text-muted-foreground hover:text-destructive p-1"
+                          className="hidden sm:block text-muted-foreground hover:text-destructive p-1"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
 
-                      <p className="text-xs font-medium text-primary mt-1">
+                      <p className="text-[10px] font-medium text-primary mt-1">
                         {item.note.subject} <span className="text-muted-foreground font-normal">• Sem {item.note.semester}</span>
                       </p>
-                      <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                      <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
                         {item.note.college}
                       </p>
                     </div>
 
-                    <div className="flex items-end justify-between mt-3">
+                    {/* Desktop Bottom Row: Price & Actions (Hidden on Mobile) */}
+                    <div className="hidden sm:flex items-end justify-between mt-2">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Price</span>
-                        <span className="text-xl sm:text-2xl font-bold text-foreground">
-                          ₹{item.note.price}
+                        <span className="text-xs uppercase text-muted-foreground font-bold tracking-wider">Price</span>
+                        <span className="text-2xl font-bold text-foreground">
+                          {formatCurrency(item.note.price)}
                         </span>
                       </div>
 
@@ -185,7 +201,7 @@ export default function Cart() {
 
                         <motion.button
                           whileTap={{ scale: 0.9 }}
-                          className="hidden sm:flex h-9 w-9 rounded-full bg-background border border-border text-muted-foreground hover:text-destructive hover:bg-destructive/5 hover:border-destructive/20 items-center justify-center transition-colors"
+                          className="h-9 w-9 rounded-full bg-background border border-border text-muted-foreground hover:text-destructive hover:bg-destructive/5 hover:border-destructive/20 items-center justify-center transition-colors"
                           onClick={() => removeFromCart(item.noteId)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -200,13 +216,13 @@ export default function Cart() {
 
           {/* Order Summary - Visible on Mobile now */}
           <div className="lg:col-span-1 min-w-0">
-            <div className="lg:sticky lg:top-24 rounded-2xl bg-card/50 backdrop-blur-xl border border-white/20 p-6 space-y-6 shadow-xl relative overflow-hidden">
+            <div className="lg:sticky lg:top-24 rounded-2xl bg-card/50 backdrop-blur-xl border border-white/20 p-4 sm:p-6 space-y-4 sm:space-y-6 shadow-xl relative overflow-hidden">
               {/* Glass Reflection */}
               <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
 
-              <h2 className="font-display text-xl font-bold tracking-tight">Order Summary</h2>
+              <h2 className="font-display text-base sm:text-xl font-bold tracking-tight">Order Summary</h2>
 
-              <div className="space-y-3 text-sm">
+              <div className="space-y-2 sm:space-y-3 text-xs">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal ({cartItems.length} items)</span>
                   <span className="font-mono">₹{cartTotal}</span>
@@ -215,16 +231,16 @@ export default function Cart() {
                   <span>Platform fee</span>
                   <span className="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] uppercase">Free</span>
                 </div>
-                <div className="border-t border-dashed border-border/50 pt-3 mt-3">
-                  <div className="flex justify-between text-lg font-bold">
+                <div className="border-t border-dashed border-border/50 pt-2 sm:pt-3 mt-2 sm:mt-3">
+                  <div className="flex justify-between text-base sm:text-lg font-bold">
                     <span>Total</span>
                     <span>₹{cartTotal}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Inclusive of all taxes</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Inclusive of all taxes</p>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3"> {/* Unhidden on mobile */}
                 <Button size="lg" className="w-full h-12 text-base font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all" onClick={handleCheckout}>
                   <Lock className="mr-2 h-4 w-4" />
                   Secure Checkout
@@ -237,15 +253,20 @@ export default function Cart() {
                 </Link>
               </div>
 
+              {/* Mobile specific add items link */}
+              <div className="sm:hidden text-center">
+                <Link to="/browse" className="text-[10px] text-primary hover:underline">Add more items</Link>
+              </div>
+
               {/* Trust Badges */}
-              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border/50">
+              <div className="grid grid-cols-2 gap-3 pt-3 sm:pt-4 border-t border-border/50">
                 <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-emerald-50/50 border border-emerald-100/50 text-center gap-1">
-                  <Shield className="h-5 w-5 text-emerald-600" />
-                  <span className="text-[10px] font-bold text-emerald-800">100% Secure</span>
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
+                  <span className="text-[10px] sm:text-xs font-bold text-emerald-800">100% Secure</span>
                 </div>
                 <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-blue-50/50 border border-blue-100/50 text-center gap-1">
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  <span className="text-[10px] font-bold text-blue-800">Instant Access</span>
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                  <span className="text-[10px] sm:text-xs font-bold text-blue-800">Instant Access</span>
                 </div>
               </div>
             </div>
@@ -253,22 +274,22 @@ export default function Cart() {
         </div>
 
         {/* Mobile Sticky Action Bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border lg:hidden z-50 safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-300">
-          <div className="container px-0 flex items-center gap-4">
+        <div className="fixed bottom-0 left-0 right-0 p-3 bg-background border-t border-border lg:hidden z-50 safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-300">
+          <div className="container px-0 flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider mb-0.5">Total</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold font-display">₹{cartTotal}</span>
-                <span className="text-xs text-muted-foreground ml-1">({cartItems.length} items)</span>
+                <span className="text-lg font-bold font-display">₹{cartTotal}</span>
+                <span className="text-[10px] text-muted-foreground ml-1">({cartItems.length} items)</span>
               </div>
             </div>
             <Button
-              size="lg"
-              className="flex-1 font-bold shadow-glow text-base max-w-[200px]"
+              size="default"
+              className="flex-1 font-bold shadow-glow text-sm h-10 max-w-[180px]"
               onClick={handleCheckout}
             >
               Checkout
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="ml-2 h-3.5 w-3.5" />
             </Button>
           </div>
         </div>

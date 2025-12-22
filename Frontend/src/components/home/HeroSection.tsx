@@ -54,7 +54,7 @@ export function HeroSection({
   }
 
   return (
-    <section className="relative overflow-hidden bg-background pt-20 pb-32 lg:pt-32 lg:pb-40">
+    <section className="relative overflow-hidden bg-background pt-6 pb-12 lg:pt-20 lg:pb-32">
       {/* 1. Aurora Background & Noise */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
@@ -85,7 +85,7 @@ export function HeroSection({
 
             {/* Kinetic Composition */}
             <div className="space-y-6 max-w-2xl">
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
                 {displayHeadline.split(',')[0]} <br />
                 <span className="text-primary relative inline-block">
                   {/* Flip Word */}
@@ -121,7 +121,7 @@ export function HeroSection({
                     <AvatarFallback>S{i}</AvatarFallback>
                   </Avatar>
                 ))}
-                <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-background bg-muted text-[10px] font-bold ring-1 ring-border">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-background bg-muted text-xs font-bold ring-1 ring-border">
                   +2k
                 </div>
               </div>
@@ -170,7 +170,7 @@ export function HeroSection({
         </div>
 
         {/* University Ticker (Footer of Hero) */}
-        <div className="mt-20 pt-8 border-t border-border/40">
+        <div className="mt-12 pt-6 border-t border-border/40">
           <p className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-6">Trusted by students from</p>
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
             {UNIVERSITIES.map((name) => (

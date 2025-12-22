@@ -79,22 +79,22 @@ function OmniSearch() {
   return (
     <div className="relative w-full max-w-2xl mx-auto mb-8 relative z-20">
       <div className={cn(
-        "relative flex items-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50",
+        "relative flex items-center bg-background/50 backdrop-blur-xl border border-border/50 rounded-xl sm:rounded-2xl shadow-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50",
         isOpen && "ring-2 ring-primary/20 border-primary/50 scale-[1.02]"
       )}>
-        <Search className="ml-4 h-5 w-5 text-muted-foreground" />
+        <Search className="ml-3 sm:ml-4 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
         <form onSubmit={handleCommand} className="flex-1">
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-            placeholder="Type a command or search... (e.g. 'Manage Users', 'Physics Notes')"
-            className="h-14 border-0 bg-transparent text-lg focus-visible:ring-0 placeholder:text-muted-foreground/50"
+            placeholder="Type a command or search..."
+            className="h-10 sm:h-14 border-0 bg-transparent text-sm sm:text-lg focus-visible:ring-0 placeholder:text-muted-foreground/50"
           />
         </form>
-        <div className="mr-4 flex items-center gap-2">
-          <kbd className="pointer-events-none inline-flex h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+        <div className="mr-3 sm:mr-4 flex items-center gap-2">
+          <kbd className="pointer-events-none hidden sm:inline-flex h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground opacity-100">
             <span className="text-xs">⌘</span>K
           </kbd>
         </div>
@@ -135,22 +135,22 @@ const HUDCard = ({ title, value, growth, icon: Icon, colorClass, delay }: any) =
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
-    className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card/80 transition-all duration-500 group"
+    className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-4 sm:p-6 hover:bg-card/80 transition-all duration-500 group"
   >
-    <div className={cn("absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500", colorClass)}>
-      <Icon className="h-24 w-24" />
+    <div className={cn("absolute top-0 right-0 p-3 sm:p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500", colorClass)}>
+      <Icon className="h-16 w-16 sm:h-24 sm:w-24" />
     </div>
     <div className="relative z-10">
-      <div className="flex items-center gap-2 mb-2 text-muted-foreground text-xs font-bold uppercase tracking-wider">
-        <Icon className="h-4 w-4" /> {title}
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 text-muted-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+        <Icon className="h-3 w-3 sm:h-4 sm:w-4" /> {title}
       </div>
-      <div className="text-3xl font-display font-bold text-foreground tracking-tight">
+      <div className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
         {value}
       </div>
       {growth !== undefined && (
-        <div className="flex items-center mt-2 text-xs font-medium text-emerald-500 bg-emerald-500/10 w-fit px-2 py-0.5 rounded-full">
-          <ArrowUpRight className="h-3 w-3 mr-1" />
-          {growth}% <span className="text-muted-foreground ml-1 font-normal">vs last week</span>
+        <div className="flex items-center mt-1.5 sm:mt-2 text-[10px] sm:text-xs font-medium text-emerald-500 bg-emerald-500/10 w-fit px-1.5 sm:px-2 py-0.5 rounded-full">
+          <ArrowUpRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+          {growth}% <span className="text-muted-foreground ml-0.5 sm:ml-1 font-normal hidden sm:inline">vs last week</span>
         </div>
       )}
     </div>
@@ -203,11 +203,11 @@ export default function AdminDashboard() {
         <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="mb-10 text-center relative">
-        <Badge variant="outline" className="mb-4 bg-background/50 backdrop-blur border-primary/20 text-primary">
-          <Zap className="h-3 w-3 mr-1 fill-current" /> System Status: Operational
+      <div className="mb-6 sm:mb-10 text-center relative">
+        <Badge variant="outline" className="mb-3 sm:mb-4 bg-background/50 backdrop-blur border-primary/20 text-primary text-[10px] sm:text-xs h-5 sm:h-6">
+          <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1 fill-current" /> System Status: Operational
         </Badge>
-        <h1 className="font-display text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60">
+        <h1 className="font-display text-xl sm:text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60">
           Orbital Command
         </h1>
       </div>
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
       <OmniSearch />
 
       {/* 2. System Pulse HUD */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
+      <div className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4 mb-8 md:mb-10">
         <HUDCard
           title="Total Users"
           value={stats.totalUsers}
@@ -246,27 +246,27 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           className={cn(
-            "relative overflow-hidden rounded-2xl border bg-card/50 backdrop-blur-sm p-6 hover:bg-card/80 transition-all duration-500 group cursor-pointer",
+            "relative overflow-hidden rounded-xl sm:rounded-2xl border bg-card/50 backdrop-blur-sm p-4 sm:p-6 hover:bg-card/80 transition-all duration-500 group cursor-pointer",
             stats.pendingDisputes > 0 ? "border-orange-500/50 shadow-lg shadow-orange-500/10" : "border-border/50"
           )}
         >
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500 text-orange-500">
-            <AlertTriangle className="h-24 w-24" />
+          <div className="absolute top-0 right-0 p-3 sm:p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500 text-orange-500">
+            <AlertTriangle className="h-16 w-16 sm:h-24 sm:w-24" />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-2 text-orange-600 text-xs font-bold uppercase tracking-wider">
-              <ShieldAlert className="h-4 w-4" /> Attention Needed
+            <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 text-orange-600 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+              <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" /> Attention Needed
             </div>
-            <div className="text-3xl font-display font-bold text-foreground tracking-tight">
+            <div className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
               {stats.pendingDisputes}
             </div>
-            <div className="flex items-center mt-2 text-xs font-medium text-muted-foreground">
+            <div className="flex items-center mt-1.5 sm:mt-2 text-[10px] sm:text-xs font-medium text-muted-foreground">
               Pending Disputes
             </div>
             {stats.pendingDisputes > 0 && (
-              <div className="absolute bottom-6 right-6">
+              <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-6">
                 <Link to="/admin/disputes">
-                  <Button size="sm" variant="destructive" className="rounded-full shadow-lg shadow-orange-500/20">Resolve</Button>
+                  <Button size="sm" variant="destructive" className="rounded-full shadow-lg shadow-orange-500/20 h-6 sm:h-8 text-[10px] sm:text-xs px-2 sm:px-3">Resolve</Button>
                 </Link>
               </div>
             )}
@@ -275,7 +275,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Live Metrics Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
         <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 overflow-hidden relative">
           <div className="absolute right-0 top-0 p-6 opacity-20"><TrendingUp className="h-32 w-32 -rotate-12 text-primary" /></div>
           <CardContent className="p-8 relative">
@@ -370,7 +370,7 @@ export default function AdminDashboard() {
                   <div className="text-right mr-2">
                     <div className="font-bold">₹{order.amount}</div>
                     <Badge variant="outline" className={cn(
-                      "text-[10px] h-5 border-0",
+                      "text-xs h-5 border-0",
                       order.status === 'completed' ? "bg-emerald-500/10 text-emerald-600" :
                         order.status === 'pending' ? "bg-amber-500/10 text-amber-600" : "bg-red-500/10 text-red-600"
                     )}>
@@ -379,7 +379,7 @@ export default function AdminDashboard() {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Order actions">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>

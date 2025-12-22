@@ -14,7 +14,9 @@ import {
   GraduationCap,
   ChevronDown,
   Filter,
-  Check
+  Check,
+  HelpCircle,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,7 +41,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Badge } from '@/components/ui/badge';
 
 import { NotificationBell } from './NotificationBell';
@@ -89,15 +91,10 @@ export function Header() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const { data: identity } = useQuery({
-    queryKey: ['content', 'site-identity'],
-    queryFn: () => contentApi.get('site-identity'),
-    staleTime: 0,
-    refetchOnWindowFocus: true
-  });
+  // Site branding - using static defaults (API endpoint not implemented)
+  const siteName = 'NotesMarket';
+  const logoUrl = undefined;
 
-  const siteName = identity?.siteName || 'NotesMarket';
-  const logoUrl = identity?.logoUrl;
 
   const handleBecomeSeller = async () => {
     try {
@@ -178,10 +175,12 @@ export function Header() {
           )}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          inputMode="search"
+          enterKeyHint="search"
         />
         {!mobile && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 opacity-40 pointer-events-none">
-            <span className="text-[10px] font-mono border rounded px-1.5 bg-muted">⌘K</span>
+            <span className="text-xs font-mono border rounded px-1.5 bg-muted">⌘K</span>
           </div>
         )}
       </div>
@@ -204,48 +203,150 @@ export function Header() {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <SheetHeader>
-              <SheetTitle className="text-left flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                {siteName}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="grid gap-6 py-6 px-2">
-              <Link to="/browse" className="flex items-center gap-2 text-lg font-medium">
-                <Library className="h-5 w-5" /> Browse Notes
-              </Link>
-              <Link to="/wishlist" className="flex items-center gap-2 text-lg font-medium">
-                <Heart className="h-5 w-5" /> Wishlist
-                {wishlistCount > 0 && <Badge variant="secondary" className="ml-auto">{wishlistCount}</Badge>}
-              </Link>
+          <SheetContent side="left" className="p-4 pr-2 flex flex-col h-full w-[280px] sm:w-[320px]">
+            <SheetHeader className="text-left mb-4">
+              {/* 1. Identity Header Block */}
               {isAuthenticated ? (
-                <>
-                  <Link to="/library" className="flex items-center gap-2 text-lg font-medium">
-                    <BookCopy className="h-5 w-5" /> My Library
-                  </Link>
-                  <Link to="/account" className="flex items-center gap-2 text-lg font-medium">
-                    <User className="h-5 w-5" /> Account
-                  </Link>
-                  <Link to="/seller" className="flex items-center gap-2 text-lg font-medium">
-                    <LayoutDashboard className="h-5 w-5" /> Seller Dashboard
-                  </Link>
-                </>
-              ) : (
-                <Link to="/auth">
-                  <Button className="w-full mt-4">Login / Sign Up</Button>
-                </Link>
-              )}
-
-              {/* Mobile Language Options */}
-              <div className="mt-4 border-t pt-4">
-                <p className="text-sm text-muted-foreground mb-2 px-2">Language</p>
-                <div className="flex gap-2">
-                  <LanguageToggle />
+                <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                  <Avatar className="h-10 w-10 border border-border">
+                    <AvatarImage src={user?.avatar} alt={user?.name} />
+                    <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <SheetTitle className="font-bold text-base leading-none">{user?.name}</SheetTitle>
+                    <span className="text-xs text-muted-foreground mt-1">{user?.email}</span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="pb-3 border-b border-border/50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
+                      <BookOpen className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <SheetTitle className="font-bold text-lg">{siteName}</SheetTitle>
+                  </div>
+                  <SheetClose asChild>
+                    <Link to="/auth">
+                      <Button className="w-full font-bold shadow-sm">Join Now / Login</Button>
+                    </Link>
+                  </SheetClose>
+                </div>
+              )}
+            </SheetHeader>
 
+            {/* 2. Scrollable Navigation Groups */}
+            <div className="flex-1 overflow-y-auto -mr-2 pr-2">
+              <div className="flex flex-col gap-5 pr-2">
+
+                {/* Group: Marketplace */}
+                <div className="flex flex-col gap-1">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">Marketplace</h4>
+                  <SheetClose asChild>
+                    <Link to="/browse">
+                      <Button variant={location.pathname === '/browse' ? 'secondary' : 'ghost'} className="w-full justify-start text-base h-10 font-medium">
+                        <Library className="mr-3 h-5 w-5 opacity-70" /> Browse Notes
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/browse?sort=popular">
+                      <Button variant="ghost" className="w-full justify-start text-base h-10 font-medium">
+                        <TrendingUp className="mr-3 h-5 w-5 text-orange-500" /> Trending Now
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/how-it-works">
+                      <Button variant={location.pathname === '/how-it-works' ? 'secondary' : 'ghost'} className="w-full justify-start text-base h-10 font-medium">
+                        <HelpCircle className="mr-3 h-5 w-5 opacity-70" /> How it Works
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                </div>
+
+                {/* Group: Personal */}
+                <div className="flex flex-col gap-1">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">My Learning</h4>
+                  <SheetClose asChild>
+                    <Link to="/cart">
+                      <Button variant={location.pathname === '/cart' ? 'secondary' : 'ghost'} className="w-full justify-start text-base h-10 font-medium relative">
+                        <ShoppingCart className="mr-3 h-5 w-5 opacity-70" /> Cart
+                        {cartCount > 0 && <Badge variant="default" className="ml-auto h-5 px-1.5 min-w-[1.25rem]">{cartCount}</Badge>}
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/wishlist">
+                      <Button variant={location.pathname === '/wishlist' ? 'secondary' : 'ghost'} className="w-full justify-start text-base h-10 font-medium">
+                        <Heart className="mr-3 h-5 w-5 opacity-70" /> Wishlist
+                        {wishlistCount > 0 && <Badge variant="secondary" className="ml-auto h-5 px-1.5 min-w-[1.25rem]">{wishlistCount}</Badge>}
+                      </Button>
+                    </Link>
+                  </SheetClose>
+                  {isAuthenticated && (
+                    <SheetClose asChild>
+                      <Link to="/library">
+                        <Button variant={location.pathname === '/library' ? 'secondary' : 'ghost'} className="w-full justify-start text-base h-10 font-medium">
+                          <BookCopy className="mr-3 h-5 w-5 opacity-70" /> My Library
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                  )}
+                </div>
+
+                {/* Group: Account / Seller */}
+                <div className="flex flex-col gap-1">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">Account</h4>
+                  {isAuthenticated ? (
+                    <>
+                      <SheetClose asChild>
+                        <Link to="/account">
+                          <Button variant={location.pathname === '/account' ? 'secondary' : 'ghost'} className="w-full justify-start text-base h-10 font-medium">
+                            <User className="mr-3 h-5 w-5 opacity-70" /> Profile Settings
+                          </Button>
+                        </Link>
+                      </SheetClose>
+                      {user.role === 'seller' || user.role === 'admin' || user.is_seller ? (
+                        <SheetClose asChild>
+                          <Link to="/seller">
+                            <Button className="w-full justify-start text-base h-10 font-bold bg-gradient-to-r from-primary/10 to-transparent text-primary hover:text-primary border border-primary/20 mt-2">
+                              <LayoutDashboard className="mr-3 h-5 w-5" /> Seller Dashboard
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                      ) : (
+                        <SheetClose asChild>
+                          <Button onClick={handleBecomeSeller} variant="ghost" className="w-full justify-start text-base h-10 font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20">
+                            <GraduationCap className="mr-3 h-5 w-5" /> Become a Seller
+                          </Button>
+                        </SheetClose>
+                      )}
+                    </>
+                  ) : (
+                    <div className="px-2 text-sm text-muted-foreground">
+                      Log in to access your account settings.
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
+
+            {/* 3. Sticky Footer */}
+            <div className="mt-auto pt-6 border-t border-border/50">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-medium text-muted-foreground">App Language</span>
+                <LanguageToggle />
+              </div>
+              {isAuthenticated && (
+                <SheetClose asChild>
+                  <Button onClick={logout} variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:bg-red-900/10 dark:hover:bg-red-900/20">
+                    <LogOut className="mr-2 h-4 w-4" /> Log Out
+                  </Button>
+                </SheetClose>
+              )}
+            </div>
+
           </SheetContent>
         </Sheet>
 
@@ -273,9 +374,9 @@ export function Header() {
                   <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
                       <NavigationMenuLink asChild>
-                        <a
+                        <Link
+                          to="/browse"
                           className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                          href="/browse"
                         >
                           <BookOpen className="h-6 w-6" />
                           <div className="mb-2 mt-4 text-lg font-medium">
@@ -284,7 +385,7 @@ export function Header() {
                           <p className="text-sm leading-tight text-muted-foreground">
                             Explore our complete collection of verified academic notes.
                           </p>
-                        </a>
+                        </Link>
                       </NavigationMenuLink>
                     </li>
                     <ListItem href="/browse?degree=BTech" title="Engineering (B.Tech)">
@@ -300,12 +401,23 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link to="/how-it-works">
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuLink asChild>
+                  <Link to="/how-it-works" className={navigationMenuTriggerStyle()}>
                     How it Works
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
+
+              {/* Seller Dashboard Link (Desktop) */}
+              {(user?.role === 'seller' || user?.role === 'admin' || user?.is_seller) && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link to="/seller" className={navigationMenuTriggerStyle()}>
+                      Dashboard
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -326,7 +438,7 @@ export function Header() {
               <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                 <Heart className="h-4 w-4" />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                     {wishlistCount}
                   </span>
                 )}
@@ -339,7 +451,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="h-9 w-9 relative">
               <ShoppingCart className="h-4 w-4" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                   {cartCount}
                 </span>
               )}
@@ -351,8 +463,8 @@ export function Header() {
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full ml-1">
-                  <Avatar className="h-8 w-8 border border-border">
+                <Button variant="ghost" className="relative h-10 w-10 min-h-[44px] min-w-[44px] rounded-full ml-1" aria-label="User menu">
+                  <Avatar className="h-9 w-9 border border-border">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
                     <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
@@ -362,7 +474,7 @@ export function Header() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{user?.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-sm leading-none text-muted-foreground">
                       {user?.email}
                     </p>
                   </div>
@@ -378,7 +490,7 @@ export function Header() {
                     <Library className="mr-2 h-4 w-4" /> My Library
                   </Link>
                 </DropdownMenuItem>
-                {user?.role === 'seller' || user?.role === 'admin' ? (
+                {user?.role === 'seller' || user?.role === 'admin' || user?.is_seller ? (
                   <DropdownMenuItem asChild>
                     <Link to="/seller" className="cursor-pointer">
                       <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
@@ -403,8 +515,8 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Search Row */}
-      <div className="md:hidden container pb-4 px-4 -mt-1">
+      {/* Mobile Search Row - Compact */}
+      <div className="md:hidden container pb-2 px-3 -mt-1">
         <SearchForm mobile={true} />
       </div>
 

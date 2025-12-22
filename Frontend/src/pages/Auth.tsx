@@ -226,7 +226,7 @@ const LoginForm = ({ form, dispatch, priority, mode, error }: any) => {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/60" /></div>
-          <div className="relative flex justify-center text-[10px] uppercase tracking-widest"><span className="bg-background px-2 text-muted-foreground/50">Or continue with</span></div>
+          <div className="relative flex justify-center text-xs uppercase tracking-widest"><span className="bg-background px-2 text-muted-foreground/50">Or continue with</span></div>
         </div>
 
         <Button variant="outline" className="w-full h-12 font-medium hover:bg-muted/50" onClick={() => dispatch({ type: 'SUBMIT_GOOGLE' })}>
@@ -241,7 +241,7 @@ const LoginForm = ({ form, dispatch, priority, mode, error }: any) => {
 
         {/* RESTORED: Terms (SECURE INTERNAL LINKS) */}
         {!isLogin && (
-          <p className="text-[10px] text-center text-muted-foreground/60 px-4 leading-relaxed">
+          <p className="text-xs text-center text-muted-foreground/60 px-4 leading-relaxed">
             {AUTH_COPY.TXT_TERMS_PREFIX}{' '}
             <a
               href="/terms"
@@ -320,7 +320,7 @@ const SuccessGate = ({ state }: any) => (
       <h2 className="text-2xl font-bold">Welcome Home.</h2>
       <p className="text-sm text-muted-foreground">Secure connection established.</p>
     </div>
-    <div className="py-2 px-4 bg-muted/50 rounded-full font-mono text-[10px] text-muted-foreground/60 inline-block">
+    <div className="py-2 px-4 bg-muted/50 rounded-full font-mono text-xs text-muted-foreground/60 inline-block">
       Session ID: {state.sessionId.substring(0, 12)}...
     </div>
   </div>

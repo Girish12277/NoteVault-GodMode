@@ -132,7 +132,7 @@ export default function Terms() {
                   <Badge variant="outline" className="bg-background">
                     Last Updated: December 2024
                   </Badge>
-                  <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200">
+                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
                     Active
                   </Badge>
                 </div>

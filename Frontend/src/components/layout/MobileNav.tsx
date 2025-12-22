@@ -43,7 +43,7 @@ export function MobileNav() {
                                 to={href}
                                 onClick={triggerHaptic}
                                 className={cn(
-                                    "relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-all duration-300",
+                                    "relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 text-xs font-medium transition-all duration-300 active:scale-95",
                                     isActive ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground"
                                 )}
                             >
@@ -66,7 +66,7 @@ export function MobileNav() {
 
                                     <motion.span
                                         animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0.6, y: 2 }}
-                                        className="text-[10px]"
+                                        className="text-xs"
                                     >
                                         {label}
                                     </motion.span>

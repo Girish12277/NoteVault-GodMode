@@ -5,7 +5,22 @@ import { searchLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-// Search with query parameter validation and rate limiting
-router.get('/', searchLimiter, validateQuery(schemas.searchQuery), searchController.search);
+// Main search with filters
+router.get('/',
+    searchLimiter,
+    validateQuery(schemas.searchQuery),
+    searchController.search
+);
+
+// Autocomplete suggestions
+router.get('/autocomplete',
+    searchLimiter,
+    searchController.autocomplete
+);
+
+// Get search facets (subjects, universities)
+router.get('/facets',
+    searchController.facets
+);
 
 export default router;

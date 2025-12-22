@@ -43,7 +43,7 @@ export default function PaymentFailed() {
               {error || "We couldn't verify this payment. It might be a momentary bank issue or internet glitch."}
             </p>
             {orderId && (
-              <Badge variant="secondary" className="font-mono text-[10px] text-muted-foreground/70 bg-muted/50 border-border/50 select-all">
+              <Badge variant="secondary" className="font-mono text-xs text-muted-foreground/70 bg-muted/50 border-border/50 select-all">
                 Ref: {orderId}
               </Badge>
             )}
@@ -74,19 +74,19 @@ export default function PaymentFailed() {
               <div className="h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center">
                 <Wifi className="h-4 w-4 text-primary/60" />
               </div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wide">Internet</span>
+              <span className="text-xs uppercase font-bold text-muted-foreground tracking-wide">Internet</span>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/30 border border-border/40">
               <div className="h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center">
                 <Wallet className="h-4 w-4 text-primary/60" />
               </div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wide">Balance</span>
+              <span className="text-xs uppercase font-bold text-muted-foreground tracking-wide">Balance</span>
             </div>
             <Link to="/contact" className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/30 border border-border/40 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center group-hover:border-primary/40 group-hover:text-primary transition-colors">
                 <MessageSquare className="h-4 w-4 text-primary/60 group-hover:text-primary" />
               </div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wide group-hover:text-primary">Support</span>
+              <span className="text-xs uppercase font-bold text-muted-foreground tracking-wide group-hover:text-primary">Support</span>
             </Link>
           </div>
 

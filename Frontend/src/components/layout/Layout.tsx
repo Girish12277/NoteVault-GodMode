@@ -3,6 +3,8 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { MobileNav } from './MobileNav';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,8 +12,11 @@ interface LayoutProps {
 }
 
 export function Layout({ children, hideFooter = false }: LayoutProps) {
+  const isOnline = useOnlineStatus();
+
   return (
-    <div className="flex min-h-screen flex-col pb-16 lg:pb-0"> {/* Safe area for MobileNav */}
+    <div className="flex min-h-[100dvh] flex-col pb-16 lg:pb-0"> {/* Safe area for MobileNav */}:
+      <OfflineBanner isOnline={isOnline} />
       <ErrorBoundary>
         <Header />
       </ErrorBoundary>

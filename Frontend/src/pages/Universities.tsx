@@ -18,12 +18,11 @@ interface University {
 
 const getGradient = (name: string) => {
   const sum = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  // Strict 3-Color Palette Rotation (Primary, Secondary, Accent)
   const gradients = [
-    "from-blue-500/20 to-cyan-500/20 text-blue-600 border-blue-200",
-    "from-violet-500/20 to-purple-500/20 text-violet-600 border-violet-200",
-    "from-emerald-500/20 to-teal-500/20 text-emerald-600 border-emerald-200",
-    "from-orange-500/20 to-amber-500/20 text-orange-600 border-orange-200",
-    "from-rose-500/20 to-pink-500/20 text-rose-600 border-rose-200",
+    "from-primary/10 to-primary/5 text-primary border-primary/20",       // Primary (Orange)
+    "from-secondary/10 to-secondary/5 text-secondary border-secondary/20", // Secondary (Navy)
+    "from-accent/10 to-accent/5 text-accent border-accent/20",             // Accent (Green)
   ];
   return gradients[sum % gradients.length];
 };
@@ -215,7 +214,7 @@ export default function Universities() {
                         key={letter}
                         onClick={() => scrollToLetter(letter)}
                         className={cn(
-                          "w-6 h-6 flex items-center justify-center text-[10px] font-bold rounded-full transition-all hover:bg-primary hover:text-primary-foreground",
+                          "w-6 h-6 flex items-center justify-center text-xs font-bold rounded-full transition-all hover:bg-primary hover:text-primary-foreground",
                           "text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                         )}
                         disabled={!groupedUniversities?.some(([l]) => l === letter)}

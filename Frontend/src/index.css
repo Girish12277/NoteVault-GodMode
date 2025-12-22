@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -131,6 +131,8 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
     text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+    /* Prevent Pull-to-Refresh on whole app */
   }
 
   h1,
@@ -142,6 +144,19 @@
     font-family: 'Poppins', sans-serif;
     @apply font-semibold tracking-tight;
     text-wrap: balance;
+  }
+
+  /* GOD-LEVEL: 60:30:10 Font Distribution Rule */
+  .font-primary {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-secondary {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .font-accent {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
@@ -258,6 +273,261 @@
 
   .link-underline:hover::after {
     @apply scale-x-100 origin-bottom-left;
+  }
+
+  /* GOD-LEVEL: Mobile Touch Targets (Apple HIG 44px minimum) */
+  .btn-touch {
+    @apply min-h-11 min-w-11;
+    /* 44px minimum for buttons */
+  }
+
+  .link-touch {
+    @apply min-h-11 inline-flex items-center;
+    /* 44px for links */
+  }
+
+  .chip-touch {
+    @apply min-h-9 px-4 py-2;
+    /* 36px minimum for chips/badges */
+  }
+
+  /* Icon button touch target - ensures 44px clickable area around small icons */
+  .icon-touch {
+    @apply relative;
+    /* Add invisible 44px touch area */
+  }
+
+  .icon-touch::before {
+    content: '';
+    @apply absolute -inset-2;
+    /* Expands touch area by 8px on each side */
+  }
+
+  /* ========================================
+     RESPONSIVE TOUCH TARGET OVERRIDES
+     Forces 44px minimum on mobile screens
+     ======================================== */
+
+  @media screen and (max-width: 768px) {
+
+    /* Ensure all buttons meet 44px minimum on mobile */
+    button:not(.no-touch-expand),
+    [role="button"]:not(.no-touch-expand) {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Icon-only buttons get extra padding for touch */
+    button[data-icon-only],
+    .icon-btn-mobile {
+      @apply p-2.5;
+      /* 10px padding ensures 44px with 24px icon */
+    }
+
+    /* Increase tap targets for close/action buttons */
+    [aria-label*="close"],
+    [aria-label*="delete"],
+    [aria-label*="remove"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Mobile-First Font Size (WCAG AA 14px minimum) */
+  .text-mobile-safe {
+    @apply text-base;
+    /* CHANGED: 16px base to prevent iOS zoom */
+  }
+
+  /* ========================================
+     GOD-LEVEL MOBILE TYPOGRAPHY SYSTEM
+     Ensures WCAG 2.1 AA compliance on all devices
+     ======================================== */
+
+  /* Mobile-Safe Helper Text (replaces text-xs in components) */
+  .text-helper {
+    @apply text-sm leading-relaxed;
+    /* 14px - minimum for helper/meta text */
+  }
+
+  /* Mobile-Safe Caption Text */
+  .text-caption {
+    @apply text-sm text-muted-foreground leading-normal;
+    /* 14px for captions, labels */
+  }
+
+  /* Mobile-Safe Body Text */
+  .text-body {
+    @apply text-base leading-relaxed;
+    /* 16px body text with good line height */
+  }
+
+  /* Mobile-Safe Large Body */
+  .text-body-lg {
+    @apply text-lg leading-relaxed;
+    /* 18px for important body text */
+  }
+
+  /* Mobile-First Heading Scale
+     Mobile → Tablet → Desktop progression */
+  .heading-xl {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold tracking-tight leading-tight;
+  }
+
+  .heading-lg {
+    @apply text-xl sm:text-2xl md:text-3xl font-display font-bold tracking-tight leading-tight;
+  }
+
+  .heading-md {
+    @apply text-lg sm:text-xl md:text-2xl font-display font-semibold tracking-tight leading-snug;
+  }
+
+  .heading-sm {
+    @apply text-base sm:text-lg md:text-xl font-display font-semibold leading-snug;
+  }
+
+  /* Price Display - Larger for prominence */
+  .text-price {
+    @apply text-xl sm:text-2xl md:text-3xl font-mono font-bold tabular-nums;
+  }
+
+  .text-price-sm {
+    @apply text-lg sm:text-xl font-mono font-semibold tabular-nums;
+  }
+
+  /* Stat/Metric Display */
+  .text-stat {
+    @apply text-2xl sm:text-3xl md:text-4xl font-mono font-bold;
+  }
+
+  /* Badge/Tag Text */
+  .text-badge {
+    @apply text-xs sm:text-sm font-medium uppercase tracking-wide;
+  }
+
+  /* ========================================
+     RESPONSIVE TEXT OVERRIDE UTILITIES
+     Use these to force mobile-safe sizes
+     ======================================== */
+
+  /* Force minimum 14px on mobile */
+  @media screen and (max-width: 640px) {
+    .mobile-text-safe {
+      font-size: 0.875rem !important;
+      /* 14px minimum */
+      line-height: 1.5 !important;
+    }
+  }
+
+  /* PREVENT iOS INPUT ZOOM - CRITICAL */
+  @media screen and (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* ========================================
+     GOD-LEVEL 8PX GRID SPACING SYSTEM
+     Enforces consistent spacing across all devices
+     ======================================== */
+
+  /* Mobile-Optimized Container Padding (16px default, 24px on larger) */
+  .container-mobile {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section Spacing - Vertical rhythm between page sections */
+  .section-spacing {
+    @apply py-8 sm:py-12 md:py-16;
+  }
+
+  .section-spacing-sm {
+    @apply py-6 sm:py-8 md:py-10;
+  }
+
+  .section-spacing-lg {
+    @apply py-12 sm:py-16 md:py-20;
+  }
+
+  /* Card Internal Spacing */
+  .card-padding {
+    @apply p-4 sm:p-6;
+  }
+
+  .card-padding-sm {
+    @apply p-3 sm:p-4;
+  }
+
+  .card-padding-lg {
+    @apply p-6 sm:p-8;
+  }
+
+  /* Content Grid Gaps - 8px increments */
+  .grid-gap-xs {
+    @apply gap-1 sm:gap-2;
+    /* 4px → 8px */
+  }
+
+  .grid-gap-sm {
+    @apply gap-2 sm:gap-3;
+    /* 8px → 12px */
+  }
+
+  .grid-gap-md {
+    @apply gap-4 sm:gap-6;
+    /* 16px → 24px */
+  }
+
+  .grid-gap-lg {
+    @apply gap-6 sm:gap-8;
+    /* 24px → 32px */
+  }
+
+  /* Stack Spacing - Vertical lists and stacks */
+  .stack-xs {
+    @apply space-y-1 sm:space-y-2;
+  }
+
+  .stack-sm {
+    @apply space-y-2 sm:space-y-3;
+  }
+
+  .stack-md {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  .stack-lg {
+    @apply space-y-6 sm:space-y-8;
+  }
+
+  /* Inline Spacing - Horizontal items */
+  .inline-gap-xs {
+    @apply gap-1 sm:gap-2;
+  }
+
+  .inline-gap-sm {
+    @apply gap-2 sm:gap-3;
+  }
+
+  .inline-gap-md {
+    @apply gap-3 sm:gap-4;
+  }
+
+  .inline-gap-lg {
+    @apply gap-4 sm:gap-6;
+  }
+
+  /* Mobile container utility - use explicitly where needed */
+  .container-mobile-safe {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Prevent horizontal overflow on small screens */
+  .max-w-mobile-safe {
+    @apply w-full max-w-full;
   }
 }
 

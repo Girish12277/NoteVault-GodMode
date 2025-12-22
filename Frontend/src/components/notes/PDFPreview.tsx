@@ -62,10 +62,39 @@ export function PDFPreview({ note, isOpen, onClose, onAddToCart, isPurchased = f
     if (zoom > 50) setZoom(zoom - 25);
   };
 
+  // Swipe Handler
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && currentPage < totalPages) {
+      handleNextPage();
+    }
+    if (isRightSwipe && currentPage > 1) {
+      handlePrevPage();
+    }
+    // Reset
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-hidden flex flex-col supports-[height:100dvh]:h-[100dvh]">
       {/* Header */}
-      <div className="bg-card/95 backdrop-blur-sm border-b border-border z-10 shrink-0">
+      <div className="bg-card/95 backdrop-blur-sm border-b border-border z-10 shrink-0 safe-top">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -103,7 +132,12 @@ export function PDFPreview({ note, isOpen, onClose, onAddToCart, isPurchased = f
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-auto py-8">
+      <div
+        className="flex-1 overflow-auto py-8 touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="container">
           {/* Watermark Banner for Preview */}
           {!isPurchased && (
@@ -120,7 +154,7 @@ export function PDFPreview({ note, isOpen, onClose, onAddToCart, isPurchased = f
 
           {/* PDF Page Display */}
           <div
-            className="mx-auto bg-card rounded-xl shadow-xl border border-border overflow-hidden transition-all"
+            className="mx-auto bg-card rounded-xl shadow-xl border border-border overflow-hidden transition-all select-none"
             style={{
               maxWidth: `${600 * (zoom / 100)}px`,
               transform: `scale(${zoom / 100})`,
@@ -137,7 +171,7 @@ export function PDFPreview({ note, isOpen, onClose, onAddToCart, isPurchased = f
                   <img
                     src={note.previewPages[currentPage - 1]}
                     alt={`Page ${currentPage}`}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain pointer-events-none"
                     onError={() => setImageError(true)}
                   />
                 ) : (
@@ -187,7 +221,7 @@ export function PDFPreview({ note, isOpen, onClose, onAddToCart, isPurchased = f
       </div>
 
       {/* Bottom Navigation */}
-      <div className="absolute bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border">
+      <div className="absolute bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="container flex items-center justify-between h-20">
           <Button
             variant="outline"

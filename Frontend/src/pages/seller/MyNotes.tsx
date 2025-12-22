@@ -306,7 +306,7 @@ export default function MyNotes() {
                   viewMode === 'grid' ? "aspect-[4/3] w-full" : "w-20 h-20 rounded-lg ml-2"
                 )}>
                   {note.coverImage ? (
-                    <img src={note.coverImage} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={note.coverImage} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={`Cover for ${note.title}`} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Eye className="w-8 h-8 opacity-20" /></div>
                   )}
@@ -352,7 +352,7 @@ export default function MyNotes() {
                   <div className={cn("flex items-center justify-between", viewMode === 'grid' ? "mt-4" : "justify-end gap-2")}>
                     <div className="font-bold text-lg">
                       ₹{note.price}
-                      <span className="text-[10px] text-muted-foreground font-normal ml-1">/sale</span>
+                      <span className="text-xs text-muted-foreground font-normal ml-1">/sale</span>
                     </div>
 
                     <div className="flex items-center">
@@ -360,7 +360,7 @@ export default function MyNotes() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Link to={`/notes/${note.id}`}>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"><Eye className="w-4 h-4" /></Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary" aria-label="View note"><Eye className="w-4 h-4" /></Button>
                             </Link>
                           </TooltipTrigger>
                           <TooltipContent>View</TooltipContent>
@@ -371,7 +371,7 @@ export default function MyNotes() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Link to={`/seller/notes/edit/${note.id}`}>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"><Edit className="w-4 h-4" /></Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary" aria-label="Edit note"><Edit className="w-4 h-4" /></Button>
                             </Link>
                           </TooltipTrigger>
                           <TooltipContent>Edit</TooltipContent>
@@ -380,7 +380,7 @@ export default function MyNotes() {
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="More options"><MoreVertical className="w-4 h-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>Share Asset Link</DropdownMenuItem>

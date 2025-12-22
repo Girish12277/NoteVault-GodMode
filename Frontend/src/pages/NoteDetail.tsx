@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { formatCurrency } from '@/lib/formatters';
 import { Note } from '@/types';
 import {
   Star,
@@ -38,6 +39,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -69,8 +71,8 @@ const getTopicExtras = (text: string, index: number, total: number) => {
 
   // 2. Determine Badge (if special)
   let badge = null;
-  if (lower.includes('20') && (lower.includes('pyq') || lower.includes('paper'))) badge = <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-amber-200 text-amber-700 bg-amber-50">Previous Year</Badge>;
-  if (lower.includes('important') || lower.includes('imp')) badge = <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-rose-200 text-rose-700 bg-rose-50">Important</Badge>;
+  if (lower.includes('20') && (lower.includes('pyq') || lower.includes('paper'))) badge = <Badge variant="outline" className="text-xs h-4 px-1.5 border-amber-200 text-amber-700 bg-amber-50">Previous Year</Badge>;
+  if (lower.includes('important') || lower.includes('imp')) badge = <Badge variant="outline" className="text-xs h-4 px-1.5 border-rose-200 text-rose-700 bg-rose-50">Important</Badge>;
 
   // 3. Status Color (Timeline Node)
   // First item = Start (Green), Last item = Finish (Flag), Middle = Blue
@@ -82,7 +84,7 @@ const getTopicExtras = (text: string, index: number, total: number) => {
 };
 
 
-function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPurchased: boolean; userId?: string }) {
+const ReviewsSection = ({ noteId, isPurchased, userId, isOwner }: { noteId: string; isPurchased: boolean; userId?: string; isOwner?: boolean }) => {
   const queryClient = useQueryClient();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -158,13 +160,13 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
 
   return (
     <div className="space-y-8">
-      {/* 1. VISUAL DASHBOARD SUMMARY */}
+      {/* 1. VISUAL DASHBOARD SUMMARY (Desktop Only or Very Simplified on Mobile) */}
       {totalReviews > 0 && (
-        <div className="grid md:grid-cols-12 gap-6 p-6 rounded-2xl bg-gradient-to-br from-muted/50 via-card to-card border border-border/60 shadow-sm">
+        <div className="hidden md:grid md:grid-cols-12 gap-6 p-6 rounded-2xl bg-gradient-to-br from-muted/50 via-card to-card border border-border/60 shadow-sm">
           {/* Left: Big Score */}
           <div className="md:col-span-4 flex flex-col items-center justify-center border-r border-border/50 pr-6">
             <div className="relative">
-              <span className="text-6xl font-display font-bold text-foreground">{averageRating.toFixed(1)}</span>
+              <span className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-foreground">{averageRating.toFixed(1)}</span>
               <span className="text-xl text-muted-foreground absolute top-1 -right-4">/5</span>
             </div>
             <div className="flex gap-1 text-amber-400 my-2">
@@ -172,7 +174,7 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
                 <Star key={star} className={`w-5 h-5 ${star <= Math.round(averageRating) ? 'fill-current' : 'text-muted/30'}`} />
               ))}
             </div>
-            <div className="text-sm font-medium text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+            <div className="text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
               Based on {totalReviews} Reviews
             </div>
           </div>
@@ -183,7 +185,7 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
               const count = reviews.filter((r: any) => r.rating === stars).length;
               const percent = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
               return (
-                <div key={stars} className="flex items-center gap-3 text-sm group">
+                <div key={stars} className="flex items-center gap-3 text-xs group">
                   <div className="flex items-center gap-1 w-12 shrink-0 font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                     <span>{stars}</span> <Star className="h-3 w-3 fill-muted text-muted group-hover:fill-amber-400 group-hover:text-amber-400 transition-colors" />
                   </div>
@@ -201,29 +203,44 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
         </div>
       )}
 
-      {/* 2. FILTER CHIPS & UTILITIES */}
+      {/* 2. FILTER CHIPS & UTILITIES (Compact Select on Mobile) */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/50 pb-4">
-        <div className="flex gap-2">
+        {/* Mobile Filter: Select Dropdown */}
+        <div className="md:hidden w-full">
+          <Select value={activeFilter} onValueChange={(val) => setActiveFilter(val as any)}>
+            <SelectTrigger className="w-full h-8 text-xs bg-background border-input">
+              <SelectValue placeholder="Filter Reviews" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Reviews ({totalReviews})</SelectItem>
+              <SelectItem value="5">5 Stars Only</SelectItem>
+              <SelectItem value="critical">Critical (1-2 Stars)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Desktop Filter: Buttons */}
+        <div className="hidden md:flex gap-2">
           <button
             onClick={() => setActiveFilter('all')}
-            className={cn("px-4 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95", activeFilter === 'all' ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}
+            className={cn("px-4 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95", activeFilter === 'all' ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}
           >
             All Reviews
           </button>
           <button
             onClick={() => setActiveFilter('5')}
-            className={cn("px-4 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95", activeFilter === '5' ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}
+            className={cn("px-4 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95", activeFilter === '5' ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}
           >
             5 Stars
           </button>
           <button
             onClick={() => setActiveFilter('critical')}
-            className={cn("px-4 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95", activeFilter === 'critical' ? "bg-rose-600 text-white shadow-md shadow-rose-600/20" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}
+            className={cn("px-4 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95", activeFilter === 'critical' ? "bg-rose-600 text-white shadow-md shadow-rose-600/20" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground")}
           >
             Critical (1-2)
           </button>
         </div>
-        <div className="text-xs text-muted-foreground flex items-center gap-1">
+        <div className="hidden md:flex text-xs text-muted-foreground items-center gap-1">
           <Filter className="h-3 w-3" /> Showing {filteredReviews.length} of {totalReviews}
         </div>
       </div>
@@ -239,7 +256,7 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
               <MessageCircle className="h-6 w-6 text-muted-foreground" />
             </div>
             <h3 className="font-semibold text-lg">No reviews found</h3>
-            <p className="text-muted-foreground text-sm max-w-sm mx-auto mt-1">
+            <p className="text-muted-foreground text-xs max-w-sm mx-auto mt-1">
               {activeFilter !== 'all' ? "No reviews match this filter. Try selecting 'All Reviews'." : "Be the first to share your experience with this note!"}
             </p>
           </div>
@@ -254,9 +271,9 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm text-foreground">{review.userName}</p>
+                      <p className="font-semibold text-xs text-foreground">{review.userName}</p>
                       {review.isVerifiedPurchase && (
-                        <span className="items-center flex gap-0.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100/50" title="Verified Purchase">
+                        <span className="items-center flex gap-0.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100/50" title="Verified Purchase">
                           <CheckCircle2 className="h-2.5 w-2.5" /> Verified
                         </span>
                       )}
@@ -267,7 +284,7 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
                           <Star key={i} className={`h-3 w-3 ${i < review.rating ? 'fill-amber-400 text-amber-400' : 'fill-muted text-muted'}`} />
                         ))}
                       </div>
-                      <span className="text-[10px] text-muted-foreground">• {new Date(review.createdAt).toLocaleDateString()}</span>
+                      <span className="text-xs text-muted-foreground">• {new Date(review.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -287,7 +304,7 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
               </div>
 
               <div className="pl-[52px]">
-                <p className="text-sm text-foreground/90 leading-relaxed font-normal break-words break-all whitespace-normal">{review.comment}</p>
+                <p className="text-xs text-foreground/90 leading-relaxed font-normal break-words break-all whitespace-normal">{review.comment}</p>
               </div>
             </div>
           ))
@@ -295,17 +312,17 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
       </div>
 
       {/* Write Review - Repositioned to Bottom for Flow */}
-      {!hasReviewed && isPurchased && (
-        <div className="mt-8 p-6 rounded-xl border border-primary/20 bg-primary/5 animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <MessageCircle className="h-4 w-4 text-primary" />
+      {!hasReviewed && isPurchased && !isOwner && (
+        <div className="mt-6 md:mt-8 p-4 md:p-6 rounded-xl border border-primary/20 bg-primary/5 animate-in fade-in slide-in-from-bottom-4">
+          <div className="flex items-center gap-2 mb-3 md:mb-4">
+            <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
             </div>
-            <h4 className="font-semibold text-lg">Write a Review</h4>
+            <h4 className="font-semibold text-base md:text-lg">Write a Review</h4>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium">How would you rate this note?</span>
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+            <div className="flex flex-col gap-1.5 md:gap-2">
+              <span className="text-[10px] md:text-xs font-medium">How would you rate this note?</span>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -314,10 +331,10 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
                     onClick={() => setRating(star)}
                     onMouseEnter={() => setHoveredStar(star)}
                     onMouseLeave={() => setHoveredStar(0)}
-                    className="focus:outline-none transition-transform hover:scale-110 h-10 w-10 flex items-center justify-center rounded-full hover:bg-background"
+                    className="focus:outline-none transition-transform hover:scale-110 h-8 w-8 md:h-10 md:w-10 flex items-center justify-center rounded-full hover:bg-background"
                   >
                     <Star
-                      className={`h-6 w-6 ${star <= (hoveredStar || rating)
+                      className={`h-5 w-5 md:h-6 md:w-6 ${star <= (hoveredStar || rating)
                         ? 'fill-amber-400 text-amber-400'
                         : 'text-muted'
                         }`}
@@ -326,18 +343,18 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
                 ))}
               </div>
             </div>
-            <div className="space-y-2">
-              <span className="text-sm font-medium">Share your experience</span>
+            <div className="space-y-1.5 md:space-y-2">
+              <span className="text-[10px] md:text-xs font-medium">Share your experience</span>
               <Textarea
-                placeholder="Did these notes help with your exam? Whas the quality good?"
+                placeholder="Did these notes help with your exam? Was the quality good?"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 required
-                className="bg-background min-h-[100px]"
+                className="bg-background min-h-[80px] md:min-h-[100px] text-xs md:text-sm"
               />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={isPending} size="lg" className="px-8">
+              <Button type="submit" disabled={isPending} size="default" className="px-6 h-9 md:h-11 md:px-8 text-xs md:text-sm">
                 {isPending ? 'Submitting...' : 'Submit Review'}
               </Button>
             </div>
@@ -345,10 +362,18 @@ function ReviewsSection({ noteId, isPurchased, userId }: { noteId: string; isPur
         </div>
       )}
 
-      {!isPurchased && !hasReviewed && (
-        <div className="p-6 rounded-xl bg-muted/40 border border-dashed border-border text-center">
-          <p className="text-sm text-muted-foreground font-medium">
+      {!isPurchased && !hasReviewed && !isOwner && (
+        <div className="p-4 rounded-xl bg-muted/40 border border-dashed border-border text-center">
+          <p className="text-[10px] md:text-xs text-muted-foreground font-medium">
             Purchase this note to unlock the ability to leave a review.
+          </p>
+        </div>
+      )}
+
+      {isOwner && (
+        <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-center">
+          <p className="text-[10px] md:text-xs text-primary font-medium">
+            You are the owner of this note.
           </p>
         </div>
       )}
@@ -453,15 +478,19 @@ export default function NoteDetail() {
       }
     } catch (error: any) {
       console.error('Download error:', error);
-      toast.error(error.response?.data?.message || 'Failed to download note');
+      toast.error(error.response?.data?.message || 'Download failed. Check your connection and try again.');
     }
   };
+
+  const isUserOwner = (user?.id && note?.sellerId && user.id === note.sellerId) || note.isOwner;
+  const isUserPurchaser = isAuthenticated && user?.purchasedNoteIds ? user.purchasedNoteIds.includes(note.id) : false;
+  const hasAccess = isUserOwner || isUserPurchaser;
 
   return (
     <Layout>
       <div className="container py-4 lg:py-8">
         {/* Breadcrumb - Clean */}
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 overflow-hidden">
+        <nav className="flex items-center gap-2 text-[10px] md:text-xs text-muted-foreground mb-4 md:mb-6 overflow-hidden">
           <Link to="/" className="hover:text-foreground transition-colors shrink-0">Home</Link>
           <ChevronRight className="h-4 w-4 shrink-0" />
           <Link to="/browse" className="hover:text-foreground transition-colors shrink-0">Browse</Link>
@@ -485,21 +514,21 @@ export default function NoteDetail() {
                 <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" /> {note.language === 'en' ? 'English' : note.language === 'hi' ? 'Hindi' : 'Mix'}</Badge>
               </div>
 
-              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight break-words">
+              <h1 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold leading-tight break-words">
                 {note.title}
               </h1>
 
               {/* Rating Row */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-3 text-[10px] md:text-xs text-muted-foreground">
                 <div className="flex items-center gap-1 text-foreground font-medium">
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                   {note.rating?.toFixed(1) || '0.0'}
                 </div>
                 <span>•</span>
                 <span className="underline decoration-muted-foreground/30 hover:text-foreground cursor-pointer">{note.reviewCount || 0} reviews</span>
                 <span>•</span>
                 <div className="flex items-center gap-1">
-                  <Download className="h-4 w-4" /> {note.downloadCount} sales
+                  <Download className="h-3.5 w-3.5" /> {note.downloadCount} sales
                 </div>
               </div>
             </div>
@@ -513,53 +542,53 @@ export default function NoteDetail() {
               >
                 <CarouselContent>
                   <CarouselItem className="bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-0">
-                    <img src={note.coverImage || 'https://placehold.co/600x800?text=Notes'} alt={note.title} className="w-full max-h-[500px] object-contain" />
+                    <img src={note.coverImage || 'https://placehold.co/600x800?text=Notes'} alt={note.title} className="w-full max-h-[300px] sm:max-h-[500px] object-contain" />
                   </CarouselItem>
                   {note.previewPages?.filter(p => p !== note.coverImage).map((page, index) => (
                     <CarouselItem key={index} className="bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-0">
-                      <img src={page} alt={`Page ${index + 1}`} className="w-full max-h-[500px] object-contain" />
+                      <img src={page} alt={`Page ${index + 1}`} className="w-full max-h-[300px] sm:max-h-[500px] object-contain" />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
                 {(note.previewPages?.length || 0) > 1 && (
                   <>
-                    <CarouselPrevious className="left-4 h-10 w-10 border-none bg-black/20 text-white hover:bg-black/40" />
-                    <CarouselNext className="right-4 h-10 w-10 border-none bg-black/20 text-white hover:bg-black/40" />
+                    <CarouselPrevious className="left-4 h-11 w-11 border-none bg-black/20 text-white hover:bg-black/40" />
+                    <CarouselNext className="right-4 h-11 w-11 border-none bg-black/20 text-white hover:bg-black/40" />
                   </>
                 )}
               </Carousel>
             </div>
 
             {/* Mobile Purchase Card (Visible only on small screens) */}
-            <div className="lg:hidden rounded-xl bg-card border border-border p-4 shadow-sm space-y-4">
+            <div className="lg:hidden rounded-xl bg-card border border-border p-3 md:p-4 shadow-sm space-y-3">
               <div className="flex justify-between items-baseline">
-                <span className="text-2xl font-bold text-primary">₹{note.price}</span>
-                <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">Instant Download</Badge>
+                <span className="text-xl md:text-2xl font-bold text-primary">{formatCurrency(note.price)}</span>
+                <Badge variant="outline" className="text-[10px] md:text-xs text-green-600 bg-green-50 border-green-200">Instant Download</Badge>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Button onClick={handleBuyNow} className="w-full font-semibold">Buy Now</Button>
-                <Button variant="outline" onClick={handleAddToCart} disabled={isInCart(note.id)}>
-                  <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+              <div className="grid grid-cols-2 gap-2 md:gap-3">
+                <Button onClick={handleBuyNow} className="w-full font-semibold h-9 md:h-10 text-xs md:text-sm">Buy Now</Button>
+                <Button variant="outline" onClick={() => isInCart(note.id) ? navigate('/cart') : handleAddToCart} className={cn("h-9 md:h-10 text-xs md:text-sm", isInCart(note.id) && "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100")}>
+                  {isInCart(note.id) ? <><CheckCircle2 className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" /> Go to Cart</> : <><ShoppingCart className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" /> Add to Cart</>}
                 </Button>
               </div>
             </div>
 
             {/* TABS - Description & Reviews */}
             <Tabs defaultValue="description" className="w-full">
-              <TabsList className="w-full justify-start border-b border-border bg-transparent rounded-none h-auto p-0 gap-6">
-                <TabsTrigger value="description" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
+              <TabsList className="w-full justify-start border-b border-border bg-transparent rounded-none h-auto p-0 gap-4 md:gap-6">
+                <TabsTrigger value="description" className="px-0 pb-2 md:pb-3 text-sm md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
                   Description
                 </TabsTrigger>
-                <TabsTrigger value="contents" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
-                  Table of Contents
+                <TabsTrigger value="contents" className="px-0 pb-2 md:pb-3 text-sm md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
+                  Contents
                 </TabsTrigger>
-                <TabsTrigger value="reviews" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
+                <TabsTrigger value="reviews" className="px-0 pb-2 md:pb-3 text-sm md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
                   Reviews ({note.reviewCount})
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="description" className="py-6 space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
-                <div className="prose prose-slate dark:prose-invert max-w-none">
+              <TabsContent value="description" className="py-4 md:py-6 space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                <div className="prose prose-sm dark:prose-invert max-w-none text-xs md:text-base">
                   <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{note.description}</p>
                 </div>
 
@@ -599,7 +628,7 @@ export default function NoteDetail() {
 
                           {/* Content */}
                           <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors leading-relaxed">
+                            <span className="text-xs font-medium text-foreground/80 group-hover:text-foreground transition-colors leading-relaxed">
                               {item}
                             </span>
                             {/* Auto Badge */}
@@ -622,9 +651,10 @@ export default function NoteDetail() {
               </TabsContent>
 
               <TabsContent value="reviews" className="py-6 animate-in fade-in slide-in-from-left-2 duration-300">
-                <ReviewsSection noteId={id!} isPurchased={note.isPurchased || note.isOwner} userId={user?.id} />
+                <ReviewsSection noteId={id!} isPurchased={isUserPurchaser} userId={user?.id} isOwner={isUserOwner} />
               </TabsContent>
             </Tabs>
+
 
           </div>
 
@@ -644,7 +674,7 @@ export default function NoteDetail() {
                 {/* Price & Social Proof Header */}
                 <div className="space-y-2">
                   {/* Social Proof (Star Rating Nudge) */}
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map(i => (
                         <Star key={i} className={`h-3.5 w-3.5 ${i <= Math.round(note.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
@@ -655,27 +685,27 @@ export default function NoteDetail() {
                   </div>
 
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold font-display text-foreground">₹{note.price}</span>
-                    {!note.isPurchased && !note.isOwner && <span className="text-sm text-muted-foreground line-through">₹{Math.round(note.price * 1.5)}</span>}
+                    <span className="text-4xl font-bold font-display text-foreground">{formatCurrency(note.price)}</span>
+                    {!hasAccess && <span className="text-xs text-muted-foreground line-through">₹{Math.round(note.price * 1.5)}</span>}
                   </div>
                 </div>
 
                 {/* Value Injection - Highlights Checklist */}
-                {!note.isPurchased && !note.isOwner && (
+                {!hasAccess && (
                   <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2.5 text-sm">
+                    <li className="flex items-start gap-2.5 text-xs">
                       <div className="mt-0.5 h-5 w-5 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0 border border-green-100">
                         <CheckCircle2 className="h-3 w-3" />
                       </div>
                       <span className="text-muted-foreground"><strong>Exam Oriented</strong> content structure</span>
                     </li>
-                    <li className="flex items-start gap-2.5 text-sm">
+                    <li className="flex items-start gap-2.5 text-xs">
                       <div className="mt-0.5 h-5 w-5 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0 border border-green-100">
                         <Zap className="h-3 w-3 fill-current" />
                       </div>
                       <span className="text-muted-foreground"><strong>Instant PDF Download</strong> (No waiting)</span>
                     </li>
-                    <li className="flex items-start gap-2.5 text-sm">
+                    <li className="flex items-start gap-2.5 text-xs">
                       <div className="mt-0.5 h-5 w-5 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0 border border-green-100">
                         <Award className="h-3 w-3" />
                       </div>
@@ -686,7 +716,7 @@ export default function NoteDetail() {
 
                 {/* Action Buttons */}
                 <div className="space-y-3 pt-2">
-                  {(note.isPurchased || note.isOwner) ? (
+                  {hasAccess ? (
                     <Button size="lg" className="w-full gap-2 font-bold shadow-lg shadow-primary/20 h-12 text-base" onClick={handleDownload}>
                       <Download className="h-5 w-5" /> Download PDF
                     </Button>
@@ -696,8 +726,8 @@ export default function NoteDetail() {
                         Buy Now
                       </Button>
                       <div className="grid grid-cols-4 gap-2">
-                        <Button variant="outline" size="lg" className="col-span-3 gap-2" onClick={handleAddToCart} disabled={isInCart(note.id)}>
-                          <ShoppingCart className="h-4 w-4" /> {isInCart(note.id) ? 'Added' : 'Add to Cart'}
+                        <Button variant="outline" size="sm" onClick={() => isInCart(note.id) ? navigate('/cart') : handleAddToCart} className={cn("col-span-3 gap-2", isInCart(note.id) && "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100")}>
+                          {isInCart(note.id) ? <><CheckCircle2 className="h-4 w-4" /> Go to Cart</> : <><ShoppingCart className="h-4 w-4" /> Add to Cart</>}
                         </Button>
                         <Button variant="outline" size="lg" className="col-span-1 px-0" onClick={() => addToWishlist(note)} disabled={isInWishlist(note.id)}>
                           <Heart className={cn("h-5 w-5", isInWishlist(note.id) && "fill-destructive text-destructive")} />
@@ -709,10 +739,10 @@ export default function NoteDetail() {
 
                 {/* Trust Signals */}
                 <div className="flex items-center justify-center gap-4 pt-2 opacity-80">
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
                     <Lock className="h-3 w-3" /> Secure Payment
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
                     <Shield className="h-3 w-3" /> Money Back Guarantee
                   </div>
                 </div>
@@ -727,13 +757,13 @@ export default function NoteDetail() {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-muted-foreground">Sold by</div>
-                  <Link to={`/profile/${note.sellerId}`} className="font-semibold text-sm hover:underline truncate block text-foreground">
+                  <Link to={`/profile/${note.sellerId}`} className="font-semibold text-xs hover:underline truncate block text-foreground">
                     {note.sellerName}
                   </Link>
                 </div>
                 <div className="text-right">
                   <div className="text-xs font-mono text-muted-foreground">{note.downloadCount} Sales</div>
-                  <Badge variant="outline" className="text-[10px] h-5 border-blue-200 text-blue-700 bg-blue-50">Verified</Badge>
+                  <Badge variant="outline" className="text-xs h-5 border-blue-200 text-blue-700 bg-blue-50">Verified</Badge>
                 </div>
               </div>
 
@@ -746,7 +776,7 @@ export default function NoteDetail() {
           <section className="mt-16 pt-10 border-t border-border/50">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-2xl font-bold">You might also like</h2>
-              <Link to={`/browse?degree=${note.degree}`} className="text-primary hover:underline text-sm font-medium">View All</Link>
+              <Link to={`/browse?degree=${note.degree}`} className="text-primary hover:underline text-xs font-medium">View All</Link>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {similarNotes.map((similarNote) => (
@@ -757,7 +787,7 @@ export default function NoteDetail() {
         )}
 
         {/* MOBILE FIXED BOTTOM BAR */}
-        {(!note.isPurchased && !note.isOwner) && (
+        {!hasAccess && (
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border z-50 lg:hidden safe-area-bottom shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
             <div className="flex gap-4 items-center max-w-md mx-auto">
               <div className="flex-1">

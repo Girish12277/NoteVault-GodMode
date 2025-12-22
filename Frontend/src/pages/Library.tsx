@@ -244,19 +244,25 @@ export default function Library() {
     // --- Dispute Status Helper ---
     const getDisputeStatus = (dispute: any) => {
         if (!dispute) return null;
-        const status = dispute.status.toUpperCase();
+        const status = dispute.status?.toUpperCase() || '';
 
-        // "BEFORE THAT RED" (Open/Pending)
-        if (status === 'OPEN' || status === 'PENDING') return { color: 'text-red-500 bg-red-50 border-red-200', icon: AlertCircle, label: 'Issue Reported' };
+        // "BEFORE THAT RED" (Open/Pending) - Active dispute, SHOW badge
+        if (status === 'OPEN' || status === 'PENDING') {
+            return { color: 'text-red-500 bg-red-50 border-red-200', icon: AlertCircle, label: 'Issue Reported', showBadge: true };
+        }
 
-        // "ON PROGRESS YELLOW"
-        if (status === 'IN_PROGRESS' || status === 'REVIEWING') return { color: 'text-yellow-500 bg-yellow-50 border-yellow-200', icon: Timer, label: 'In Review' };
+        // "ON PROGRESS YELLOW" - Being reviewed, SHOW badge
+        if (status === 'IN_PROGRESS' || status === 'REVIEWING') {
+            return { color: 'text-amber-600 bg-amber-50 border-amber-200', icon: Timer, label: 'In Review', showBadge: true };
+        }
 
-        // "RESOLVED WITH GREEN"
-        if (status === 'RESOLVED' || status === 'APPROVED' || status === 'REFUNDED') return { color: 'text-green-500 bg-green-50 border-green-200', icon: CheckCircle2, label: 'Resolved' };
+        // "RESOLVED WITH GREEN" - Done, HIDE badge (dispute is over)
+        if (status === 'RESOLVED' || status === 'APPROVED' || status === 'REFUNDED') {
+            return { color: 'text-green-500 bg-green-50 border-green-200', icon: CheckCircle2, label: 'Resolved', showBadge: false };
+        }
 
-        // Rejected/Closed
-        return { color: 'text-muted-foreground bg-muted border-border', icon: XCircle, label: 'Closed' };
+        // Rejected/Closed - HIDE badge
+        return { color: 'text-muted-foreground bg-muted border-border', icon: XCircle, label: 'Closed', showBadge: false };
     };
 
     // --- Renderers ---
@@ -319,12 +325,12 @@ export default function Library() {
                                         onClick={() => handleView(note.id)}
                                     >
                                         <div className="h-16 w-12 shrink-0 rounded-lg overflow-hidden bg-muted relative">
-                                            <img src={note.coverImage} className="h-full w-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" alt="" />
+                                            <img src={note.coverImage} className="h-full w-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" alt={note.title} />
                                         </div>
                                         <div className="flex flex-col justify-center min-w-0">
-                                            <h4 className="font-bold text-sm truncate group-hover:text-primary transition-colors">{note.title}</h4>
+                                            <h4 className="font-bold text-xs truncate group-hover:text-primary transition-colors">{note.title}</h4>
                                             <p className="text-xs text-muted-foreground truncate">{note.subject}</p>
-                                            <div className="flex items-center gap-1 text-[10px] font-medium text-primary mt-1">
+                                            <div className="flex items-center gap-1 text-xs font-medium text-primary mt-1">
                                                 Continue <ArrowUpRight className="h-2 w-2" />
                                             </div>
                                         </div>
@@ -335,25 +341,25 @@ export default function Library() {
                     </div>
                 )}
 
-                <div className="container py-8">
-                    {/* Header */}
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                <div className="container py-4 sm:py-8">
+                    {/* Header - Hidden on mobile, products appear first */}
+                    <div className="hidden sm:flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
                         <div>
-                            <h1 className="font-display text-4xl font-bold text-foreground">My Library</h1>
-                            <p className="text-muted-foreground mt-1 flex items-center gap-2">
+                            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">My Library</h1>
+                            <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
                                 <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                 {purchasedNotes.length} Secure Assets
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button onClick={() => refetch()} variant="outline" size="icon" className="rounded-full bg-background border-border/60 hover:bg-muted">
+                            <Button onClick={() => refetch()} variant="outline" size="icon" className="btn-touch rounded-full bg-background border-border/60 hover:bg-muted" aria-label="Refresh library">
                                 <RefreshCw className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>
 
-                    {/* 2. CONTROLS DECK (Floating Glass) */}
-                    <div className="sticky top-20 z-30 bg-background/80 backdrop-blur-xl border border-primary/10 rounded-2xl p-2 mb-10 shadow-lg shadow-black/5 flex flex-col xl:flex-row gap-2 ring-1 ring-black/5">
+                    {/* 2. CONTROLS DECK - Compact on mobile */}
+                    <div className="sticky top-16 sm:top-20 z-30 bg-background/80 backdrop-blur-xl border border-primary/10 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 mb-4 sm:mb-10 shadow-lg shadow-black/5 flex flex-col xl:flex-row gap-1.5 sm:gap-2 ring-1 ring-black/5">
                         {/* Search */}
                         <div className="relative flex-1">
                             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -460,11 +466,11 @@ export default function Library() {
                                                             />
                                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
 
-                                                            {/* Dispute Badge Overlay */}
-                                                            {disputeStatus && (
+                                                            {/* Dispute Badge Overlay - Only show if dispute is active (not resolved) */}
+                                                            {disputeStatus?.showBadge && (
                                                                 <div className={cn("absolute top-3 left-3 right-3 flex items-center gap-2 px-2 py-1.5 rounded-lg backdrop-blur-md border shadow-sm", disputeStatus.color)}>
                                                                     <disputeStatus.icon className="h-3.5 w-3.5 shrink-0" />
-                                                                    <span className="text-[10px] font-bold uppercase tracking-wide truncate">{disputeStatus.label}</span>
+                                                                    <span className="text-xs font-bold uppercase tracking-wide truncate">{disputeStatus.label}</span>
                                                                 </div>
                                                             )}
 
@@ -479,7 +485,7 @@ export default function Library() {
                                                                     <Calendar className="h-3 w-3" />
                                                                     {new Date(note.purchaseDate).toLocaleDateString()}
                                                                 </div>
-                                                                <Badge variant="outline" className="h-5 text-[10px] px-1.5 border-border/60">Sem {note.semester}</Badge>
+                                                                <Badge variant="outline" className="h-5 text-xs px-1.5 border-border/60">Sem {note.semester}</Badge>
                                                             </div>
 
                                                             {/* Actions Row */}
@@ -496,7 +502,7 @@ export default function Library() {
                                                                 {/* More Actions Menu */}
                                                                 <DropdownMenu>
                                                                     <DropdownMenuTrigger asChild>
-                                                                        <Button size="icon" variant="ghost" className="h-10 w-10 text-muted-foreground hover:text-foreground">
+                                                                        <Button size="icon" variant="ghost" className="btn-touch h-10 w-10 text-muted-foreground hover:text-foreground" aria-label="Download note">
                                                                             <MoreVertical className="h-4 w-4" />
                                                                         </Button>
                                                                     </DropdownMenuTrigger>
@@ -516,19 +522,19 @@ export default function Library() {
                                                     // List View (Preserved but Polished)
                                                     <div className="flex items-center gap-4 p-3 rounded-xl border border-border/50 bg-card hover:bg-muted/30 transition-all group hover:border-primary/20 hover:shadow-sm">
                                                         <div className="h-16 w-12 shrink-0 rounded-lg bg-muted overflow-hidden relative cursor-pointer" onClick={() => handleView(note.id)}>
-                                                            <img src={note.coverImage} className="h-full w-full object-cover" alt="" />
-                                                            {disputeStatus && (
+                                                            <img src={note.coverImage} className="h-full w-full object-cover" alt={note.title} />
+                                                            {disputeStatus?.showBadge && (
                                                                 <div className={cn("absolute inset-0 flex items-center justify-center bg-black/40")}>
-                                                                    <disputeStatus.icon className={cn("h-6 w-6 text-white drop-shadow-md", disputeStatus.color.replace('text-', 'text-white '))} />
+                                                                    <disputeStatus.icon className={cn("h-6 w-6 drop-shadow-md", disputeStatus.color.split(' ')[0])} />
                                                                 </div>
                                                             )}
                                                         </div>
                                                         <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleView(note.id)}>
-                                                            <h4 className="font-bold text-sm truncate group-hover:text-primary transition-colors">{note.title}</h4>
+                                                            <h4 className="font-bold text-xs truncate group-hover:text-primary transition-colors">{note.title}</h4>
                                                             <p className="text-xs text-muted-foreground">{note.subject} • Sem {note.semester}</p>
                                                         </div>
                                                         <div className="flex items-center gap-3">
-                                                            {disputeStatus && (
+                                                            {disputeStatus?.showBadge && (
                                                                 <Badge variant="outline" className={cn("hidden sm:flex items-center gap-1", disputeStatus.color)}>
                                                                     {disputeStatus.label}
                                                                 </Badge>
@@ -536,7 +542,7 @@ export default function Library() {
                                                             <Button size="sm" onClick={() => handleDownload(note.id)} className="font-bold bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground">
                                                                 <Download className="h-4 w-4 mr-1.5" /> Download
                                                             </Button>
-                                                            <Button size="icon" variant="ghost" onClick={() => setSelectedDisputeNote(note)}>
+                                                            <Button size="icon" variant="ghost" className="btn-touch" onClick={() => setSelectedDisputeNote(note)} aria-label="File dispute">
                                                                 <AlertTriangle className="h-4 w-4 text-muted-foreground hover:text-red-500" />
                                                             </Button>
                                                         </div>

@@ -114,14 +114,14 @@ export default function HowItWorksPage() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-[80px] -z-10" />
 
-        <div className="container py-12 md:py-24">
+        <div className="container py-8 sm:py-12 md:py-24">
           {/* Dynamic Hero */}
           <div className="text-center mb-16 relative">
             <SectionReveal>
               <Badge variant="outline" className="mb-4 bg-background/50 backdrop-blur">
                 The NotesMarket Ecosystem
               </Badge>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground to-primary mb-6 animate-gradient-x">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground to-primary mb-4 sm:mb-6 animate-gradient-x">
                 How It Works
               </h1>
 
@@ -131,7 +131,7 @@ export default function HowItWorksPage() {
                   <button
                     onClick={() => setActivePersona('buyer')}
                     className={cn(
-                      "px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 transform",
+                      "px-4 sm:px-8 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 transform",
                       activePersona === 'buyer'
                         ? "bg-primary text-primary-foreground shadow-lg scale-105"
                         : "text-muted-foreground hover:text-foreground hover:bg-white/10"
@@ -142,7 +142,7 @@ export default function HowItWorksPage() {
                   <button
                     onClick={() => setActivePersona('seller')}
                     className={cn(
-                      "px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 transform",
+                      "px-4 sm:px-8 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 transform",
                       activePersona === 'seller'
                         ? "bg-accent text-accent-foreground shadow-lg scale-105"
                         : "text-muted-foreground hover:text-foreground hover:bg-white/10"
@@ -153,7 +153,7 @@ export default function HowItWorksPage() {
                 </div>
               </div>
 
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
                 {activePersona === 'buyer'
                   ? "Get exam-ready notes from university toppers in minutes. It's safe, fast, and instant."
                   : "Turn your hard work into passive income. Upload your notes once, earn royalties forever."}
@@ -174,14 +174,14 @@ export default function HowItWorksPage() {
           </SectionReveal>
 
           {/* The Living Pipeline */}
-          <SectionReveal delay={0.2} className="relative mb-32 max-w-5xl mx-auto">
+          <SectionReveal delay={0.2} className="relative mb-20 sm:mb-32 max-w-5xl mx-auto px-2 sm:px-4 md:px-0">
             {/* Mobile Line */}
             <div className="absolute left-6 top-10 bottom-10 w-0.5 bg-gradient-to-b from-primary/50 to-transparent md:hidden" />
 
             {/* Desktop Pulse Line (The Connector) */}
             <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/20 via-primary/50 to-transparent -translate-x-1/2 rounded-full" />
 
-            <div className="grid gap-12 md:gap-24 relative z-10">
+            <div className="grid gap-8 sm:gap-12 md:gap-24 relative z-10">
               {steps.map((step, index) => (
                 <div
                   key={step.title}
@@ -205,7 +205,7 @@ export default function HowItWorksPage() {
 
                   {/* Content Card (Ceramic Upgrade) */}
                   <div className={cn(
-                    "group relative w-full md:w-[45%] ml-10 md:ml-0 bg-background border border-primary/10 p-6 sm:p-8 rounded-2xl shadow-lg shadow-black/5 hover:shadow-xl hover:bg-muted/30 transition-all duration-300 hover:-translate-y-1 block",
+                    "group relative md:w-[45%] ml-12 mr-2 sm:ml-14 sm:mr-0 md:ml-0 md:mr-0 bg-background border border-primary/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg shadow-black/5 hover:shadow-xl hover:bg-muted/30 transition-all duration-300 hover:-translate-y-1 block",
                     index % 2 === 0 ? "text-left" : "md:text-right text-left"
                   )}>
                     {/* Icon */}
@@ -268,7 +268,7 @@ export default function HowItWorksPage() {
                   <div className="relative bg-background rounded-full h-24 w-24 border-4 border-white shadow-xl flex items-center justify-center">
                     <CheckCircle2 className="h-10 w-10 text-primary" />
                   </div>
-                  <div className="absolute -bottom-2 bg-foreground text-background text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">
+                  <div className="absolute -bottom-2 bg-foreground text-background text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                     VERIFIED
                   </div>
                 </div>
@@ -282,8 +282,8 @@ export default function HowItWorksPage() {
 
             <Card className="border-none bg-background/60 backdrop-blur-xl shadow-2xl relative overflow-hidden ring-1 ring-white/20">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-50" />
-              <CardContent className="p-12 relative z-10">
-                <h2 className="font-display text-4xl font-bold mb-4 tracking-tight">
+              <CardContent className="p-6 sm:p-8 md:p-12 relative z-10">
+                <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 tracking-tight">
                   {activePersona === 'buyer' ? "Ready to Ace Your Exams?" : "Start Your Passive Income?"}
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8 text-balance">

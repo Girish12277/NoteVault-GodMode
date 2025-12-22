@@ -1,15 +1,12 @@
-// tests/setup.ts
-import { jest } from '@jest/globals';
+// Test setup file - runs before each test
+import { config } from 'dotenv';
 
-// Quiet console during tests
-global.console = {
-    ...console,
-    // log: jest.fn(), // Keep log for debugging if needed, or mock it to silence
-    // error: jest.fn(), 
-    warn: jest.fn(),
-};
+// Load environment variables from .env.test if it exists, otherwise .env
+config({ path: '.env.test' });
+config({ path: '.env' });
 
-// Mock environment variables
-process.env.JWT_SECRET = 'test-jwt-secret';
-process.env.ADMIN_PASSWORD = 'secure-test-admin-password';
+// Set test environment
 process.env.NODE_ENV = 'test';
+
+// Global test timeout
+jest.setTimeout(30000);

@@ -38,21 +38,21 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-16 lg:py-24 overflow-hidden relative">
+    <section className="py-8 lg:py-24 overflow-hidden relative">
       {/* Background Decorative Blobs */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl -z-10" />
 
       <div className="container relative z-10">
-        <div className="text-center mb-16 lg:mb-24">
+        <div className="text-center mb-8 lg:mb-24">
           <div className="inline-flex items-center gap-2 rounded-full bg-muted border border-border/50 px-3 py-1 text-sm text-muted-foreground mb-4">
             <Sparkles className="h-3.5 w-3.5 fill-current" />
             <span>Simple Process</span>
           </div>
-          <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">
             From <span className="text-muted-foreground line-through decoration-primary/50 decoration-4">Struggle</span> to <span className="text-primary">Success</span>
           </h2>
-          <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-4 text-sm md:text-lg max-w-2xl mx-auto">
             We've streamlined the journey. No more endless searching or questionable quality.
           </p>
         </div>
@@ -98,7 +98,7 @@ export function HowItWorks() {
         </div>
 
         {/* Mobile Vertical Timeline Layout */}
-        <div className="lg:hidden space-y-8 relative pl-6 border-l-2 border-dashed border-border/60 ml-4">
+        <div className="lg:hidden space-y-6 relative pl-6 border-l-2 border-dashed border-border/60 ml-4">
           {steps.map((step, index) => (
             <div key={index} className="relative pl-8">
               {/* Timeline Dot */}
@@ -113,7 +113,7 @@ export function HowItWorks() {
               <div className="pt-1">
                 <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-2">
                   {step.title}
-                  <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">Step {index + 1}</span>
+                  <span className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">Step {index + 1}</span>
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   {step.description}

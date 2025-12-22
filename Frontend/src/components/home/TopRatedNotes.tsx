@@ -16,17 +16,17 @@ export function TopRatedNotes() {
   });
 
   return (
-    <section className="py-16 lg:py-24 bg-muted/30 border-t border-border/50">
+    <section className="py-8 lg:py-24 bg-muted/30 border-t border-border/50">
       <div className="container">
 
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-10 gap-6">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 text-sm font-bold text-yellow-600 mb-3 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 text-sm font-bold text-yellow-600 mb-2 md:mb-3 uppercase tracking-wider">
               <Star className="h-4 w-4 fill-current" />
               Hall of Fame
             </div>
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl lg:text-5xl leading-tight">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground md:text-4xl lg:text-5xl leading-tight">
               Student <span className="text-primary italic">Favorites</span>
             </h2>
             <p className="text-muted-foreground mt-4 text-lg">
@@ -90,7 +90,7 @@ export function TopRatedNotes() {
                         <span className="text-sm font-semibold text-foreground flex items-center gap-1 whitespace-nowrap">
                           Verified Student <CheckCircle2 className="h-3 w-3 text-blue-500 fill-blue-500/10 shrink-0" />
                         </span>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">Verified Purchase</span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider truncate">Verified Purchase</span>
                       </div>
                     </div>
 
@@ -101,14 +101,14 @@ export function TopRatedNotes() {
                           <img
                             src={note.fileUrl?.endsWith('.pdf') ? 'https://placehold.co/100?text=PDF' : (note.coverImage || 'https://placehold.co/100?text=Note')}
                             className="w-full h-full object-cover"
-                            alt=""
+                            alt={note.title}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-foreground line-clamp-1 break-all group-hover:text-primary transition-colors">
                             {note.title}
                           </p>
-                          <p className="text-[10px] text-muted-foreground truncate">
+                          <p className="text-xs text-muted-foreground truncate">
                             {price > 0 ? `₹${price}` : 'FREE'} • View Note
                           </p>
                         </div>

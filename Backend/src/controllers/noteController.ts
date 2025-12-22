@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import { prisma } from '../config/database';
 import crypto from 'crypto';
 import { cloudinary } from '../config/cloudinary';
+import { cacheService, cacheKeys, cacheTTL } from '../services/cacheService';
 
 const prismaAny = prisma as any;
 
@@ -22,6 +23,18 @@ export const noteController = {
     list: async (req: Request, res: Response) => {
         try {
             const { page = '1', limit = '20', degree, semester, universityId, categoryId, search, sort } = req.query;
+
+            // God-Level Caching: Generate cache key from query params
+            const cacheKey = cacheKeys.notesList(
+                JSON.stringify({ page, limit, degree, semester, universityId, categoryId, search, sort })
+            );
+
+            // Try cache first (optimization only - DB is source of truth)
+            const cached = await cacheService.get<any>(cacheKey);
+            if (cached) {
+                return res.json(cached);
+            }
+
             const skip = (Number(page) - 1) * Number(limit);
             const where: any = { is_active: true, is_approved: true, is_deleted: false };
             if (degree) where.degree = degree;
@@ -70,7 +83,24 @@ export const noteController = {
                 rating: note.average_rating, reviewCount: note.total_reviews, downloadCount: note.download_count,
                 createdAt: note.created_at, updatedAt: note.updated_at, isActive: note.is_active
             }));
-            return res.json({ success: true, data: { notes: formattedNotes, pagination: { total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / Number(limit)) } } });
+
+            const response = {
+                success: true,
+                data: {
+                    notes: formattedNotes,
+                    pagination: {
+                        total,
+                        page: Number(page),
+                        limit: Number(limit),
+                        totalPages: Math.ceil(total / Number(limit))
+                    }
+                }
+            };
+
+            // Cache result (5 minutes TTL)
+            await cacheService.set(cacheKey, response, cacheTTL.notesList);
+
+            return res.json(response);
         } catch (error: any) {
             return res.status(500).json({ success: false, message: 'Failed to fetch notes', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
         }
@@ -78,6 +108,17 @@ export const noteController = {
     getById: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
+            const user = (req as any).user;
+
+            // God-Level Caching: Cache per note + user (since isPurchased/isWishlisted varies)
+            const cacheKey = cacheKeys.noteDetail(`${id}:${user?.id || 'anon'}`);
+
+            // Try cache first
+            const cached = await cacheService.get<any>(cacheKey);
+            if (cached) {
+                return res.json(cached);
+            }
+
             const note = await prismaAny.notes.findUnique({
                 where: { id },
                 include: {
@@ -88,9 +129,35 @@ export const noteController = {
                 }
             });
             if (!note || note.is_deleted || !note.is_active) return res.status(404).json({ success: false, message: 'Note not found' });
+
+            // Increment view count
             await prismaAny.notes.update({ where: { id }, data: { view_count: { increment: 1 } } });
+
+            // 🧠 PHASE 2: Track view event for recommendations (non-blocking)
+            if (user) {
+                try {
+                    const { kafkaEventService } = await import('../services/kafkaEventService');
+                    const { gorseService } = await import('../services/gorseRecommendationService');
+
+                    // Track in Kafka (async, fire-and-forget)
+                    kafkaEventService.trackEvent({
+                        userId: user.id,
+                        sessionId: req.session?.id || 'unknown',
+                        eventType: 'view',
+                        entityType: 'note',
+                        entityId: id,
+                        timestamp: new Date()
+                    }).catch(err => console.warn('Kafka tracking failed:', err));
+
+                    // Track in Gorse (async, fire-and-forget)
+                    gorseService.trackInteraction(user.id, id, 'view')
+                        .catch(err => console.warn('Gorse tracking failed:', err));
+                } catch (error) {
+                    // Silent fail - don't break the request
+                }
+            }
+
             let isPurchased = false, isWishlisted = false;
-            const user = (req as any).user;
             if (user) {
                 const [purchase, wishlist] = await Promise.all([
                     prismaAny.purchases.findFirst({ where: { user_id: user.id, note_id: id, is_active: true } }),
@@ -114,7 +181,13 @@ export const noteController = {
                 fileUrl: isPurchased || (user?.id === note.seller_id) ? note.file_url : undefined,
                 reviews: (note.reviews || []).map((r: any) => ({ id: r.id, rating: r.rating, comment: r.comment, userName: r.users?.full_name, userImage: r.users?.profile_picture_url, createdAt: r.created_at }))
             };
-            return res.json({ success: true, data: formattedNote });
+
+            const response = { success: true, data: formattedNote };
+
+            // Cache result (10 minutes TTL)
+            await cacheService.set(cacheKey, response, cacheTTL.noteDetail);
+
+            return res.json(response);
         } catch (error: any) {
             return res.status(500).json({ success: false, message: 'Failed to fetch note', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
         }
@@ -214,21 +287,46 @@ export const noteController = {
                 data: {
                     id: crypto.randomUUID(), title: await sanitizeInput(title), description: await sanitizeInput(description), subject: await sanitizeInput(subject),
                     degree: finalDegree, specialization, university_id: finalUniversityId, college_name: await sanitizeInput(collegeName),
-                    semester: finalSemester, year: year ? parseInt(year) : undefined, language,
-                    cover_image: coverImageUrl, // Use uploaded cover URL
-                    file_url: fileUrl, file_type: fileType,
-                    file_size_bytes: BigInt(fileSizeBytes), total_pages: parseInt(totalPages), price_inr: parseFloat(priceInr),
-                    commission_percentage: commissionData.commissionPercentage, commission_amount_inr: commissionData.commissionAmountInr, seller_earning_inr: commissionData.sellerEarningInr,
-                    preview_pages: previewPages.length > 0 ? previewPages : undefined, // Save array directly (Prisma Handles Json) if schema is Json, wait schema says Json? so we pass array or let Prisma serialize? Prisma Client handles Json as object/array.
-                    table_of_contents: tableOfContents, // req.body might be stringified if coming from FormData, check downstream or assume parsed? Multer doesn't parse JSON in body fields automatically. We likely need to parse checks manually if sent as strings.
-                    tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [], // Handle potential stringified array
-                    category_id: categoryId, seller_id: userId, is_approved: true, is_active: true, is_deleted: false, is_flagged: false, updated_at: new Date()
-                },
-                include: { users: { select: { id: true, full_name: true } }, categories: { select: { name: true, name_hi: true } }, universities: { select: { name: true, short_name: true } } }
+                    semester: finalSemester, year: year ? parseInt(year) : null, language, file_url: fileUrl,
+                    file_type: fileType, file_size_bytes: fileSizeBytes, total_pages: parseInt(totalPages), cover_image: coverImageUrl,
+                    preview_pages: previewPages, table_of_contents: tableOfContents, tags, price_inr: parseFloat(priceInr),
+                    commission_percentage: commissionData.commissionPercentage, commission_amount_inr: commissionData.commissionAmountInr,
+                    seller_earning_inr: commissionData.sellerEarningInr, is_active: false, is_approved: false, average_rating: 0,
+                    total_reviews: 0, seller_id: userId, category_id: categoryId || null, is_deleted: false, view_count: 0,
+                    download_count: 0, purchase_count: 0, created_at: new Date(), updated_at: new Date()
+                }
             });
-            return res.status(201).json({ success: true, data: { id: note.id }, message: 'Note uploaded successfully' });
+
+            // 🧠 PHASE 2: Sync new note to Gorse (non-blocking)
+            setImmediate(async () => {
+                try {
+                    const { gorseService } = await import('../services/gorseRecommendationService');
+
+                    // Build categories and labels for Gorse
+                    const categories = [note.degree];
+                    if (note.specialization) categories.push(note.specialization);
+
+                    const labels = [note.subject, `semester-${note.semester}`];
+                    if (note.tags && Array.isArray(note.tags)) {
+                        labels.push(...note.tags);
+                    }
+
+                    // Sync to Gorse (fire-and-forget)
+                    gorseService.upsertNote(
+                        note.id,
+                        categories,
+                        labels,
+                        !note.is_active || !note.is_approved  // Hidden if not active/approved
+                    ).catch(err => console.warn('[Gorse] Note sync failed:', err));
+                } catch (error) {
+                    // Silent fail
+                }
+            });
+
+            await cacheService.delPattern('notes:list:*');
+            return res.status(201).json({ success: true, message: 'Note uploaded successfully (pending approval)', data: { noteId: note.id, title: note.title } });
         } catch (error: any) {
-            console.error('Note create error:', error);
+            console.error('Note creation error:', error);
             return res.status(500).json({ success: false, message: 'Failed to create note', error: process.env.NODE_ENV === 'development' ? error.message : undefined });
         }
     },
@@ -263,6 +361,13 @@ export const noteController = {
                     preview_pages: previewPages as any // Force cast to ANY to bypass Prisma/Json strictness
                 }
             });
+
+            // God-Level Cache Invalidation: Clear this note's cache + listings
+            await Promise.all([
+                cacheService.delPattern(`notes:detail:${id}:*`),
+                cacheService.delPattern('notes:list:*')
+            ]);
+
             return res.json({ success: true, data: updated, message: 'Note updated successfully' });
         } catch (error: any) {
             console.error('Update error:', error);
@@ -276,6 +381,13 @@ export const noteController = {
             const note = await prismaAny.notes.findUnique({ where: { id } });
             if (!note || note.seller_id !== userId) return res.status(403).json({ success: false, message: 'Unauthorized' });
             await prismaAny.notes.update({ where: { id }, data: { is_deleted: true, is_active: false } });
+
+            // God-Level Cache Invalidation: Clear this note's cache + listings
+            await Promise.all([
+                cacheService.delPattern(`notes:detail:${id}:*`),
+                cacheService.delPattern('notes:list:*')
+            ]);
+
             return res.json({ success: true, message: 'Note deleted successfully' });
         } catch (error: any) {
             return res.status(500).json({ success: false, message: 'Failed to delete note' });

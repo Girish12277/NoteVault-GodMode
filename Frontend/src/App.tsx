@@ -10,7 +10,18 @@ import { CartProvider } from "@/contexts/CartContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 
-const queryClient = new QueryClient();
+// Create a client with optimized defaults for better caching and performance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh
+      gcTime: 10 * 60 * 1000, // 10 minutes - garbage collection time (was cacheTime in v4)
+      refetchOnWindowFocus: false, // Don't refetch on every window focus
+      refetchOnReconnect: true, // Refetch on reconnect (offline recovery)
+      retry: 1, // Only retry failed requests once
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -18,7 +29,7 @@ const App = () => (
       <AuthProvider>
         <CartProvider>
           <TooltipProvider>
-            <Toaster />
+            {/* <Toaster /> Removed in favor of Sonner */}
             <Sonner />
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <ErrorBoundary>

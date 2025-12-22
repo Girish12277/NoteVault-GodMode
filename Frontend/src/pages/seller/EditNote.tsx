@@ -54,7 +54,7 @@ const LivePreviewCard = ({ formData, device }: { formData: any, device: 'mobile'
                     </div>
                 )}
                 <div className="absolute top-2 right-2">
-                    <Badge className={cn("backdrop-blur-md shadow-sm", formData.isActive ? "bg-emerald-500/90" : "bg-amber-500/90")}>
+                    <Badge className={cn("backdrop-blur-md shadow-sm", formData.isActive ? "bg-accent/90" : "bg-warning/90")}>
                         {formData.isActive ? "Active" : "Inactive"}
                     </Badge>
                 </div>
@@ -124,7 +124,7 @@ export default function EditNote() {
         return score;
     }, [formData]);
 
-    const healthColor = healthScore >= 80 ? "bg-emerald-500" : healthScore >= 50 ? "bg-amber-500" : "bg-destructive";
+    const healthColor = healthScore >= 80 ? "bg-accent" : healthScore >= 50 ? "bg-warning" : "bg-destructive";
 
     // Fetch Note Details
     const { data: note, isLoading } = useQuery({
@@ -246,7 +246,7 @@ export default function EditNote() {
                 <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50 px-4 py-3 mb-6">
                     <div className="max-w-7xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <Button variant="ghost" size="icon" onClick={() => navigate('/seller/notes')} className="rounded-full">
+                            <Button variant="ghost" size="icon" onClick={() => navigate('/seller/notes')} className="rounded-full" aria-label="Back to my notes">
                                 <ArrowLeft className="h-4 w-4" />
                             </Button>
                             <div>
@@ -267,7 +267,7 @@ export default function EditNote() {
                                 </div>
                             </div>
 
-                            <Button disabled={isSaving} onClick={handleSubmit} className={cn("shadow-lg transition-all", healthScore === 100 ? "shadow-emerald-500/20 hover:shadow-emerald-500/30" : "")}>
+                            <Button disabled={isSaving} onClick={handleSubmit} className={cn("shadow-lg transition-all", healthScore === 100 ? "shadow-accent/20 hover:shadow-accent/30" : "")}>
                                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                 Publish Changes
                             </Button>
@@ -299,7 +299,9 @@ export default function EditNote() {
                                         <div className="relative">
                                             <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <Input
-                                                type="number"
+                                                type="text"
+                                                inputMode="decimal"
+                                                pattern="[0-9]*"
                                                 value={formData.price}
                                                 onChange={(e) => handleValuesChange('price', e.target.value)}
                                                 className="pl-10 font-mono font-medium"
@@ -318,7 +320,7 @@ export default function EditNote() {
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex justify-between">
                                         Description
-                                        <span className="text-[10px] normal-case bg-primary/10 text-primary px-1.5 rounded">SEO Optimized</span>
+                                        <span className="text-xs normal-case bg-primary/10 text-primary px-1.5 rounded">SEO Optimized</span>
                                     </Label>
                                     <Textarea
                                         value={formData.description}
@@ -345,7 +347,7 @@ export default function EditNote() {
                                         <div className="relative group w-32 aspect-[3/4] rounded-lg overflow-hidden bg-muted border border-border shadow-sm">
                                             {formData.coverImage ? (
                                                 <>
-                                                    <img src={formData.coverImage} className="w-full h-full object-cover" />
+                                                    <img src={formData.coverImage} className="w-full h-full object-cover" alt="Note cover preview" />
                                                     <button onClick={() => handleValuesChange('coverImage', '')} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                                                         <Trash2 className="w-6 h-6" />
                                                     </button>
@@ -369,14 +371,14 @@ export default function EditNote() {
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                                         {formData.previewPages.map((url, idx) => (
                                             <div key={idx} className="relative group aspect-[3/4] rounded-lg overflow-hidden border border-border bg-muted">
-                                                <img src={url} className="w-full h-full object-cover" />
+                                                <img src={url} className="w-full h-full object-cover" alt={`Page ${idx + 1} preview`} />
                                                 <button
                                                     onClick={() => setFormData(prev => ({ ...prev, previewPages: prev.previewPages.filter((_, i) => i !== idx) }))}
                                                     className="absolute top-1 right-1 bg-destructive/90 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform hover:scale-110"
                                                 >
                                                     <Trash2 className="w-3 h-3" />
                                                 </button>
-                                                <div className="absolute bottom-1 left-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100">
+                                                <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100">
                                                     Pg {idx + 1}
                                                 </div>
                                             </div>
@@ -385,7 +387,7 @@ export default function EditNote() {
                                         {formData.previewPages.length < 6 && (
                                             <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative aspect-[3/4]">
                                                 <Upload className="w-5 h-5 text-muted-foreground mb-1" />
-                                                <span className="text-[10px] font-medium text-muted-foreground">Add</span>
+                                                <span className="text-xs font-medium text-muted-foreground">Add</span>
                                                 <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" multiple onChange={handlePreviewUpload} />
                                             </div>
                                         )}

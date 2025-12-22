@@ -21,19 +21,33 @@ export function RecommendedNotes() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: recommendedNotes = [], isLoading } = useQuery({
-    queryKey: ['notes', 'recommended', user?.id],
+    queryKey: ['recommendations', 'personalized', user?.id],
     queryFn: async () => {
       if (isAuthenticated && user) {
-        const params: any = { limit: 8 }; // Increased limit for carousel
-        if (user.degree) params.degree = user.degree;
-        if (user.universityId) params.universityId = user.universityId;
+        // 🧠 PHASE 4: Use new FREE recommendation API (Gorse-powered)
+        try {
+          const { data } = await api.get('/recommendations', {
+            params: { limit: 8 }
+          });
 
-        const { data } = await api.get('/notes', { params });
-        return data.data.notes;
+          // Return notes array (API returns { success, data: Note[] })
+          return data.data || [];
+        } catch (error) {
+          console.warn('Recommendations API failed, falling back to basic query:', error);
+
+          // Fallback to basic filtering if recommendation API fails
+          const params: any = { limit: 8 };
+          if (user.degree) params.degree = user.degree;
+          if (user.universityId) params.universityId = user.universityId;
+
+          const { data } = await api.get('/notes', { params });
+          return data.data.notes;
+        }
       }
       return [];
     },
-    enabled: !!isAuthenticated && !!user
+    enabled: !!isAuthenticated && !!user,
+    staleTime: 5 * 60 * 1000  // 5 minutes (matches backend cache)
   });
 
   // Responsive Scroll Logic (80% of view width)
@@ -125,20 +139,20 @@ export function RecommendedNotes() {
 
   // 3. Authenticated Carousel View
   return (
-    <section className="py-16 bg-muted/20 relative overflow-hidden group/section">
+    <section className="py-8 md:py-16 bg-muted/20 relative overflow-hidden group/section">
       {/* Decorative Glow */}
       <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
         <Sparkles className="w-64 h-64 text-primary" />
       </div>
 
       <div className="container relative">
-        <div className="flex items-end justify-between mb-8">
+        <div className="flex items-end justify-between mb-6 md:mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-2 md:mb-3">
               <Zap className="h-3 w-3" />
               <span>Tailored For You</span>
             </div>
-            <h2 className="font-display text-3xl font-bold text-foreground">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
               Top Picks for <span className="text-primary">{user?.degree || 'Students'}</span>
             </h2>
             <p className="text-muted-foreground mt-2 max-w-2xl">
@@ -176,7 +190,7 @@ export function RecommendedNotes() {
               >
                 <div className="relative">
                   {/* Match Badge Logic (Visual Simulation) */}
-                  <div className="absolute -top-3 left-4 z-20 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 border border-emerald-400">
+                  <div className="absolute -top-3 left-4 z-20 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 border border-emerald-400">
                     <Sparkles className="h-2 w-2 text-white" /> 9{8 - index}% Match
                   </div>
                   <NoteCard note={note} />

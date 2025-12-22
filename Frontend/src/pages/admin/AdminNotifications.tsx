@@ -73,6 +73,9 @@ export default function AdminNotifications() {
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [pollingBroadcastId, setPollingBroadcastId] = useState<string | null>(null);
 
+    // Real-time clock for simulator
+    const [currentTime, setCurrentTime] = useState(new Date());
+
     // Character counters
     const titleRemaining = 100 - title.length;
     const messageRemaining = 500 - message.length;
@@ -123,6 +126,14 @@ export default function AdminNotifications() {
 
     useEffect(() => {
         loadHistory();
+    }, []);
+
+    // Update clock every second
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
     }, []);
 
     // Poll for broadcast progress
@@ -211,45 +222,45 @@ export default function AdminNotifications() {
 
     return (
         <AdminLayout>
-            <div className="flex flex-col gap-6 h-[calc(100vh-100px)]">
+            <div className="flex flex-col gap-4 md:gap-6 h-[calc(100vh-100px)]">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="font-display text-3xl font-bold flex items-center gap-3">
-                            <Radio className="h-6 w-6 text-primary animate-pulse" /> The Broadcast Command
+                        <h1 className="font-display text-2xl md:text-3xl font-bold flex items-center gap-3">
+                            <Radio className="h-5 w-5 md:h-6 md:w-6 text-primary animate-pulse" /> The Broadcast Command
                         </h1>
-                        <p className="text-muted-foreground mt-1">Global Signal Control & Telemetry</p>
+                        <p className="text-muted-foreground mt-1 text-sm md:text-base">Global Signal Control & Telemetry</p>
                     </div>
                 </div>
 
-                <div className="flex gap-6 h-full min-h-0">
+                <div className="flex flex-col lg:flex-row gap-4 md:gap-6 h-full min-h-0">
                     {/* LEFT: Signal Composer */}
-                    <Card className="w-1/2 flex flex-col overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
-                        <div className="p-6 flex-1 overflow-y-auto space-y-6">
+                    <Card className="w-full lg:w-1/2 flex flex-col overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
+                        <div className="p-4 md:p-6 flex-1 overflow-y-auto space-y-4 md:space-y-6">
                             {/* Mode Select */}
                             <div className="grid grid-cols-2 gap-2 p-1 bg-muted/50 rounded-lg">
                                 <button
                                     onClick={() => setMode('broadcast')}
                                     className={cn(
-                                        "flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all",
+                                        "flex items-center justify-center gap-1 md:gap-2 py-2 md:py-2.5 rounded-md text-xs md:text-sm font-medium transition-all",
                                         mode === 'broadcast' ? "bg-background shadow text-primary" : "text-muted-foreground hover:bg-background/50"
                                     )}
                                 >
-                                    <Radio className="h-4 w-4" /> Broadcast (All)
+                                    <Radio className="h-3 w-3 md:h-4 md:w-4" /> <span className="hidden sm:inline">Broadcast (All)</span><span className="sm:hidden">All</span>
                                 </button>
                                 <button
                                     onClick={() => setMode('targeted')}
                                     className={cn(
-                                        "flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all",
+                                        "flex items-center justify-center gap-1 md:gap-2 py-2 md:py-2.5 rounded-md text-xs md:text-sm font-medium transition-all",
                                         mode === 'targeted' ? "bg-background shadow text-blue-500" : "text-muted-foreground hover:bg-background/50"
                                     )}
                                 >
-                                    <Users className="h-4 w-4" /> Targeted
+                                    <Users className="h-3 w-3 md:h-4 md:w-4" /> <span className="hidden sm:inline">Targeted</span><span className="sm:hidden">Select</span>
                                 </button>
                             </div>
 
                             {/* Type Select */}
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                 {NOTIFICATION_TYPES.map(t => (
                                     <div
                                         key={t.value}
@@ -270,13 +281,13 @@ export default function AdminNotifications() {
                             {/* Smart Templates */}
                             <div className="space-y-2">
                                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Smart Templates</label>
-                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
                                     {TEMPLATES.map((tpl, i) => (
                                         <Button
                                             key={i}
                                             variant="outline"
                                             size="sm"
-                                            className="whitespace-nowrap h-7 text-xs bg-muted/20"
+                                            className="whitespace-nowrap h-7 text-xs bg-muted/20 flex-shrink-0"
                                             onClick={() => applyTemplate(tpl)}
                                         >
                                             {tpl.title}
@@ -348,14 +359,14 @@ export default function AdminNotifications() {
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => setSelectedUsers(users.map(u => u.id))}
-                                                className="text-[10px] text-blue-500 hover:text-blue-600 font-bold uppercase hover:underline"
+                                                className="text-xs text-blue-500 hover:text-blue-600 font-bold uppercase hover:underline"
                                             >
                                                 Select All
                                             </button>
-                                            <span className="text-muted-foreground/30 text-[10px]">|</span>
+                                            <span className="text-muted-foreground/30 text-xs">|</span>
                                             <button
                                                 onClick={() => setSelectedUsers([])}
-                                                className="text-[10px] text-red-500 hover:text-red-600 font-bold uppercase hover:underline"
+                                                className="text-xs text-red-500 hover:text-red-600 font-bold uppercase hover:underline"
                                             >
                                                 Clear
                                             </button>
@@ -396,32 +407,36 @@ export default function AdminNotifications() {
                     </Card>
 
                     {/* RIGHT: Visual Simulator & Telemetry */}
-                    <div className="w-1/2 flex flex-col gap-6 h-full min-h-0">
+                    <div className="w-full lg:w-1/2 flex flex-col gap-4 md:gap-6 h-full min-h-0">
                         {/* Simulator */}
-                        <div className="flex-1 flex items-center justify-center bg-gray-950 rounded-3xl relative overflow-hidden border-8 border-gray-900 shadow-2xl">
+                        <div className="flex-1 flex items-center justify-center bg-gray-950 rounded-2xl md:rounded-3xl relative overflow-hidden border-4 md:border-8 border-gray-900 shadow-2xl min-h-[300px] md:min-h-0">
                             {/* Mobile Frame Content */}
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center opacity-40" />
-                            <div className="absolute top-12 left-0 right-0 px-6 space-y-4 z-10">
-                                <div className="text-center text-white/80 font-mono text-xs mb-8">Tuesday, 14 September</div>
-                                <div className="text-center text-white text-6xl font-thin mb-12">09:41</div>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 lg:p-12 z-10 overflow-hidden">
+                                <div className="text-center text-white/80 font-mono text-[10px] md:text-xs mb-2 md:mb-3">
+                                    {currentTime.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                </div>
+                                <div className="text-center text-white text-3xl md:text-4xl lg:text-5xl font-thin mb-4 md:mb-6 lg:mb-8">
+                                    {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                </div>
 
                                 {/* Notification Toast */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    className="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl"
+                                    className="bg-white/90 backdrop-blur-md rounded-xl md:rounded-2xl p-3 md:p-4 shadow-xl w-full max-w-[90%] md:max-w-[75%] lg:max-w-[70%]"
                                 >
-                                    <div className="flex gap-3">
-                                        <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-sm", NOTIFICATION_TYPES.find(t => t.value === type)?.color)}>
-                                            <Bell className="h-5 w-5" />
+                                    <div className="flex gap-2 md:gap-3">
+                                        <div className={cn("h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl flex items-center justify-center text-white shadow-sm flex-shrink-0", NOTIFICATION_TYPES.find(t => t.value === type)?.color)}>
+                                            <Bell className="h-4 w-4 md:h-5 md:w-5" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-baseline mb-0.5">
-                                                <span className="font-bold text-sm text-gray-900">StudyVault</span>
-                                                <span className="text-[10px] text-gray-500">NOW</span>
+                                                <span className="font-bold text-xs md:text-sm text-gray-900">StudyVault</span>
+                                                <span className="text-[10px] md:text-xs text-gray-500">NOW</span>
                                             </div>
-                                            <h4 className="font-semibold text-sm text-gray-900 truncate">{title || 'Notification Title'}</h4>
-                                            <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{message || 'Your notification message will appear here exactly as users see it.'}</p>
+                                            <h4 className="font-semibold text-xs md:text-sm text-gray-900 truncate">{title || 'Notification Title'}</h4>
+                                            <p className="text-[10px] md:text-xs text-gray-600 line-clamp-2 leading-relaxed">{message || 'Your notification message will appear here exactly as users see it.'}</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -431,12 +446,12 @@ export default function AdminNotifications() {
                         </div>
 
                         {/* Telemetry Deck */}
-                        <Card className="h-64 flex flex-col bg-card/50 border-border/50">
+                        <Card className="h-48 md:h-64 flex flex-col bg-card/50 border-border/50">
                             <div className="p-3 border-b border-border/50 flex justify-between items-center bg-muted/20">
                                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
                                     <Radio className="h-3 w-3" /> Telemetry Deck
                                 </div>
-                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={loadHistory}><RefreshCw className={cn("h-3 w-3", isLoadingHistory && "animate-spin")} /></Button>
+                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={loadHistory} aria-label="Refresh broadcast history"><RefreshCw className={cn("h-3 w-3", isLoadingHistory && "animate-spin")} /></Button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-0">
                                 {broadcasts.length === 0 ? (
@@ -453,9 +468,9 @@ export default function AdminNotifications() {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
                                                         <div className="font-bold text-xs truncate" title={b.title}>{b.title}</div>
-                                                        <div className="text-[10px] text-muted-foreground line-clamp-2 break-words break-all whitespace-normal max-w-[200px]">{b.message}</div>
+                                                        <div className="text-xs text-muted-foreground line-clamp-2 break-words break-all whitespace-normal max-w-[200px]">{b.message}</div>
                                                     </div>
-                                                    <Badge variant="outline" className={cn("text-[10px] h-5 border-0", info.bg, info.color)}>
+                                                    <Badge variant="outline" className={cn("text-xs h-5 border-0", info.bg, info.color)}>
                                                         {b.status}
                                                     </Badge>
                                                 </div>
@@ -468,7 +483,7 @@ export default function AdminNotifications() {
                                                         />
                                                     </div>
                                                 )}
-                                                <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground font-mono">
+                                                <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground font-mono">
                                                     <span>{new Date(b.created_at).toLocaleTimeString()}</span>
                                                     <span>{b.sent_count} / {b.target_count} RECIPIENTS</span>
                                                 </div>

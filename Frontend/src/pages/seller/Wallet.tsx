@@ -90,7 +90,7 @@ const BlackCard = ({ balance, pending, earnings }: { balance: number, pending: n
         <div className="flex justify-between items-start z-10">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-gradient-to-tr from-amber-200 to-amber-500 opacity-90 shadow-lg" />
-            <span className="font-display font-bold tracking-widest text-sm sm:text-base opacity-90">STUDYVAULT</span>
+            <span className="font-display font-bold tracking-widest text-xs sm:text-base opacity-90">STUDYVAULT</span>
           </div>
           <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 opacity-50" />
         </div>
@@ -104,12 +104,12 @@ const BlackCard = ({ balance, pending, earnings }: { balance: number, pending: n
         {/* Bottom Row */}
         <div className="flex justify-between items-end z-10">
           <div>
-            <p className="text-[10px] sm:text-xs text-white/50 font-mono uppercase">Pending Clearance</p>
-            <p className="text-sm sm:text-base font-medium">₹{pending.toLocaleString()}</p>
+            <p className="text-xs sm:text-xs text-white/50 font-mono uppercase">Pending Clearance</p>
+            <p className="text-xs sm:text-base font-medium">₹{pending.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-white/50 font-mono uppercase">Total Earnings</p>
-            <p className="text-sm sm:text-base font-medium text-emerald-400">₹{earnings.toLocaleString()}</p>
+            <p className="text-xs sm:text-xs text-white/50 font-mono uppercase">Total Earnings</p>
+            <p className="text-xs sm:text-base font-medium text-emerald-400">₹{earnings.toLocaleString()}</p>
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@ const MoneyStream = ({ transactions }: { transactions: any[] }) => {
                 {tx.type === 'sale' ? <ArrowDownRight className="w-4 h-4" /> : tx.type === 'withdrawal' ? <ArrowUpRight className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
               </div>
               <div>
-                <p className="font-semibold text-sm">
+                <p className="font-semibold text-xs">
                   {tx.type === 'sale' ? 'Asset Sold' : tx.type === 'withdrawal' ? 'Payout Processed' : 'Refund Issued'}
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -156,7 +156,7 @@ const MoneyStream = ({ transactions }: { transactions: any[] }) => {
             </div>
 
             <div className="flex items-center justify-between sm:justify-end gap-3 min-w-[100px]">
-              <Badge variant="outline" className={cn("text-[10px] uppercase",
+              <Badge variant="outline" className={cn("text-xs uppercase",
                 tx.status === 'completed' ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/5" :
                   tx.status === 'pending' ? "border-amber-500/30 text-amber-600 bg-amber-500/5" : ""
               )}>
@@ -344,7 +344,7 @@ export default function Wallet() {
 
           <div className="hidden sm:flex items-center gap-3 bg-muted/50 p-2 rounded-lg border border-border/50">
             <div className="text-right">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground">Next Milestone</p>
+              <p className="text-xs uppercase font-bold text-muted-foreground">Next Milestone</p>
               <p className="text-xs font-semibold">Silver Tier (₹5k)</p>
             </div>
             <div className="relative w-10 h-10">
@@ -352,7 +352,7 @@ export default function Wallet() {
                 <path className="text-muted" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4" />
                 <path className="text-primary transition-all duration-1000" strokeDasharray={`${displayPercent}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4" />
               </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">{displayPercent}%</div>
+              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">{displayPercent}%</div>
             </div>
           </div>
         </div>
@@ -397,7 +397,7 @@ export default function Wallet() {
             <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-primary">Funds Protection</p>
+                <p className="text-xs font-semibold text-primary">Funds Protection</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Earnings are held for 24 hours post-sale for refund security. Once cleared, they appear in your Available Balance instantly.
                 </p>
@@ -425,7 +425,7 @@ export default function Wallet() {
                     <div className="text-center py-8 text-muted-foreground">
                       <Building2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
                       <h3>Bank Account Management</h3>
-                      <p className="text-sm">Feature locked for security in this demo.</p>
+                      <p className="text-xs">Feature locked for security in this demo.</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -443,7 +443,7 @@ export default function Wallet() {
             </DialogHeader>
             <div className="py-4 space-y-4">
               <div className="p-4 bg-muted/50 rounded-lg text-center">
-                <p className="text-sm text-muted-foreground mb-1">Available to Payout</p>
+                <p className="text-xs text-muted-foreground mb-1">Available to Payout</p>
                 <p className="text-3xl font-display font-bold">₹{walletData.availableBalance.toLocaleString()}</p>
               </div>
               <div className="space-y-2">

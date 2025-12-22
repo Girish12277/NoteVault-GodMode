@@ -1,0 +1,56 @@
+# Gorse Recommendation Engine Configuration
+
+[database]
+# Data source (using PostgreSQL from env)
+data_store = "${GORSE_DATA_STORE}"
+cache_store = "${GORSE_CACHE_STORE}"
+
+[master]
+# Master settings
+port = 8086
+host = "0.0.0.0"
+n_jobs = 4
+meta_timeout = 60
+
+[server]
+# Server settings
+default_n = 20  # Default number of recommendations
+api_key = ""    # Empty for development, set in production
+
+[recommend]
+# Recommendation settings
+cache_size = 100
+data_source = ["purchases", "views", "clicks"]  # Feedback types
+
+[recommend.collaborative]
+# Collaborative filtering settings
+enable_index = true
+index_recall = 0.9
+index_fit_epoch = 20
+model_fit_epoch = 50
+model_search_epoch = 100
+model_search_trials = 10
+
+# Similarity metrics
+enable_item_neighbor_index = true
+item_neighbor_type = "similar"
+enable_user_neighbor_index = true
+user_neighbor_type = "similar"
+
+[recommend.popular]
+# Popular items settings
+popular_window = 90  # Days to consider for popularity
+
+[recommend.user_based]
+# User-based CF
+enable_user_based = true
+user_neighbor_k = 10
+
+[recommend.item_based]
+# Item-based CF  
+enable_item_based = true
+item_neighbor_k = 10
+
+[recommend.latest]
+# Latest items settings
+enable_latest_recommend = true

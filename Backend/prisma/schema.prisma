@@ -102,20 +102,17 @@ model notes {
   @@index([university_id])
 }
 
-
-
-
 model Conversation {
-  id              String     @id @default(uuid())
+  id              String   @id @default(uuid())
   user_a_id       String
   user_b_id       String
-  created_at      DateTime   @default(now())
-  last_message_at DateTime   @default(now())
-  
-  user_a          users      @relation("UserA", fields: [user_a_id], references: [id])
-  user_b          users      @relation("UserB", fields: [user_b_id], references: [id])
-  messages        messages[]
-  
+  created_at      DateTime @default(now())
+  last_message_at DateTime @default(now())
+
+  user_a   users      @relation("UserA", fields: [user_a_id], references: [id])
+  user_b   users      @relation("UserB", fields: [user_b_id], references: [id])
+  messages messages[]
+
   @@unique([user_a_id, user_b_id])
   @@index([user_a_id])
   @@index([user_b_id])
@@ -123,22 +120,22 @@ model Conversation {
 }
 
 model messages {
-  id              String       @id
-  conversation_id String?      // Made nullable for migration, but logic should enforce it
+  id              String    @id
+  conversation_id String? // Made nullable for migration, but logic should enforce it
   sender_id       String
   receiver_id     String
   content         String
-  content_type    String       @default("text") // Supported: text, link, system
-  is_read         Boolean      @default(false)
-  is_edited       Boolean      @default(false)
-  is_deleted      Boolean      @default(false) // Soft delete
-  created_at      DateTime     @default(now())
-  updated_at      DateTime?    @updatedAt
+  content_type    String    @default("text") // Supported: text, link, system
+  is_read         Boolean   @default(false)
+  is_edited       Boolean   @default(false)
+  is_deleted      Boolean   @default(false) // Soft delete
+  created_at      DateTime  @default(now())
+  updated_at      DateTime? @updatedAt
   deleted_at      DateTime?
-  
-  sender          users        @relation("SentMessages", fields: [sender_id], references: [id])
-  receiver        users        @relation("ReceivedMessages", fields: [receiver_id], references: [id])
-  conversation    Conversation? @relation(fields: [conversation_id], references: [id])
+
+  sender       users         @relation("SentMessages", fields: [sender_id], references: [id])
+  receiver     users         @relation("ReceivedMessages", fields: [receiver_id], references: [id])
+  conversation Conversation? @relation(fields: [conversation_id], references: [id])
 
   @@index([sender_id])
   @@index([receiver_id])
@@ -149,12 +146,12 @@ model ChatAudit {
   id              String   @id @default(uuid())
   viewer_user_id  String
   target_user_id  String
-  field_accessed  String   // e.g., 'email', 'phone'
+  field_accessed  String // e.g., 'email', 'phone'
   conversation_id String?
   timestamp       DateTime @default(now())
 
-  viewer          users    @relation("AuditViewer", fields: [viewer_user_id], references: [id])
-  target          users    @relation("AuditTarget", fields: [target_user_id], references: [id])
+  viewer users @relation("AuditViewer", fields: [viewer_user_id], references: [id])
+  target users @relation("AuditTarget", fields: [target_user_id], references: [id])
 
   @@index([viewer_user_id])
   @@index([target_user_id])
@@ -162,40 +159,40 @@ model ChatAudit {
 }
 
 model posts {
-  id          String   @id
-  seller_id   String
-  content     String?
-  image_url   String?
-  link_url    String?
-  likes       Int      @default(0)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  
-  seller      users    @relation(fields: [seller_id], references: [id])
+  id         String   @id
+  seller_id  String
+  content    String?
+  image_url  String?
+  link_url   String?
+  likes      Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  seller users @relation(fields: [seller_id], references: [id])
 
   @@index([seller_id])
 }
 
 model notifications {
-  id                String                   @id
+  id                String                     @id
   user_id           String
   type              NotificationType
-  title             String                   @db.VarChar(100)
-  message           String                   @db.VarChar(500)
-  is_read           Boolean                  @default(false)
+  title             String                     @db.VarChar(100)
+  message           String                     @db.VarChar(500)
+  is_read           Boolean                    @default(false)
   status            NotificationDeliveryStatus @default(PENDING)
-  sent_by           String?                  // Admin user ID who sent it (null = system)
-  broadcast_id      String?                  // FK to notification_broadcasts
-  idempotency_key   String?                  // For targeted sends deduplication
-  delivery_attempts Int                      @default(0)
-  last_error        String?                  @db.Text
-  created_at        DateTime                 @default(now())
+  sent_by           String? // Admin user ID who sent it (null = system)
+  broadcast_id      String? // FK to notification_broadcasts
+  idempotency_key   String? // For targeted sends deduplication
+  delivery_attempts Int                        @default(0)
+  last_error        String?                    @db.Text
+  created_at        DateTime                   @default(now())
   delivered_at      DateTime?
-  users             users                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  broadcast         notification_broadcasts? @relation(fields: [broadcast_id], references: [id], onDelete: SetNull)
+  users             users                      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  broadcast         notification_broadcasts?   @relation(fields: [broadcast_id], references: [id], onDelete: SetNull)
 
-  @@unique([user_id, broadcast_id])  // Prevent duplicate notifications per broadcast
-  @@unique([user_id, idempotency_key])  // Prevent duplicate targeted sends
+  @@unique([user_id, broadcast_id]) // Prevent duplicate notifications per broadcast
+  @@unique([user_id, idempotency_key]) // Prevent duplicate targeted sends
   @@index([is_read])
   @@index([user_id])
   @@index([broadcast_id])
@@ -205,24 +202,24 @@ model notifications {
 
 // Broadcast job queue with atomic processing support
 model notification_broadcasts {
-  id              String          @id
-  admin_id        String
-  type            NotificationType
-  title           String          @db.VarChar(100)
-  message         String          @db.VarChar(500)
-  target_count    Int             @default(0)
-  sent_count      Int             @default(0)
-  failed_count    Int             @default(0)
-  status          BroadcastStatus @default(PENDING)
-  idempotency_key String          @unique  // Required, prevents duplicate broadcasts
-  last_cursor_id  String?         // For cursor-based resumability
-  last_cursor_at  DateTime?       // Cursor timestamp
+  id                    String           @id
+  admin_id              String
+  type                  NotificationType
+  title                 String           @db.VarChar(100)
+  message               String           @db.VarChar(500)
+  target_count          Int              @default(0)
+  sent_count            Int              @default(0)
+  failed_count          Int              @default(0)
+  status                BroadcastStatus  @default(PENDING)
+  idempotency_key       String           @unique // Required, prevents duplicate broadcasts
+  last_cursor_id        String? // For cursor-based resumability
+  last_cursor_at        DateTime? // Cursor timestamp
   processing_started_at DateTime?
-  created_at      DateTime        @default(now())
-  completed_at    DateTime?
-  last_error      String?         @db.Text
-  admin           users           @relation("broadcast_admin", fields: [admin_id], references: [id])
-  notifications   notifications[]
+  created_at            DateTime         @default(now())
+  completed_at          DateTime?
+  last_error            String?          @db.Text
+  admin                 users            @relation("broadcast_admin", fields: [admin_id], references: [id])
+  notifications         notifications[]
 
   @@index([admin_id])
   @@index([status])
@@ -315,6 +312,7 @@ model transactions {
   amount_inr                          Decimal           @db.Decimal(10, 2)
   commission_inr                      Decimal           @db.Decimal(10, 2)
   seller_earning_inr                  Decimal           @db.Decimal(10, 2)
+  coupon_id                           String?
   coupon_discount_inr                 Decimal?          @db.Decimal(10, 2)
   final_amount_inr                    Decimal           @db.Decimal(10, 2)
   status                              TransactionStatus @default(PENDING)
@@ -361,45 +359,45 @@ model universities {
 }
 
 model users {
-  id                                         String            @id
-  email                                      String            @unique
-  password_hash                              String?
-  full_name                                  String
-  profile_picture_url                        String?
-  degree                                     String?
-  university_id                              String?
-  college_name                               String?
-  current_semester                           Int?
-  current_year                               Int?
-  location                                   Json?
-  phone                                      String?
-  subjects                                   String[]
-  bio                                        String?
-  preferred_language                         Language          @default(en)
-  is_seller                                  Boolean           @default(false)
-  sent_messages                              messages[]        @relation("SentMessages")
-  received_messages                          messages[]        @relation("ReceivedMessages")
-  conversations_a                            Conversation[]    @relation("UserA")
-  conversations_b                            Conversation[]    @relation("UserB")
-  audit_viewer                               ChatAudit[]       @relation("AuditViewer")
-  audit_target                               ChatAudit[]       @relation("AuditTarget")
-  posts                                      posts[]
-  
-  is_admin                                   Boolean           @default(false)
-  is_verified                                Boolean           @default(false)
-  is_active                                  Boolean           @default(true)
-  google_id                                  String?           @unique
-  failed_login_attempts                      Int               @default(0)
+  id                  String         @id
+  email               String         @unique
+  password_hash       String?
+  full_name           String
+  profile_picture_url String?
+  degree              String?
+  university_id       String?
+  college_name        String?
+  current_semester    Int?
+  current_year        Int?
+  location            Json?
+  phone               String?
+  subjects            String[]
+  bio                 String?
+  preferred_language  Language       @default(en)
+  is_seller           Boolean        @default(false)
+  sent_messages       messages[]     @relation("SentMessages")
+  received_messages   messages[]     @relation("ReceivedMessages")
+  conversations_a     Conversation[] @relation("UserA")
+  conversations_b     Conversation[] @relation("UserB")
+  audit_viewer        ChatAudit[]    @relation("AuditViewer")
+  audit_target        ChatAudit[]    @relation("AuditTarget")
+  posts               posts[]
+
+  is_admin                                   Boolean                   @default(false)
+  is_verified                                Boolean                   @default(false)
+  is_active                                  Boolean                   @default(true)
+  google_id                                  String?                   @unique
+  failed_login_attempts                      Int                       @default(0)
   lockout_until                              DateTime?
-  referral_code                              String            @unique
+  referral_code                              String                    @unique
   referred_by                                String?
   password_reset_token                       String?
   password_reset_expires                     DateTime?
   email_verification_token                   String?
   last_login_at                              DateTime?
-  created_at                                 DateTime          @default(now())
+  created_at                                 DateTime                  @default(now())
   updated_at                                 DateTime
-  reported_disputes                          Dispute[]         @relation("reporter")
+  reported_disputes                          Dispute[]                 @relation("reporter")
   Report                                     Report[]
   Wishlist                                   Wishlist[]
   notes                                      notes[]
@@ -409,9 +407,10 @@ model users {
   purchases                                  purchases[]
   reviews                                    reviews[]
   seller_wallets                             seller_wallets?
-  transactions_transactions_buyer_idTousers  transactions[]    @relation("transactions_buyer_idTousers")
-  transactions_transactions_seller_idTousers transactions[]    @relation("transactions_seller_idTousers")
-  universities                               universities?     @relation(fields: [university_id], references: [id])
+  coupon_usages                              coupon_usages[]
+  transactions_transactions_buyer_idTousers  transactions[]            @relation("transactions_buyer_idTousers")
+  transactions_transactions_seller_idTousers transactions[]            @relation("transactions_seller_idTousers")
+  universities                               universities?             @relation(fields: [university_id], references: [id])
 
   @@index([email])
   @@index([university_id])
@@ -615,8 +614,153 @@ model ContactInquiry {
 model SiteContent {
   id        String   @id @default(uuid())
   section   String   @unique // e.g. 'home-hero', 'auth-hero'
-  content   Json     // e.g. { title, subtitle, stats: [] }
+  content   Json // e.g. { title, subtitle, stats: [] }
   updatedAt DateTime @updatedAt
 
   @@index([section])
+}
+
+model webhook_logs {
+  id           String   @id
+  event_id     String   @unique
+  event_type   String
+  payload      String
+  status       String
+  processed_at DateTime
+  created_at   DateTime @default(now())
+
+  @@index([event_id])
+  @@index([created_at])
+}
+
+model alert_failures {
+  id              String   @id
+  severity        String // CRITICAL, HIGH, WARNING
+  event           String // Event name
+  message         String // Alert message
+  metadata        String // JSON metadata
+  environment     String // production, development
+  attempts        String // JSON array of attempt details
+  attempt_count   Int // Number of delivery attempts
+  status          String // FAILED, DELIVERED
+  created_at      DateTime
+  last_attempt_at DateTime
+
+  @@index([status])
+  @@index([severity])
+  @@index([created_at])
+}
+
+model payment_orders {
+  id                String    @id
+  idempotency_key   String    @unique // GOD-TIER: Prevents race conditions
+  user_id           String
+  note_ids          String[] // Array of note IDs
+  total_amount      Decimal? // Total payment amount
+  razorpay_order_id String? // Razorpay order ID (after processing)
+  status            String // RESERVED, PENDING, SUCCESS, FAILED, EXPIRED
+  reserved_at       DateTime? // When reservation was made
+  reserved_until    DateTime? // Expiry time (5 minutes)
+  processed_at      DateTime? // When Razorpay order was created
+  error_message     String? // Error details if failed
+  created_at        DateTime
+  updated_at        DateTime?
+
+  @@index([user_id])
+  @@index([razorpay_order_id])
+  @@index([created_at])
+  @@index([status])
+  @@index([reserved_until]) // For cleanup queries
+}
+
+model financial_reconciliation {
+  id                String   @id
+  date              DateTime // Date being reconciled
+  our_total         Decimal // Our DB total
+  our_count         Int
+  razorpay_total    Decimal // Razorpay total
+  razorpay_count    Int
+  amount_difference Decimal
+  count_difference  Int
+  status            String // MATCH, MISMATCH
+  notes             String? // Manual investigation notes
+  created_at        DateTime
+
+  @@unique([date])
+  @@index([status])
+  @@index([created_at])
+}
+
+// GOD-LEVEL FIX #4 PHASE 5: Analytics Aggregation Table
+model analytics_daily {
+  id          String   @id @default(uuid())
+  date        String // YYYY-MM-DD format
+  entity_type String // 'note', 'category', 'user'
+  entity_id   String // Reference to notes.id, categories.id, users.id
+  views       Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(10, 2)
+  conversions Int      @default(0) // Purchases/downloads
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@unique([date, entity_type, entity_id], name: "date_entity_unique")
+  @@index([date])
+  @@index([entity_type])
+  @@index([entity_id])
+  @@index([date, entity_type])
+  @@map("analytics_daily")
+}
+
+enum CouponType {
+  PERCENTAGE
+  FLAT
+}
+
+enum CouponScope {
+  GLOBAL
+  CATEGORY
+  SELLER
+  NOTE
+}
+
+model coupons {
+  id                  String        @id @default(uuid())
+  code                String        @unique
+  description         String?
+  type                CouponType
+  value               Decimal       @db.Decimal(10, 2)
+  min_order_value     Decimal?      @db.Decimal(10, 2)
+  max_discount_amount Decimal?      @db.Decimal(10, 2)
+  start_date          DateTime      @default(now())
+  end_date            DateTime?
+  usage_limit_global  Int?
+  usage_limit_per_user Int?
+  usage_count         Int           @default(0)
+  is_active           Boolean       @default(true)
+  scope               CouponScope   @default(GLOBAL)
+  scope_ids           String[]
+  created_at          DateTime      @default(now())
+  updated_at          DateTime      @updatedAt
+
+  usages              coupon_usages[]
+  
+  @@index([code])
+  @@index([is_active])
+  @@index([start_date, end_date])
+}
+
+model coupon_usages {
+  id             String    @id @default(uuid())
+  coupon_id      String
+  user_id        String
+  transaction_id String?
+  discount_amount Decimal  @db.Decimal(10, 2)
+  used_at        DateTime  @default(now())
+
+  coupon         coupons   @relation(fields: [coupon_id], references: [id])
+  users          users     @relation(fields: [user_id], references: [id])
+
+  @@index([coupon_id])
+  @@index([user_id])
+  @@index([transaction_id])
 }

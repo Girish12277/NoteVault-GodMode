@@ -79,7 +79,7 @@ export default function PaymentSuccess() {
                     initial={{ scale: 0, y: 10 }}
                     animate={{ scale: 1, y: 0 }}
                     transition={{ delay: 0.6, type: "spring" }}
-                    className="bg-primary text-primary-foreground text-[11px] font-bold px-3 py-1 rounded-full shadow-lg border border-white/20"
+                    className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white/20"
                   >
                     CONFIRMED
                   </motion.div>
@@ -127,13 +127,13 @@ export default function PaymentSuccess() {
                   <div className="flex-1 p-5 space-y-4 text-left bg-gradient-to-br from-slate-50/50 to-transparent">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-1">Receipt ID</p>
+                        <p className="text-xs uppercase tracking-wider font-bold text-muted-foreground/70 mb-1">Receipt ID</p>
                         <p className="font-mono text-sm font-medium text-foreground">{orderId}</p>
                       </div>
                       <ShieldCheck className="h-4 w-4 text-emerald-500/50" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70">Payment Ref</p>
+                      <p className="text-xs uppercase tracking-wider font-bold text-muted-foreground/70">Payment Ref</p>
                       <p className="font-mono text-xs text-muted-foreground break-all">{paymentId}</p>
                     </div>
                   </div>
@@ -163,7 +163,7 @@ export default function PaymentSuccess() {
                     <div className="h-10 w-10 rounded-full bg-white border border-border shadow-sm flex items-center justify-center group-hover/btn:scale-110 transition-transform group-hover/btn:border-emerald-200">
                       <Download className="h-4 w-4 text-slate-600 group-hover/btn:text-emerald-600 transition-colors" />
                     </div>
-                    <span className="text-[10px] font-bold text-slate-500 group-hover/btn:text-emerald-700 uppercase tracking-tight">Invoice</span>
+                    <span className="text-xs font-bold text-slate-500 group-hover/btn:text-emerald-700 uppercase tracking-tight">Invoice</span>
                   </div>
                 </div>
               </motion.div>
@@ -194,7 +194,7 @@ export default function PaymentSuccess() {
             transition={{ delay: 0.9 }}
             className="mt-8 text-center"
           >
-            <p className="text-[10px] text-muted-foreground/60 flex items-center justify-center gap-1.5 uppercase tracking-widest font-medium">
+            <p className="text-xs text-muted-foreground/60 flex items-center justify-center gap-1.5 uppercase tracking-widest font-medium">
               <ShieldCheck className="h-3 w-3" />
               Verified & Secure Transaction
             </p>

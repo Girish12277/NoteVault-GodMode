@@ -15,7 +15,8 @@ export const authLimiter = rateLimit({
     },
     standardHeaders: true,
     legacyHeaders: false,
-    skipSuccessfulRequests: true // Don't count successful logins
+    skipSuccessfulRequests: true, // Don't count successful logins
+    skip: () => process.env.NODE_ENV === 'test' // Disable in test environment
 });
 
 /**
@@ -31,7 +32,8 @@ export const apiLimiter = rateLimit({
         code: 'RATE_LIMIT_EXCEEDED'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'test' // Disable in test environment
 });
 
 /**
@@ -45,7 +47,9 @@ export const searchLimiter = rateLimit({
         success: false,
         message: 'Too many search requests. Please wait.',
         code: 'RATE_LIMIT_SEARCH'
-    }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 /**
@@ -59,7 +63,9 @@ export const uploadLimiter = rateLimit({
         success: false,
         message: 'Upload limit reached. Try again later.',
         code: 'RATE_LIMIT_UPLOAD'
-    }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 /**
@@ -73,7 +79,9 @@ export const passwordResetLimiter = rateLimit({
         success: false,
         message: 'Too many password reset attempts. Try again later.',
         code: 'RATE_LIMIT_PASSWORD_RESET'
-    }
+    },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 /**

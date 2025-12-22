@@ -10,61 +10,30 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 
 // Smart Icon Mapping
+// Smart Icon Mapping (Consolidated to Primary/Secondary/Accent)
 const getCategoryConfig = (name: string) => {
   const lower = name.toLowerCase();
-  if (lower.includes('engineering')) return {
-    icon: Code,
-    gradient: "from-blue-600 to-cyan-400",
-    shadow: "shadow-blue-500/20",
-    bg: "bg-blue-500/10"
-  };
-  if (lower.includes('medical') || lower.includes('pharmacy')) return {
-    icon: Stethoscope,
-    gradient: "from-emerald-500 to-teal-400",
-    shadow: "shadow-emerald-500/20",
-    bg: "bg-emerald-500/10"
-  };
-  if (lower.includes('science') || lower.includes('physics')) return {
-    icon: Atom,
-    gradient: "from-violet-600 to-purple-400",
-    shadow: "shadow-violet-500/20",
-    bg: "bg-violet-500/10"
-  };
-  if (lower.includes('commerce') || lower.includes('business')) return {
-    icon: Calculator,
-    gradient: "from-amber-500 to-orange-400",
-    shadow: "shadow-amber-500/20",
-    bg: "bg-amber-500/10"
-  };
-  if (lower.includes('arts') || lower.includes('humanities')) return {
-    icon: Globe,
-    gradient: "from-rose-500 to-pink-400",
-    shadow: "shadow-rose-500/20",
-    bg: "bg-rose-500/10"
-  };
-  if (lower.includes('law')) return {
-    icon: Gavel,
-    gradient: "from-slate-700 to-slate-500",
-    shadow: "shadow-slate-500/20",
-    bg: "bg-slate-500/10"
-  };
-  if (lower.includes('management')) return {
-    icon: Briefcase,
-    gradient: "from-indigo-600 to-blue-500",
-    shadow: "shadow-indigo-500/20",
-    bg: "bg-indigo-500/10"
-  };
-  if (lower.includes('architecture')) return {
-    icon: DraftingCompass,
-    gradient: "from-stone-600 to-stone-400",
-    shadow: "shadow-stone-500/20",
-    bg: "bg-stone-500/10"
+
+  // Secondary (Navy) - Technical/Professional
+  if (lower.includes('engineering') || lower.includes('management') || lower.includes('law') || lower.includes('science')) return {
+    icon: Code, // Icon might vary but color is unified
+    gradient: "from-secondary to-secondary/80",
+    shadow: "shadow-secondary/20",
+    bg: "bg-secondary/10"
   };
 
-  // Default fallback
+  // Accent (Green) - Health/Life
+  if (lower.includes('medical') || lower.includes('pharmacy')) return {
+    icon: Stethoscope,
+    gradient: "from-accent to-accent/80",
+    shadow: "shadow-accent/20",
+    bg: "bg-accent/10"
+  };
+
+  // Primary (Orange) - Business/Arts/Humanities/Default
   return {
     icon: BookOpen,
-    gradient: "from-primary to-primary/60",
+    gradient: "from-primary to-primary/80",
     shadow: "shadow-primary/20",
     bg: "bg-primary/10"
   };
@@ -104,7 +73,7 @@ export default function Categories() {
             <Badge variant="outline" className="mb-6 border-primary/20 bg-primary/5 text-primary backdrop-blur-sm px-4 py-1.5 text-sm uppercase tracking-wider font-semibold">
               <Zap className="w-3 H-3 mr-2 fill-current" /> Knowledge Hub
             </Badge>
-            <h1 className="font-display text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70 mb-6">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70 mb-6">
               Explore by Topic
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">

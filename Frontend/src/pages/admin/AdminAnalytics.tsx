@@ -113,19 +113,19 @@ export default function AdminAnalytics() {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-foreground flex items-center gap-3">
-            <BarChartIcon className="h-8 w-8 text-primary" /> Analytics Dashboard
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <BarChartIcon className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Analytics Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Real-time platform insights and performance indicators.
           </p>
         </div>
       </div>
 
       {/* KPI Cards (Glassmorphic) */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
         <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-transparent to-transparent border-primary/20">
           <div className="absolute top-0 right-0 p-4 opacity-5">
             <Users className="h-24 w-24" />
@@ -202,7 +202,7 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Main Charts Grid */}
-      <div className="grid gap-6 lg:grid-cols-7 mb-8">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-7 mb-6 md:mb-8">
 
         {/* Revenue Trend (Area Chart) - Occupies 4/7 cols */}
         <Card className="lg:col-span-4 border-border/50 shadow-sm flex flex-col">

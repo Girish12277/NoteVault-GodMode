@@ -46,6 +46,7 @@ const sanitize = async (input: string): Promise<string> => {
 };
 
 // Control character regex (reject these)
+// eslint-disable-next-line no-control-regex
 const CONTROL_CHAR_REGEX = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
 
 const validateContent = (input: string, fieldName: string): void => {
@@ -350,6 +351,7 @@ export const notificationService = {
             let lastCursorId = broadcast.last_cursor_id || null;
             let batchNumber = 0;
 
+            // eslint-disable-next-line no-constant-condition
             while (true) {
                 batchNumber++;
 

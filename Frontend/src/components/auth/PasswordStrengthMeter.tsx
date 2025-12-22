@@ -47,7 +47,7 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ fe
             </div>
 
             {!isStrong && suggestions.length > 0 && (
-                <p className="text-[10px] text-muted-foreground italic">
+                <p className="text-xs text-muted-foreground italic">
                     Tip: {suggestions[0]}
                 </p>
             )}

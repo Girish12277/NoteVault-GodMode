@@ -31,12 +31,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
 import api from '@/lib/api';
+import { formatCurrency } from '@/lib/formatters';
 
 const paymentMethods = [
-  { id: 'upi', name: 'UPI', icon: Smartphone, description: 'Google Pay, PhonePe, Paytm' },
-  { id: 'card', name: 'Credit/Debit Card', icon: CreditCard, description: 'Visa, Mastercard, RuPay' },
-  { id: 'netbanking', name: 'Net Banking', icon: Building2, description: 'All major banks' },
-  { id: 'wallet', name: 'Wallets', icon: Wallet, description: 'Paytm, PhonePe, Amazon Pay' },
+  { id: 'upi', name: 'UPI', shortName: 'UPI', icon: Smartphone, description: 'Google Pay, PhonePe, Paytm' },
+  { id: 'card', name: 'Credit/Debit Card', shortName: 'Card', icon: CreditCard, description: 'Visa, Mastercard, RuPay' },
+  { id: 'netbanking', name: 'Net Banking', shortName: 'Bank', icon: Building2, description: 'All major banks' },
+  { id: 'wallet', name: 'Wallets', shortName: 'Wallet', icon: Wallet, description: 'Paytm, PhonePe, Amazon Pay' },
 ];
 
 export default function Checkout() {
@@ -54,8 +55,9 @@ export default function Checkout() {
   const [selectedWallet, setSelectedWallet] = useState('');
 
   const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null); // Using any temporarily to avoid import issues, ideally CouponValidationResponse
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
   // Calculate discounts
   const itemCount = cartItems.length;
@@ -66,15 +68,38 @@ export default function Checkout() {
 
   const subtotal = cartTotal;
   const bulkDiscount = Math.round((subtotal * discountPercentage) / 100);
-  const couponDiscount = appliedCoupon ? 50 : 0;
+  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const finalTotal = subtotal - bulkDiscount - couponDiscount;
 
-  const handleApplyCoupon = () => {
-    if (couponCode.toUpperCase() === 'FIRST50') {
-      setAppliedCoupon('FIRST50');
-      toast.success('Coupon applied! ₹50 off');
-    } else {
-      toast.error('Invalid coupon code');
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error('Please enter a coupon code');
+      return;
+    }
+
+    try {
+      setIsValidatingCoupon(true);
+      const noteIds = cartItems.map(item => item.noteId);
+      const currentTotal = subtotal - bulkDiscount;
+
+      const { data } = await api.post('/coupons/validate', {
+        code: couponCode,
+        amount: currentTotal,
+        noteIds
+      });
+
+      if (data.success && data.data.isValid) {
+        setAppliedCoupon(data.data);
+        toast.success(`Coupon applied! Saved ₹${data.data.discountAmount}`);
+      } else {
+        setAppliedCoupon(null);
+        toast.error(data.data.message || 'Invalid coupon');
+      }
+    } catch (error: any) {
+      setAppliedCoupon(null);
+      toast.error(error.response?.data?.message || 'Failed to apply coupon');
+    } finally {
+      setIsValidatingCoupon(false);
     }
   };
 
@@ -117,7 +142,7 @@ export default function Checkout() {
       const noteIds = cartItems.map(item => item.noteId);
       const { data: orderResponse } = await api.post('/payments/create-order', {
         noteIds,
-        couponCode: appliedCoupon || undefined
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined
       });
 
       if (!orderResponse.success) {
@@ -129,7 +154,7 @@ export default function Checkout() {
       // 2. Load Razorpay SDK
       const res = await loadRazorpay();
       if (!res) {
-        toast.error('Razorpay SDK failed to load. Are you online?');
+        toast.error('Payment gateway failed to load. Check your internet connection and refresh the page.');
         setIsProcessing(false);
         return;
       }
@@ -213,7 +238,7 @@ export default function Checkout() {
     } catch (error: any) {
       console.error('Payment Error:', error);
 
-      toast.error(error.response?.data?.message || 'Something went wrong processing payment');
+      toast.error(error.response?.data?.message || 'Payment declined. Check your card details or try a different payment method.');
       setIsProcessing(false);
     }
   };
@@ -264,11 +289,11 @@ export default function Checkout() {
 
               {/* Header */}
               <div className="mb-2 space-y-1">
-                <h1 className="font-display text-3xl font-bold text-foreground tracking-tight flex items-center gap-2">
-                  <Lock className="h-6 w-6 text-primary" />
+                <h1 className="font-display text-xl sm:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2">
+                  <Lock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   Secure Checkout
                 </h1>
-                <p className="text-muted-foreground text-sm flex items-center gap-2">
+                <p className="text-muted-foreground text-xs flex items-center gap-2">
                   <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
                   Bank-grade SSL encryption enabled
                 </p>
@@ -281,7 +306,7 @@ export default function Checkout() {
                 className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
               >
                 <div className="bg-muted/30 py-3 px-4 border-b border-border/50 flex justify-between items-center">
-                  <h2 className="font-semibold text-sm">Order Items</h2>
+                  <h2 className="font-semibold text-xs">Order Items</h2>
                   <Badge variant="secondary" className="text-xs font-normal">{cartItems.length} Notes</Badge>
                 </div>
                 <div className="divide-y divide-border/50 max-h-[240px] overflow-y-auto scrollbar-thin p-1">
@@ -296,7 +321,7 @@ export default function Checkout() {
                         <div className="absolute inset-0 bg-black/5" />
                       </div>
                       <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-center">
-                        <h4 className="font-medium text-sm text-foreground line-clamp-1 leading-tight">
+                        <h4 className="font-medium text-xs text-foreground line-clamp-1 leading-tight">
                           {item.note.title}
                         </h4>
                         <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
@@ -304,7 +329,7 @@ export default function Checkout() {
                         </p>
                       </div>
                       <div className="flex flex-col justify-center text-right">
-                        <p className="font-bold text-sm">₹{item.note.price}</p>
+                        <p className="font-bold text-xs">{formatCurrency(item.note.price)}</p>
                       </div>
                     </div>
                   ))}
@@ -318,45 +343,60 @@ export default function Checkout() {
                 transition={{ delay: 0.1 }}
                 className="space-y-4"
               >
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-primary" />
+                <h2 className="font-display text-base sm:text-lg font-semibold flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Payment Method
                 </h2>
 
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 sm:gap-3">
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
                         className={cn(
-                          "relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 group",
+                          "cursor-pointer group relative",
+                          // Mobile: Simple Radio Row
+                          "flex items-center gap-2.5 p-0 sm:p-4",
+                          // Desktop: Card/Tile Styles
+                          "sm:flex-col sm:justify-center sm:rounded-xl sm:border-2 sm:transition-all sm:duration-300",
+                          // Desktop Active States
                           paymentMethod === method.id
-                            ? 'border-primary bg-primary/5 shadow-md shadow-primary/10 scale-[1.02]'
-                            : 'border-border/60 bg-card hover:bg-muted/50 hover:border-primary/30'
+                            ? 'sm:border-primary sm:bg-primary/5 sm:shadow-md sm:shadow-primary/10 sm:scale-[1.02]'
+                            : 'sm:border-border/60 sm:bg-card sm:hover:bg-muted/50 sm:hover:border-primary/30'
                         )}
                       >
-                        <RadioGroupItem value={method.id} className="sr-only" />
+                        {/* Mobile: Standard Radio Button (Forced Tiny Size) */}
+                        <div className="sm:hidden flex items-center justify-center">
+                          <RadioGroupItem value={method.id} id={method.id} className="h-3 w-3 border-[1.5px] text-primary" />
+                        </div>
+                        {/* Desktop: Hidden Radio */}
+                        <RadioGroupItem value={method.id} className="sr-only hidden sm:block" />
 
+                        {/* Icon: Small on Mobile, Large on Desktop */}
                         <div className={cn(
-                          "h-10 w-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300",
+                          "shrink-0 transition-all duration-300 flex items-center justify-center",
+                          "h-5 w-5 sm:h-10 sm:w-10 sm:rounded-full",
                           paymentMethod === method.id
-                            ? 'bg-primary text-primary-foreground shadow-lg scale-110'
-                            : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
+                            ? 'text-primary sm:bg-primary sm:text-primary-foreground sm:shadow-lg'
+                            : 'text-muted-foreground sm:bg-muted sm:text-muted-foreground group-hover:text-primary sm:group-hover:bg-primary/10'
                         )}>
-                          <method.icon className="h-5 w-5" />
+                          <method.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
 
+                        {/* Text Label */}
                         <span className={cn(
-                          "text-xs font-bold text-center transition-colors",
-                          paymentMethod === method.id ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+                          "text-xs sm:text-xs font-bold transition-colors leading-tight",
+                          paymentMethod === method.id ? 'text-foreground sm:text-primary' : 'text-muted-foreground group-hover:text-foreground'
                         )}>
-                          {method.name}
+                          <span className="sm:hidden">{method.name}</span> {/* Mobile: Full Name */}
+                          <span className="hidden sm:inline">{method.name}</span> {/* Desktop: Full Name */}
                         </span>
 
+                        {/* Desktop Checkmark (Hidden on Mobile) */}
                         {paymentMethod === method.id && (
                           <motion.div
                             layoutId="check"
-                            className="absolute top-2 right-2 h-4 w-4 rounded-full bg-primary flex items-center justify-center"
+                            className="hidden sm:flex absolute top-2 right-2 h-4 w-4 rounded-full bg-primary items-center justify-center shadow-sm z-10"
                           >
                             <Check className="h-2.5 w-2.5 text-white" />
                           </motion.div>
@@ -400,7 +440,7 @@ export default function Checkout() {
                               />
                               <Smartphone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                             </div>
-                            <p className="text-[10px] text-muted-foreground ml-1">Securely processed by Razorpay</p>
+                            <p className="text-xs text-muted-foreground ml-1">Securely processed by Razorpay</p>
                           </div>
                         </div>
                       )}
@@ -505,15 +545,16 @@ export default function Checkout() {
                             <p className="text-xs text-muted-foreground">Seamless payment via wallet</p>
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-xs font-medium ml-1">Select Wallet Provider</Label>
-                            <RadioGroup value={selectedWallet} onValueChange={setSelectedWallet} className="grid grid-cols-2 gap-3">
+                            <Label className="text-xs font-medium ml-1">Select Wallet</Label>
+                            <RadioGroup value={selectedWallet} onValueChange={setSelectedWallet} className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                               {['Paytm', 'PhonePe', 'Amazon', 'Freecharge'].map((w) => (
                                 <label key={w} className={cn(
-                                  "flex items-center justify-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 text-sm font-medium transition-colors",
-                                  selectedWallet === w ? "border-primary bg-primary/5 text-primary shadow-sm" : "border-border"
+                                  "flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition-colors",
+                                  // Minimalist style
+                                  selectedWallet === w ? "bg-primary/5 text-primary" : "hover:bg-muted/50 text-muted-foreground"
                                 )}>
-                                  <RadioGroupItem value={w} id={w} className="text-primary h-4 w-4" />
-                                  <span className="truncate">{w}</span>
+                                  <RadioGroupItem value={w} id={w} className="text-primary h-3 w-3 border-[1.5px] shrink-0" />
+                                  <span className={cn("text-[10px] sm:text-xs font-medium truncate", selectedWallet === w && "font-bold")}>{w}</span>
                                 </label>
                               ))}
                             </RadioGroup>
@@ -527,17 +568,24 @@ export default function Checkout() {
 
 
               {/* 2. Billing Details (Compact Read-Only) */}
-              <div className="rounded-xl border border-border bg-card/60 p-4 flex items-center justify-between text-sm">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-emerald-100/50 flex items-center justify-center">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  </div>
+              <div className="rounded-lg border border-border bg-card/60 p-3 items-center justify-between text-[10px] hidden sm:flex">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                   <div>
                     <p className="font-medium">Billing Verified</p>
-                    <p className="text-muted-foreground text-xs">{user?.email}</p>
+                    <p className="text-muted-foreground text-[10px]">{user?.email}</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="font-mono text-xs">Receipt Ready</Badge>
+                <Badge variant="outline" className="font-mono text-[10px] h-5 px-1.5">Receipt Ready</Badge>
+              </div>
+
+              {/* Mobile Billing Details (Extra Compact) */}
+              <div className="rounded-lg border border-border bg-card/30 p-2 flex items-center gap-2 text-[10px] sm:hidden">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                <div className="flex-1 min-w-0 flex items-baseline justify-between">
+                  <span className="text-muted-foreground truncate">{user?.email}</span>
+                  <span className="text-emerald-700 font-medium whitespace-nowrap ml-2">Verified</span>
+                </div>
               </div>
             </div>
 
@@ -565,8 +613,8 @@ export default function Checkout() {
                               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-bold text-sm text-emerald-900 truncate">{appliedCoupon}</p>
-                              <p className="text-[10px] text-emerald-700 font-medium">₹50 SAVED</p>
+                              <p className="font-bold text-xs text-emerald-900 truncate">{appliedCoupon.code}</p>
+                              <p className="text-xs text-emerald-700 font-medium">₹{appliedCoupon.discountAmount} SAVED</p>
                             </div>
                           </div>
                           <Button
@@ -586,17 +634,20 @@ export default function Checkout() {
                           <Input
                             placeholder="Coupon Code"
                             value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value)}
-                            className="uppercase font-mono text-xs sm:text-sm h-10 border-dashed focus:border-solid"
+                            onChange={(e) => {
+                              setCouponCode(e.target.value);
+                              setAppliedCoupon(null);
+                            }}
+                            className="uppercase font-mono text-xs sm:text-xs h-10 border-dashed focus:border-solid"
                           />
-                          <Button variant="secondary" className="h-10" onClick={handleApplyCoupon}>
-                            Apply
+                          <Button variant="secondary" className="h-10" onClick={handleApplyCoupon} disabled={isValidatingCoupon}>
+                            {isValidatingCoupon ? '...' : 'Apply'}
                           </Button>
                         </div>
                       )}
                     </div>
 
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-2 text-xs">
                       <div className="flex justify-between text-muted-foreground">
                         <span>Subtotal</span>
                         <span className="font-medium">₹{subtotal}</span>
@@ -657,23 +708,21 @@ export default function Checkout() {
                       )}
                     </Button>
 
-                    <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground opacity-70">
+                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground opacity-70">
                       <Shield className="h-3 w-3" />
                       256-Bit SSL Encrypted Payment
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Trust/Bulk Info */}
+                {/* Trust/Bulk Info - Compact Mobile */}
                 {itemCount < 3 && (
-                  <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 text-sm flex gap-3 items-start">
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                      <Zap className="h-4 w-4 text-blue-600" />
-                    </div>
+                  <div className="p-3 rounded-lg bg-blue-50/50 border border-blue-100 text-xs flex gap-2 items-start">
+                    <Zap className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-bold text-blue-900 text-xs uppercase tracking-wide mb-1">Pro Tip</p>
-                      <p className="text-blue-700 text-xs leading-relaxed">
-                        Add <strong>{3 - itemCount}</strong> more items to unlock <span className="underline decoration-blue-400 decoration-wavy">5% Bulk Savings</span> instantly.
+                      <p className="font-bold text-blue-900 text-[10px] uppercase tracking-wide mb-0.5">Pro Tip</p>
+                      <p className="text-blue-700 text-[10px] leading-snug">
+                        Add <strong>{3 - itemCount}</strong> more items for <span className="underline decoration-blue-400 decoration-wavy">5% Off</span>.
                       </p>
                     </div>
                   </div>

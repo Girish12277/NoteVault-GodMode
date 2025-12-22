@@ -121,13 +121,16 @@ export default function Browse() {
     }
   });
 
-  const allNotes = notesData || [];
+  const allNotes = (notesData || []).filter(note => !user?.purchasedNoteIds?.includes(note.id));
   const totalPages = Math.ceil(allNotes.length / ITEMS_PER_PAGE);
   const paginatedNotes = allNotes.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  if (error) {
-    toast.error("Failed to load notes");
-  }
+  // Handle error with useEffect to prevent toast bombardment on re-renders
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load notes", { id: 'browse-error' });
+    }
+  }, [error]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -149,7 +152,7 @@ export default function Browse() {
       <Accordion type="multiple" defaultValue={['academic', 'category', 'price']} className="w-full flex-1 overflow-y-auto pr-1">
         {/* Academic Info */}
         <AccordionItem value="academic">
-          <AccordionTrigger className="text-sm font-semibold hover:no-underline">Academic Info</AccordionTrigger>
+          <AccordionTrigger className="text-xs font-semibold hover:no-underline">Academic Info</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-1 px-1">
             {/* University Combobox */}
             <div className="space-y-1.5">
@@ -160,7 +163,7 @@ export default function Browse() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={openUni}
-                    className="w-full justify-between h-9 text-sm font-normal"
+                    className="w-full justify-between h-9 text-xs font-normal"
                   >
                     <span className="truncate">
                       {selectedUniversity
@@ -256,7 +259,7 @@ export default function Browse() {
 
         {/* Category List */}
         <AccordionItem value="category">
-          <AccordionTrigger className="text-sm font-semibold hover:no-underline">Category</AccordionTrigger>
+          <AccordionTrigger className="text-xs font-semibold hover:no-underline">Category</AccordionTrigger>
           <AccordionContent className="pt-1 px-1">
             <div className="space-y-1">
               <Button
@@ -284,11 +287,11 @@ export default function Browse() {
 
         {/* Price */}
         <AccordionItem value="price">
-          <AccordionTrigger className="text-sm font-semibold hover:no-underline">Price Range</AccordionTrigger>
+          <AccordionTrigger className="text-xs font-semibold hover:no-underline">Price Range</AccordionTrigger>
           <AccordionContent className="pt-1 px-1">
             <div className="flex items-center gap-2">
               <div className="space-y-1 flex-1">
-                <span className="text-[10px] text-muted-foreground">Min</span>
+                <span className="text-xs text-muted-foreground">Min</span>
                 <Input
                   type="number"
                   placeholder="0"
@@ -299,7 +302,7 @@ export default function Browse() {
               </div>
               <span className="text-muted-foreground pt-4">-</span>
               <div className="space-y-1 flex-1">
-                <span className="text-[10px] text-muted-foreground">Max</span>
+                <span className="text-xs text-muted-foreground">Max</span>
                 <Input
                   type="number"
                   placeholder="∞"
@@ -326,17 +329,17 @@ export default function Browse() {
     <Layout>
       <div className="container py-2 sm:py-4">
 
-        {/* Mobile Filter Trigger */}
-        <div className="lg:hidden mb-4">
+        {/* Mobile Filter Trigger - Compact */}
+        <div className="lg:hidden mb-2">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" className="w-full justify-between group h-10 border-dashed hover:border-solid hover:border-primary/50 transition-all">
+              <Button variant="outline" size="sm" className="w-full justify-between group h-8 border-dashed hover:border-solid hover:border-primary/50 transition-all">
                 <span className="flex items-center gap-2 text-muted-foreground group-hover:text-primary">
                   <Filter className="h-4 w-4" />
                   Filters & Sort
                 </span>
                 {hasActiveFilters && (
-                  <Badge variant="secondary" className="ml-auto rounded-sm px-1.5 h-5 flex items-center justify-center text-[10px] bg-primary/10 text-primary">
+                  <Badge variant="secondary" className="ml-auto rounded-sm px-1.5 h-5 flex items-center justify-center text-xs bg-primary/10 text-primary">
                     Active
                   </Badge>
                 )}
@@ -350,7 +353,7 @@ export default function Browse() {
                 </div>
 
                 <div className="mb-6 space-y-2">
-                  <Label className="text-sm font-semibold">Sort By</Label>
+                  <Label className="text-xs font-semibold">Sort By</Label>
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Sort by" />
@@ -383,7 +386,7 @@ export default function Browse() {
                   Filters
                 </h3>
                 {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] text-destructive hover:bg-destructive/10" onClick={clearFilters}>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-destructive hover:bg-destructive/10" onClick={clearFilters}>
                     Reset
                   </Button>
                 )}
@@ -395,42 +398,42 @@ export default function Browse() {
           {/* Main Content */}
           <div className="flex-1 min-w-0">
 
-            {/* Results Toolbar */}
-            <div className="flex flex-col gap-4 mb-6 sticky top-[60px] lg:static z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 lg:py-0 border-b border-border/40 lg:border-none">
+            {/* Results Toolbar - Hidden on mobile for compact view */}
+            <div className="hidden sm:flex flex-col gap-4 mb-6 sticky top-[60px] lg:static z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 lg:py-0 border-b border-border/40 lg:border-none">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 
                 {/* Left: Active Chips & Count */}
                 <div className="flex-1">
                   <div className="flex items-baseline gap-3 mb-2">
                     <h1 className="font-display text-2xl font-bold">Notes</h1>
-                    <span className="text-sm text-muted-foreground">{paginatedNotes.length} results</span>
+                    <span className="text-xs text-muted-foreground">{paginatedNotes.length} results</span>
                   </div>
 
                   {/* Active Filter Chips */}
                   {hasActiveFilters && (
                     <div className="flex flex-wrap gap-2">
                       {selectedUniversity && (
-                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-[10px] font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedUniversity('')}>
+                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-xs font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedUniversity('')}>
                           {universities.find((u: any) => u.id === selectedUniversity)?.name || 'University'} <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {selectedDegree && (
-                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-[10px] font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedDegree('')}>
+                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-xs font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedDegree('')}>
                           {selectedDegree} <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {selectedSemester && (
-                        <Badge variant="outline" className="px-2 py-1 rounded-md text-[10px] font-bold gap-1 bg-zinc-100 text-zinc-900 border-zinc-200 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedSemester('')}>
+                        <Badge variant="outline" className="px-2 py-1 rounded-md text-xs font-bold gap-1 bg-zinc-100 text-zinc-900 border-zinc-200 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedSemester('')}>
                           Sem {selectedSemester} <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {selectedCategoryId && (
-                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-[10px] font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedCategoryId('')}>
+                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-xs font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setSelectedCategoryId('')}>
                           {categories.find((c: any) => c.id === selectedCategoryId)?.name || 'Category'} <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {(priceRange.min || priceRange.max) && (
-                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-[10px] font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setPriceRange({ min: '', max: '' })}>
+                        <Badge variant="secondary" className="px-2 py-1 rounded-md text-xs font-normal gap-1 hover:bg-destructive/10 hover:text-destructive cursor-pointer" onClick={() => setPriceRange({ min: '', max: '' })}>
                           ₹{priceRange.min || 0} - {priceRange.max || '∞'} <X className="h-3 w-3" />
                         </Badge>
                       )}
@@ -441,7 +444,7 @@ export default function Browse() {
                 {/* Right: Controls */}
                 <div className="flex items-center gap-3 shrink-0">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-[160px] h-9 text-sm">
+                    <SelectTrigger className="w-[160px] h-9 text-xs">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
@@ -481,7 +484,7 @@ export default function Browse() {
               <div
                 className={
                   viewMode === 'grid'
-                    ? 'grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 sm:gap-6'
+                    ? 'grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4 sm:gap-4 md:gap-6'
                     : 'space-y-4'
                 }
               >
@@ -500,7 +503,7 @@ export default function Browse() {
                 <div
                   className={
                     viewMode === 'grid'
-                      ? 'grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 sm:gap-6'
+                      ? 'grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4 sm:gap-4 md:gap-6'
                       : 'space-y-4'
                   }
                 >
@@ -510,7 +513,10 @@ export default function Browse() {
                       className="animate-scale-in"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <NoteCard note={note} />
+                      <NoteCard
+                        note={note}
+                        isPurchased={user?.purchasedNoteIds?.includes(note.id)}
+                      />
                     </div>
                   ))}
                 </div>
@@ -536,7 +542,7 @@ export default function Browse() {
                             (page >= currentPage - 1 && page <= currentPage + 1)
                           ) {
                             return (
-                              <PaginationItem key={page}>
+                              <PaginationItem key={page} className={page !== currentPage && page !== 1 && page !== totalPages ? "hidden sm:block" : ""}>
                                 <PaginationLink
                                   href="#"
                                   isActive={page === currentPage}

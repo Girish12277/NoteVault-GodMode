@@ -66,7 +66,7 @@ export function evaluatePassword(password: string): PasswordFeedback {
                 suggestions: [`Add another word or two. Minimum ${PASS_CONSTANTS.MIN_LENGTH} characters.`]
             },
             isStrong: false,
-            crackTime: result.crack_times_display.offline_slow_hashing_1e4_per_second
+            crackTime: String(result.crack_times_display.offline_slow_hashing_1e4_per_second)
         };
     }
 
@@ -74,6 +74,6 @@ export function evaluatePassword(password: string): PasswordFeedback {
         score: result.score,
         feedback: result.feedback,
         isStrong: result.score >= PASS_CONSTANTS.MIN_SCORE,
-        crackTime: result.crack_times_display.offline_slow_hashing_1e4_per_second
+        crackTime: String(result.crack_times_display.offline_slow_hashing_1e4_per_second)
     };
 }

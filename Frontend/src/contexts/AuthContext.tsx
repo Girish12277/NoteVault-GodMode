@@ -26,14 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     id: backendUser.id,
     email: backendUser.email,
     name: backendUser.fullName || backendUser.name || 'User',
-    role: backendUser.isAdmin ? 'admin' : (backendUser.isSeller ? 'seller' : 'buyer'),
+    role: backendUser.isAdmin ? 'admin' : (backendUser.isSeller || backendUser.role?.toLowerCase() === 'seller' ? 'seller' : 'buyer'),
     createdAt: new Date(backendUser.createdAt),
     preferredLanguage: backendUser.preferredLanguage || 'en',
     university: backendUser.university?.name,
     universityId: backendUser.university?.id || backendUser.universityId,
     degree: backendUser.degree,
     semester: backendUser.semester,
-    is_seller: backendUser.role === 'seller' || backendUser.isSeller || false,
+    is_seller: backendUser.isAdmin || backendUser.role?.toLowerCase() === 'admin' || backendUser.role?.toLowerCase() === 'seller' || backendUser.isSeller || false,
+    purchasedNoteIds: backendUser.purchasedNoteIds || [],
     // Add other fields as needed
   });
 
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // We set the user part to state (ignoring the token property for type safety, 
         // though runtime it's there)
         setUser(parsed as User);
-        // fetchProfile(); // Optional: validate on load
+        fetchProfile(); // Validate and refresh on load to ensure roles are up to date
       } catch (e) {
         localStorage.removeItem('notesmarket_user');
       }

@@ -1,0 +1,1 @@
+export { AuthenticScarcity } from './AuthenticScarcity';

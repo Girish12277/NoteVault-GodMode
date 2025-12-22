@@ -29,41 +29,63 @@ interface EmailResult {
 }
 
 /**
- * Send an email
+ * Send an email using multi-provider architecture
+ * Automatic failover: Brevo → Mailgun → SendGrid
  */
 export const sendEmail = async (options: SendEmailOptions): Promise<EmailResult> => {
-    const transporter = getTransporter();
+    // Use multi-provider service for god-level reliability
+    const { multiEmailService } = await import('./multiProviderEmailService');
 
-    if (!transporter) {
-        console.warn('⚠️  Email not sent - transporter not configured');
-        return {
-            success: false,
-            error: 'Email service not configured'
-        };
+    const result = await multiEmailService.send({
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+    });
+
+    if (!result.success) {
+        console.error(`❌ Multi-provider email failed: ${result.error}`);
+
+        // Fallback to old SMTP if all providers fail
+        const transporter = getTransporter();
+
+        if (!transporter) {
+            return {
+                success: false,
+                error: result.error || 'All email providers failed',
+            };
+        }
+
+        try {
+            console.log('⚠️ Trying fallback SMTP...');
+            const fallbackResult = await transporter.sendMail({
+                from: `"${EMAIL_CONFIG.from.name}" <${EMAIL_CONFIG.from.address}>`,
+                to: options.to,
+                subject: options.subject,
+                html: options.html,
+                text: options.text,
+            });
+
+            console.log(`✉️ Fallback SMTP succeeded: ${fallbackResult.messageId}`);
+
+            return {
+                success: true,
+                messageId: fallbackResult.messageId,
+            };
+        } catch (error) {
+            console.error('❌ Fallback SMTP also failed:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'All email methods failed',
+            };
+        }
     }
 
-    try {
-        const result = await transporter.sendMail({
-            from: `"${EMAIL_CONFIG.from.name}" <${EMAIL_CONFIG.from.address}>`,
-            to: options.to,
-            subject: options.subject,
-            html: options.html,
-            text: options.text
-        });
-
-        console.log(`✉️  Email sent to ${options.to}: ${result.messageId}`);
-
-        return {
-            success: true,
-            messageId: result.messageId
-        };
-    } catch (error) {
-        console.error('❌ Email send failed:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to send email'
-        };
-    }
+    return {
+        success: result.success,
+        messageId: result.messageId,
+        error: result.error,
+    };
 };
 
 /**

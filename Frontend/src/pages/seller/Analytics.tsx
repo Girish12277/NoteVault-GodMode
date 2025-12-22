@@ -73,7 +73,7 @@ const PredictiveCard = ({ title, value, subtext, trend, icon: Icon, color }: any
             <Icon className="w-5 h-5 text-foreground/80 group-hover:text-primary transition-colors" />
           </div>
           {trend !== undefined && (
-            <Badge variant="outline" className={cn("border-opacity-20 font-mono", trend > 0 ? "text-emerald-500 border-emerald-500 bg-emerald-500/5" : "text-rose-500 border-rose-500 bg-rose-500/5")}>
+            <Badge variant="outline" className={cn("border-opacity-20 font-mono", trend > 0 ? "text-accent border-accent bg-accent/5" : "text-destructive border-destructive bg-destructive/5")}>
               {trend > 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
               {Math.abs(trend)}%
             </Badge>
@@ -82,7 +82,7 @@ const PredictiveCard = ({ title, value, subtext, trend, icon: Icon, color }: any
         <div className="space-y-1 relative z-10">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
           <h3 className="text-2xl font-display font-bold tracking-tight">{value}</h3>
-          <p className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1.5 opacity-80">
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5 opacity-80">
             <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
             {subtext}
           </p>
@@ -163,8 +163,8 @@ export default function Analytics() {
               <h1 className="text-3xl font-display font-bold flex items-center gap-3">
                 Intelligence Hub
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
                 </span>
               </h1>
               <p className="text-muted-foreground">Predictive insights & market vectors.</p>
@@ -193,7 +193,7 @@ export default function Analytics() {
             subtext={`Forecast: ₹${predictiveData.revenue.forecast?.toLocaleString()}`}
             trend={predictiveData.revenue.trend}
             icon={IndianRupee}
-            color="from-emerald-500 to-teal-500"
+            color="from-accent to-accent-foreground/20" // Green (Money)
           />
           <PredictiveCard
             title="Asset Views"
@@ -201,7 +201,7 @@ export default function Analytics() {
             subtext="High traffic detected"
             trend={predictiveData.views.trend}
             icon={Eye}
-            color="from-blue-500 to-indigo-500"
+            color="from-secondary to-secondary-foreground/20" // Navy (Views)
           />
           <PredictiveCard
             title="Conversion Rate"
@@ -209,7 +209,7 @@ export default function Analytics() {
             subtext="Top 5% of sellers"
             trend={predictiveData.conversion.trend}
             icon={Target}
-            color="from-amber-500 to-orange-500"
+            color="from-warning to-warning-foreground/20" // Amber (Target/Gold)
           />
           <PredictiveCard
             title="Market Demand"
@@ -217,7 +217,7 @@ export default function Analytics() {
             subtext="Limited supply detected"
             trend={predictiveData.demand.trend}
             icon={Activity}
-            color="from-rose-500 to-pink-500"
+            color="from-primary to-primary-foreground/20" // Orange (Hot/Activity)
           />
         </div>
 
@@ -273,7 +273,7 @@ export default function Analytics() {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={demandData}>
                   <PolarGrid stroke="hsl(var(--border))" strokeOpacity={0.3} />
-                  <PolarAngleAxis dataKey="subject" className="text-[10px] font-bold fill-muted-foreground uppercase tracking-widest" />
+                  <PolarAngleAxis dataKey="subject" className="text-xs font-bold fill-muted-foreground uppercase tracking-widest" />
                   <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} axisLine={false} />
                   <RechartsRadar name="Market Demand" dataKey="demand" stroke="hsl(var(--primary))" strokeWidth={2} fill="hsl(var(--primary))" fillOpacity={0.3} />
                   <RechartsRadar name="Your Supply" dataKey="supply" stroke="hsl(var(--muted-foreground))" strokeWidth={2} fill="hsl(var(--muted))" fillOpacity={0.1} />

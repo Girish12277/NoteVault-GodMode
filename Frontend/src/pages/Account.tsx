@@ -123,12 +123,12 @@ function OrdersList() {
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
                 <span className="text-xs text-muted-foreground font-mono">ORDER ID: {order.orderId}</span>
-                <span className="text-sm font-medium">{order.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                <span className="text-xs font-medium">{order.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
               </div>
               <div className="text-right">
                 <span className="text-base font-bold text-foreground">₹{order.totalAmount}</span>
                 <div className="flex items-center justify-end gap-1.5 mt-0.5">
-                  <Badge variant="default" className="text-[10px] h-5 px-1.5 bg-green-500/15 text-green-700 hover:bg-green-500/25 border-green-500/20">
+                  <Badge variant="default" className="text-xs h-6 px-2 bg-accent/15 text-accent hover:bg-accent/25 border-accent/20">
                     Paid
                   </Badge>
                 </div>
@@ -139,16 +139,16 @@ function OrdersList() {
             {/* Items List */}
             <div className="space-y-2">
               {order.items.map((item: any, idx: number) => (
-                <div key={idx} className="flex items-start justify-between text-sm group/item">
+                <div key={idx} className="flex items-start justify-between text-xs group/item">
                   <div className="flex gap-2">
-                    <div className="h-5 w-5 rounded bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-medium text-primary">
+                    <div className="h-5 w-5 rounded bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 text-xs font-medium text-primary">
                       {idx + 1}
                     </div>
                     <span className="group-hover/item:text-primary transition-colors cursor-pointer line-clamp-1 font-medium">
                       <Link to={`/notes/${item.id}`}>{item.title}</Link>
                     </span>
                   </div>
-                  <span className="text-muted-foreground text-xs whitespace-nowrap ml-2 bg-muted/30 px-1.5 py-0.5 rounded">
+                  <span className="text-muted-foreground text-xs whitespace-nowrap ml-2 bg-muted/30 px-2 py-0.5 rounded">
                     Full Access
                   </span>
                 </div>
@@ -157,20 +157,15 @@ function OrdersList() {
 
             <div className="my-3 border-t border-border/20" />
 
-            {/* Actions */}
-            <div className="flex justify-end gap-3">
+            {/* Actions - Single Receipt Download */}
+            <div className="flex justify-end">
               <Button
-                variant="ghost"
                 size="sm"
-                className="h-8 text-xs hover:bg-white/10"
+                className="h-9 text-xs font-medium bg-primary/90 hover:bg-primary shadow-sm hover:scale-105 transition-transform"
                 onClick={() => downloadInvoice(order.id)}
               >
-                <Copy className="h-3.5 w-3.5 mr-1.5" />
-                Receipt
-              </Button>
-              <Button size="sm" className="h-8 text-xs font-medium bg-primary/90 hover:bg-primary shadow-sm hover:scale-105 transition-transform">
-                <Download className="h-3.5 w-3.5 mr-1.5" />
-                Download All
+                <Download className="h-4 w-4 mr-1.5" />
+                Download Receipt
               </Button>
             </div>
           </CardContent>
@@ -230,7 +225,7 @@ function NotificationsList() {
             <Bell className="h-8 w-8 text-muted-foreground" />
           </div>
           <h3 className="font-semibold text-lg">No new notifications</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             We'll notify you when there's something new
           </p>
         </CardContent>
@@ -250,10 +245,10 @@ function NotificationsList() {
         >
           <div className={`mt-2 h-2.5 w-2.5 rounded-full shrink-0 ${n.isRead ? 'bg-muted' : 'bg-primary shadow-[0_0_8px_hsl(var(--primary))]'}`} />
           <div className="flex-1">
-            <h4 className={`font-medium text-sm ${!n.isRead && 'text-primary'}`}>{n.title}</h4>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{n.message}</p>
+            <h4 className={`font-medium text-xs ${!n.isRead && 'text-primary'}`}>{n.title}</h4>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{n.message}</p>
             <div className="flex items-center gap-2 mt-2">
-              <Clock className="h-3 w-3 text-muted-foreground" />
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">{new Date(n.createdAt).toLocaleDateString()} • {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
           </div>
@@ -408,13 +403,13 @@ export default function Account() {
     <button
       onClick={() => setActiveTab(id)}
       className={cn(
-        "relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
+        "relative flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap",
         activeTab === id
           ? "text-primary-foreground bg-primary shadow-lg shadow-primary/25 scale-105"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
       )}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-3 w-3 sm:h-4 sm:w-4" />
       {label}
     </button>
   );
@@ -429,58 +424,62 @@ export default function Account() {
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
           <div className="absolute top-0 right-0 p-20 bg-primary/20 blur-[100px] rounded-full opacity-20" />
 
-          <div className="container relative py-8 sm:py-12">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+          <div className="container relative py-4 sm:py-12">
+            <div className="grid grid-cols-[auto_1fr] md:flex md:flex-row items-start gap-4 md:gap-8">
               {/* AVATAR RING */}
-              <div className="relative group">
-                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-primary to-purple-500 opacity-75 blur transition duration-500 group-hover:opacity-100" />
-                <div className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-full bg-background border-4 border-background overflow-hidden flex items-center justify-center">
+              <div className="relative group shrink-0">
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-primary to-secondary/50 opacity-75 blur transition duration-500 group-hover:opacity-100 hidden sm:block" />
+                <div className="relative h-16 w-16 sm:h-28 sm:w-28 rounded-full bg-background border-2 sm:border-4 border-background overflow-hidden flex items-center justify-center">
                   {user?.avatar ? (
                     <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                   ) : (
-                    <User className="h-12 w-12 text-primary/40" />
+                    <User className="h-8 w-8 sm:h-12 sm:w-12 text-primary/40" />
                   )}
                 </div>
-                <div className="absolute bottom-0 right-0 bg-background rounded-full p-1.5 shadow-lg border border-border">
-                  <Sparkles className="h-4 w-4 text-primary fill-current" />
+                <div className="absolute bottom-0 right-0 bg-background rounded-full p-1 shadow-lg border border-border">
+                  <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-primary fill-current" />
                 </div>
               </div>
 
               {/* IDENTITY INFO */}
-              <div className="flex-1 text-center md:text-left space-y-2">
-                <div className="flex items-center justify-center md:justify-start gap-3">
-                  <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-foreground">{user?.name || 'Student Explorer'}</h1>
-                  <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
+              <div className="flex-1 space-y-1 sm:space-y-2 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                  <h1 className="text-xl sm:text-4xl font-display font-bold tracking-tight text-foreground truncate">{user?.name || 'Student Explorer'}</h1>
+                  <Badge variant="outline" className="w-fit border-primary/20 bg-primary/5 text-primary text-[10px] sm:text-xs px-1.5 py-0">
                     {user?.role === 'seller' ? 'Seller Pro' : 'Student'}
                   </Badge>
                 </div>
-                <p className="text-muted-foreground text-lg flex items-center justify-center md:justify-start gap-2">
-                  <GraduationCap className="h-4 w-4" />
-                  {user?.university || 'University of Excellence'}
+
+                <p className="text-muted-foreground text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2 truncate">
+                  <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">{user?.university || 'University of Excellence'}</span>
                 </p>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-sm text-muted-foreground/80 mt-2">
-                  <span>{user?.degree || 'Degree not set'}</span>
-                  <span className="h-1 w-1 rounded-full bg-border" />
-                  <span>{user?.semester ? `Semester ${user.semester}` : 'Semester --'}</span>
-                  <span className="h-1 w-1 rounded-full bg-border" />
-                  <span>{user?.email}</span>
+
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs text-muted-foreground/80">
+                  <span className="truncate max-w-[120px]">{user?.degree || 'Degree --'}</span>
+                  <span className="h-0.5 w-0.5 rounded-full bg-border" />
+                  <span>Sem {user?.semester || '-'}</span>
+                  <span className="hidden sm:inline-block h-0.5 w-0.5 rounded-full bg-border" />
+                  <span className="hidden sm:inline-block">{user?.email}</span>
                 </div>
               </div>
 
               {/* LIVE COUNTERS (HUD STATS) */}
-              <div className="flex gap-4">
-                <Card className="bg-white/5 border-white/10 backdrop-blur-md min-w-[140px]">
-                  <CardContent className="p-4 flex flex-col items-center">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Wallet</p>
-                    <p className="text-2xl font-bold font-mono mt-1 text-primary">₹0</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/5 border-white/10 backdrop-blur-md min-w-[140px]">
-                  <CardContent className="p-4 flex flex-col items-center">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Credits</p>
-                    <p className="text-2xl font-bold font-mono mt-1">0</p>
-                  </CardContent>
-                </Card>
+              <div className="col-span-2 w-full md:w-auto mt-2 md:mt-0">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+                    <CardContent className="p-2 sm:p-4 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Wallet</p>
+                      <p className="text-base sm:text-2xl font-bold font-mono text-primary">₹0</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+                    <CardContent className="p-2 sm:p-4 flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-2">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Credits</p>
+                      <p className="text-base sm:text-2xl font-bold font-mono">0</p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </div>
           </div>
@@ -488,12 +487,12 @@ export default function Account() {
 
         {/* 2. NAVIGATION PILLS */}
         <div className="sticky top-[64px] z-30 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl">
-          <div className="container py-3 overflow-x-auto no-scrollbar">
+          <div className="container py-2 sm:py-3 overflow-x-auto no-scrollbar">
             <div className="flex items-center gap-2 min-w-max">
               <NavItem id="profile" icon={User} label="Profile" />
               <NavItem id="orders" icon={Package} label="My Orders" />
-              <Link to="/library" className="relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
-                <Download className="h-4 w-4" />
+              <Link to="/library" className="relative flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all whitespace-nowrap">
+                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                 Library
               </Link>
               <NavItem id="wallet" icon={Wallet} label="Wallet" />
@@ -505,7 +504,7 @@ export default function Account() {
         </div>
 
         {/* 3. CONTENT AREA (BENTO GRID & LIQUID TABS) */}
-        <div className="container py-8">
+        <div className="container py-3 sm:py-8">
           <AnimatePresence mode="wait">
             {/* PROFILE TAB (BENTO GRID) */}
             {activeTab === 'profile' && (
@@ -515,64 +514,64 @@ export default function Account() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
               >
                 {/* Identity Card */}
                 <Card className="md:col-span-2 border-white/10 bg-white/5 shadow-xl backdrop-blur-3xl">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><User className="h-5 w-5 text-primary" /> Personal Information</CardTitle>
+                  <CardHeader className="pb-2 sm:pb-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg"><User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Personal Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-6">
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Full Name</Label>
-                        <p className="font-medium text-lg">{user?.name}</p>
+                  <CardContent className="space-y-3 sm:space-y-6 p-3 sm:p-6">
+                    <div className="grid sm:grid-cols-2 gap-3 sm:gap-6">
+                      <div className="space-y-0.5 sm:space-y-1">
+                        <Label className="text-muted-foreground text-[10px] sm:text-xs uppercase tracking-wider">Full Name</Label>
+                        <p className="font-medium text-sm sm:text-lg truncate">{user?.name}</p>
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Email</Label>
-                        <p className="font-medium text-lg">{user?.email}</p>
+                      <div className="space-y-0.5 sm:space-y-1">
+                        <Label className="text-muted-foreground text-[10px] sm:text-xs uppercase tracking-wider">Email</Label>
+                        <p className="font-medium text-sm sm:text-lg truncate">{user?.email}</p>
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">College</Label>
-                        <p className="font-medium">{user?.university || 'Not Set'}</p>
+                      <div className="space-y-0.5 sm:space-y-1">
+                        <Label className="text-muted-foreground text-[10px] sm:text-xs uppercase tracking-wider">College</Label>
+                        <p className="font-medium text-xs sm:text-base truncate">{user?.university || 'Not Set'}</p>
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Specs</Label>
-                        <p className="font-medium">{user?.degree} • {user?.specialization}</p>
+                      <div className="space-y-0.5 sm:space-y-1">
+                        <Label className="text-muted-foreground text-[10px] sm:text-xs uppercase tracking-wider">Specs</Label>
+                        <p className="font-medium text-xs sm:text-base truncate">{user?.degree} • {user?.specialization}</p>
                       </div>
                     </div>
-                    <div className="space-y-2 bg-muted/20 p-4 rounded-xl border border-white/5">
-                      <Label className="text-muted-foreground text-xs uppercase tracking-wider">Bio</Label>
-                      <p className="text-sm leading-relaxed text-muted-foreground/80">{user?.bio || 'No bio yet. Tell the world who you are!'}</p>
+                    <div className="space-y-1.5 sm:space-y-2 bg-muted/20 p-3 sm:p-4 rounded-xl border border-white/5">
+                      <Label className="text-muted-foreground text-[10px] sm:text-xs uppercase tracking-wider">Bio</Label>
+                      <p className="text-[10px] sm:text-xs leading-relaxed text-muted-foreground/80 line-clamp-3">{user?.bio || 'No bio yet. Tell the world who you are!'}</p>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Actions Bento */}
-                <div className="space-y-6">
-                  <Card className="border-white/10 bg-gradient-to-br from-primary/10 to-purple-500/10 shadow-lg">
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-lg mb-2">Completion Status</h3>
-                      <div className="flex items-end justify-between mb-2">
-                        <span className="text-3xl font-bold text-primary">85%</span>
-                        <span className="text-xs text-muted-foreground mb-1">Almost Pro!</span>
+                <div className="space-y-4 sm:space-y-6">
+                  <Card className="border-white/10 bg-gradient-to-br from-primary/10 to-secondary/10 shadow-lg">
+                    <CardContent className="p-3 sm:p-6">
+                      <h3 className="font-semibold text-sm sm:text-lg mb-1 sm:mb-2">Completion Status</h3>
+                      <div className="flex items-end justify-between mb-1 sm:mb-2">
+                        <span className="text-xl sm:text-3xl font-bold text-primary">85%</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1">Almost Pro!</span>
                       </div>
-                      <Progress value={85} className="h-2 mb-4" />
+                      <Progress value={85} className="h-1.5 sm:h-2 mb-3 sm:mb-4" />
                       <EditProfileDialog user={user} />
                     </CardContent>
                   </Card>
 
                   <Card className="border-white/10 bg-white/5 shadow-lg">
-                    <CardContent className="p-6">
-                      <h3 className="font-semibold text-lg mb-4">Quick Preferences</h3>
-                      <div className="space-y-4">
+                    <CardContent className="p-3 sm:p-6">
+                      <h3 className="font-semibold text-sm sm:text-lg mb-2 sm:mb-4">Quick Preferences</h3>
+                      <div className="space-y-2 sm:space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Language</span>
-                          <Badge variant="secondary">{user?.preferredLanguage === 'hi' ? 'Hindi' : 'English'}</Badge>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">Language</span>
+                          <Badge variant="secondary" className="text-[10px] sm:text-xs h-5 px-1.5">{user?.preferredLanguage === 'hi' ? 'Hindi' : 'English'}</Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Location</span>
-                          <span className="text-sm font-medium">{typeof user?.location === 'string' ? user.location : 'Indore, MP'}</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">Location</span>
+                          <span className="text-[10px] sm:text-xs font-medium truncate max-w-[100px]">{typeof user?.location === 'string' ? user.location : 'Indore, MP'}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -590,11 +589,11 @@ export default function Account() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold font-display">Order History</h2>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Data
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-lg sm:text-2xl font-bold font-display">Order History</h2>
+                  <Button variant="outline" size="sm" className="h-8 text-xs">
+                    <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    Export
                   </Button>
                 </div>
                 <OrdersList />
@@ -609,32 +608,32 @@ export default function Account() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
-                className="grid md:grid-cols-2 gap-6"
+                className="grid md:grid-cols-2 gap-4 sm:gap-6"
               >
-                <Card className="bg-gradient-primary text-primary-foreground border-none overflow-hidden relative">
+                <Card className="bg-gradient-primary text-primary-foreground border-none overflow-hidden relative shadow-lg">
                   <div className="absolute top-0 right-0 p-12 bg-white/10 rounded-full blur-2xl -mr-6 -mt-6" />
-                  <CardContent className="p-8 relative z-10">
-                    <p className="text-sm font-medium opacity-90 mb-1">Total Balance</p>
-                    <h2 className="text-4xl font-bold mb-4">₹0.00</h2>
+                  <CardContent className="p-5 sm:p-8 relative z-10">
+                    <p className="text-[10px] sm:text-xs font-medium opacity-90 mb-1">Total Balance</p>
+                    <h2 className="text-2xl sm:text-4xl font-bold mb-4">₹0.00</h2>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="secondary" className="text-primary bg-white shadow-lg">Add Funds</Button>
-                      <Button size="sm" variant="outline" className="text-primary-foreground border-white/20 hover:bg-white/10">Withdraw</Button>
+                      <Button size="sm" variant="secondary" className="h-8 text-xs sm:text-sm text-primary bg-white shadow-lg">Add Funds</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm text-primary-foreground border-white/20 hover:bg-white/10">Withdraw</Button>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-secondary text-secondary-foreground border-none relative overflow-hidden">
+                <Card className="bg-gradient-secondary text-secondary-foreground border-none relative overflow-hidden shadow-lg">
                   <div className="absolute bottom-0 left-0 p-16 bg-white/5 rounded-full blur-3xl -ml-10 -mb-10" />
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5" /> Referral Link</CardTitle>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg"><Gift className="h-4 w-4 sm:h-5 sm:w-5" /> Referral Link</CardTitle>
                   </CardHeader>
-                  <CardContent className="relative z-10">
-                    <p className="text-sm opacity-80 mb-4">Share this link to earn free notes worth ₹500.</p>
+                  <CardContent className="relative z-10 p-5 pt-0">
+                    <p className="text-[10px] sm:text-xs opacity-80 mb-3 sm:mb-4">Share this link to earn free notes worth ₹500.</p>
                     <div className="flex gap-2">
-                      <div className="flex-1 bg-black/20 rounded-lg px-4 py-2 font-mono text-sm truncate border border-white/10">
+                      <div className="flex-1 bg-black/20 rounded-lg px-3 py-2 font-mono text-[10px] sm:text-xs truncate border border-white/10">
                         {referralLink}
                       </div>
-                      <Button size="icon" variant="ghost" className="hover:bg-white/10" onClick={copyReferralLink}>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/10" onClick={copyReferralLink} aria-label="Copy referral link">
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
@@ -652,23 +651,23 @@ export default function Account() {
                 className="max-w-3xl mx-auto"
               >
                 <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
-                  <CardHeader>
-                    <CardTitle>Your Referral Network</CardTitle>
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="text-base sm:text-lg">Your Referral Network</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
+                  <CardContent className="p-3 sm:p-6 pt-0">
+                    <div className="space-y-3 sm:space-y-4">
                       {mockReferrals.map((referral, index) => (
-                        <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-white/5 hover:bg-muted/50 transition-colors">
-                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-white/10">
-                              <span className="font-bold text-primary">{referral.name[0]}</span>
+                        <div key={index} className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-muted/30 border border-white/5 hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center gap-3 sm:gap-4">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-white/10">
+                              <span className="font-bold text-xs sm:text-base text-primary">{referral.name[0]}</span>
                             </div>
                             <div>
-                              <p className="font-semibold">{referral.name}</p>
-                              <p className="text-xs text-muted-foreground">{referral.date.toLocaleDateString()}</p>
+                              <p className="font-semibold text-sm sm:text-base">{referral.name}</p>
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{referral.date.toLocaleDateString()}</p>
                             </div>
                           </div>
-                          <Badge variant={referral.status === 'purchased' ? 'default' : 'secondary'}>
+                          <Badge variant={referral.status === 'purchased' ? 'default' : 'secondary'} className="text-[10px] sm:text-xs h-5">
                             {referral.status === 'purchased' ? 'Purchased' : 'Signed Up'}
                           </Badge>
                         </div>
@@ -687,8 +686,8 @@ export default function Account() {
                 animate={{ opacity: 1 }}
                 className="max-w-2xl mx-auto"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold font-display">Notifications</h2>
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-lg sm:text-2xl font-bold font-display">Notifications</h2>
                   <NotificationsListHeader />
                 </div>
                 <NotificationsList />
@@ -701,17 +700,17 @@ export default function Account() {
                 key="settings"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="max-w-2xl mx-auto space-y-6"
+                className="max-w-2xl mx-auto space-y-4 sm:space-y-6"
               >
                 <Card>
-                  <CardHeader><CardTitle>Security</CardTitle></CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors border border-transparent hover:border-border">
+                  <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-base sm:text-lg">Security</CardTitle></CardHeader>
+                  <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6 pt-0">
+                    <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors border border-transparent hover:border-border">
                       <div className="flex items-center gap-3">
-                        <Shield className="h-5 w-5 text-primary" />
+                        <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                         <div>
-                          <p className="font-medium">Password & Authentication</p>
-                          <p className="text-xs text-muted-foreground">Update password and security questions</p>
+                          <p className="font-medium text-sm sm:text-base">Password & Authentication</p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">Update password and security questions</p>
                         </div>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -721,20 +720,20 @@ export default function Account() {
 
                 <Card className="border-destructive/30 overflow-hidden">
                   <div className="absolute inset-0 bg-destructive/5 pointer-events-none" />
-                  <CardHeader><CardTitle className="text-destructive">Danger Zone</CardTitle></CardHeader>
-                  <CardContent className="flex items-center justify-between relative z-10">
+                  <CardHeader className="pb-3 sm:pb-6"><CardTitle className="text-destructive text-base sm:text-lg">Danger Zone</CardTitle></CardHeader>
+                  <CardContent className="flex items-center justify-between relative z-10 p-3 sm:p-6 pt-0">
                     <div>
-                      <p className="font-medium">Delete Account</p>
-                      <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
+                      <p className="font-medium text-sm sm:text-base">Delete Account</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">This action cannot be undone.</p>
                     </div>
-                    <Button variant="destructive">Delete Account</Button>
+                    <Button variant="destructive" size="sm" className="text-xs sm:text-sm">Delete Account</Button>
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-center mt-12">
+                <div className="flex justify-center mt-8 sm:mt-12">
                   <button
                     onClick={logout}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors text-sm font-medium px-6 py-3 rounded-full hover:bg-destructive/10"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors text-xs font-medium px-6 py-3 rounded-full hover:bg-destructive/10"
                   >
                     <LogOut className="h-4 w-4" />
                     Logout from all devices

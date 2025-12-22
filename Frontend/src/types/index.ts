@@ -17,6 +17,7 @@ export interface User {
   preferredLanguage: 'en' | 'hi';
   role: 'buyer' | 'seller' | 'admin';
   createdAt: Date;
+  purchasedNoteIds?: string[];
 }
 
 export interface Post {
@@ -153,4 +154,24 @@ export interface College {
   id: string;
   name: string;
   universityId: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description?: string;
+  type: 'PERCENTAGE' | 'FLAT';
+  value: number;
+  minOrderValue?: number;
+  maxDiscountAmount?: number;
+  scope: 'GLOBAL' | 'CATEGORY' | 'SELLER' | 'NOTE';
+}
+
+export interface CouponValidationResponse {
+  isValid: boolean;
+  discountAmount: number;
+  finalAmount: number;
+  message?: string;
+  couponId?: string;
+  code?: string;
 }

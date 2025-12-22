@@ -1,8 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../config/database';
-import { authenticate, requireSeller, requireAdmin } from '../middleware/auth';
-import { AuthRequest } from '../middleware/auth';
+import { AuthRequest, authenticate, requireSeller, requireAdmin } from '../middleware/auth';
 import emailService from '../services/emailService';
+import { emailAdminController } from '../controllers/emailAdminController';
+import { couponAdminController } from '../controllers/couponAdminController';
 
 const sellerRouter = Router();
 const adminRouter = Router();
@@ -10,6 +11,20 @@ const cartRouter = Router();
 const orderRouter = Router();
 
 const prismaAny = prisma as any;
+
+// ==========================================
+// ADMIN COUPON MANAGEMENT ROUTES
+// ==========================================
+// CRITICAL: Routes defined here at TOP of file to ensure proper registration
+// before module export. DO NOT move to bottom of file.
+
+adminRouter.post('/coupons', authenticate, requireAdmin, couponAdminController.create);
+adminRouter.get('/coupons', authenticate, requireAdmin, couponAdminController.list);
+adminRouter.get('/coupons/:id', authenticate, requireAdmin, couponAdminController.getById);
+adminRouter.put('/coupons/:id', authenticate, requireAdmin, couponAdminController.update);
+adminRouter.delete('/coupons/:id', authenticate, requireAdmin, couponAdminController.delete);
+adminRouter.get('/coupons/:id/usage', authenticate, requireAdmin, couponAdminController.getUsageHistory);
+adminRouter.post('/coupons/generate-code', authenticate, requireAdmin, couponAdminController.generateCode);
 
 // ========================================
 // SELLER ROUTES
@@ -257,7 +272,7 @@ sellerRouter.post('/payouts/request', authenticate, requireSeller, async (req: A
                 throw new Error('Insufficient available balance');
             }
             if (amount < Number(wallet.minimum_withdrawal_amount)) {
-                throw new Error(`Minimum withdrawal amount is ₹${wallet.minimum_withdrawal_amount}`);
+                throw new Error(`Minimum withdrawal amount is ₹${wallet.minimum_withdrawal_amount} `);
             }
 
             await txAny.seller_wallets.update({
@@ -576,6 +591,7 @@ adminRouter.put('/notes/:id/approve', authenticate, requireAdmin, async (req, re
             where: { id },
             data: {
                 is_approved: true,
+                is_active: true,
                 updated_at: new Date()
             },
             include: { users: { select: { email: true, full_name: true } } }
@@ -603,6 +619,15 @@ adminRouter.put('/notes/:id/approve', authenticate, requireAdmin, async (req, re
                 created_at: new Date()
             }
         });
+
+        // GOD-LEVEL FIX: Invalidate Cache so note appears immediately
+        try {
+            const { cacheService } = await import('../services/cacheService');
+            await cacheService.delPattern('notes:list:*');
+            await cacheService.delPattern(`notes:detail:${note.id}:*`);
+        } catch (e) {
+            console.error('Cache invalidation failed:', e);
+        }
 
         return res.json({
             success: true,
@@ -654,7 +679,7 @@ adminRouter.put('/notes/:id/reject', authenticate, requireAdmin, async (req, res
                 user_id: note.seller_id,
                 type: 'ERROR',
                 title: 'Note Rejected',
-                message: `Your note "${note.title}" was rejected. Reason: ${_reason || 'Policy violation'}`,
+                message: `Your note "${note.title}" was rejected.Reason: ${_reason || 'Policy violation'} `,
                 created_at: new Date()
             }
         });
@@ -700,7 +725,7 @@ adminRouter.post('/transactions/:id/refund', authenticate, requireAdmin, async (
             const refundResult = await PaymentService.processRefund(
                 transaction.transaction_id,
                 Number(transaction.amount_inr),
-                `ref_${id}`
+                `ref_${id} `
             );
 
             if (!refundResult.success) {
@@ -1028,4 +1053,14 @@ orderRouter.get('/', authenticate, async (req: AuthRequest, res) => {
     }
 });
 
+
+// ==========================================
+// GOD-LEVEL EMAIL ADMIN ENDPOINTS
+// ==========================================
+
+adminRouter.get('/email-stats', emailAdminController.getStats);
+adminRouter.get('/email-monthly-usage', emailAdminController.getMonthlyUsage);
+adminRouter.post('/email-test', emailAdminController.sendTestEmail);
+
 export { sellerRouter, adminRouter, cartRouter, orderRouter };
+

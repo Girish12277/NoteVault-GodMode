@@ -98,28 +98,28 @@ export default function AdminMessages() {
 
     return (
         <AdminLayout>
-            <div className="h-[calc(100vh-100px)] flex flex-col gap-6">
+            <div className="h-[calc(100vh-100px)] flex flex-col gap-4 md:gap-6">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-between items-end shrink-0">
+                <div className="flex flex-col sm:flex-row gap-2 md:gap-4 justify-between items-end shrink-0">
                     <div>
-                        <h1 className="font-display text-3xl font-bold flex items-center gap-3">
+                        <h1 className="font-display text-2xl md:text-3xl font-bold flex items-center gap-3">
                             Communications
                         </h1>
-                        <p className="text-muted-foreground mt-1">Direct inquiries and support tickets</p>
+                        <p className="text-muted-foreground mt-1 text-sm md:text-base">Direct inquiries and support tickets</p>
                     </div>
                 </div>
 
                 {/* Inbox Interface */}
-                <div className="flex-1 flex border rounded-xl overflow-hidden bg-background shadow-sm min-h-0">
+                <div className="flex-1 flex flex-col lg:flex-row border rounded-lg md:rounded-xl overflow-hidden bg-background shadow-sm min-h-0">
                     {/* LEFT: Message List */}
-                    <div className="w-80 md:w-96 border-r flex flex-col bg-muted/10">
+                    <div className="w-full lg:w-80 xl:w-96 lg:border-r flex flex-col bg-muted/10">
                         {/* Search & Filter */}
-                        <div className="p-4 space-y-3 bg-background border-b z-10">
+                        <div className="p-3 md:p-4 space-y-2 md:space-y-3 bg-background border-b z-10">
                             <div className="relative">
                                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Search inbox..."
-                                    className="pl-9 bg-muted/20 border-none"
+                                    className="pl-9 bg-muted/20 border-none h-9 md:h-10 text-sm"
                                     value={search}
                                     onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                                 />
@@ -161,30 +161,30 @@ export default function AdminMessages() {
                                                 }
                                             }}
                                             className={cn(
-                                                "p-3 rounded-lg cursor-pointer transition-all hover:bg-muted group relative",
+                                                "p-2 md:p-3 rounded-lg cursor-pointer transition-all hover:bg-muted group relative",
                                                 selectedMessage?.id === msg.id ? "bg-white shadow-sm border border-border" : "transparent",
                                                 msg.status === 'NEW' && "bg-blue-50/50 hover:bg-blue-50 border-l-4 border-l-blue-500"
                                             )}
                                         >
                                             <div className="flex justify-between items-start mb-1">
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-6 w-6">
-                                                        <AvatarFallback className={cn("text-[10px]", getStatusColor(msg.status), "text-white")}>
+                                                <div className="flex items-center gap-1.5 md:gap-2">
+                                                    <Avatar className="h-5 w-5 md:h-6 md:w-6">
+                                                        <AvatarFallback className={cn("text-[10px] md:text-xs", getStatusColor(msg.status), "text-white")}>
                                                             {getInitials(msg.name)}
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    <span className={cn("text-xs font-semibold truncate max-w-[120px]", msg.status === 'NEW' ? "text-foreground" : "text-muted-foreground")}>
+                                                    <span className={cn("text-xs font-semibold truncate max-w-[100px] md:max-w-[120px]", msg.status === 'NEW' ? "text-foreground" : "text-muted-foreground")}>
                                                         {msg.name}
                                                     </span>
                                                 </div>
-                                                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                                <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">
                                                     {format(new Date(msg.createdAt), 'MMM d')}
                                                 </span>
                                             </div>
-                                            <div className={cn("text-sm mb-1 truncate", msg.status === 'NEW' ? "font-bold text-foreground" : "font-medium text-muted-foreground")}>
+                                            <div className={cn("text-xs md:text-sm mb-1 truncate", msg.status === 'NEW' ? "font-bold text-foreground" : "font-medium text-muted-foreground")}>
                                                 {msg.subject}
                                             </div>
-                                            <div className="text-xs text-muted-foreground/70 line-clamp-2 break-words break-all whitespace-normal">
+                                            <div className="text-[10px] md:text-xs text-muted-foreground/70 line-clamp-2 break-words break-all whitespace-normal">
                                                 {msg.message}
                                             </div>
                                         </div>
@@ -194,23 +194,23 @@ export default function AdminMessages() {
                         </ScrollArea>
 
                         <div className="p-2 border-t bg-background text-xs text-center text-muted-foreground flex justify-between items-center px-4">
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><Trash2 className="h-3 w-3 rotate-180" /></Button>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} aria-label="Previous page"><Trash2 className="h-3 w-3 rotate-180" /></Button>
                             <span>Page {page} of {data?.pagination?.totalPages || 1}</span>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPage(p => p + 1)} disabled={!data || page >= data.pagination.totalPages}><Trash2 className="h-3 w-3" /></Button>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPage(p => p + 1)} disabled={!data || page >= data.pagination.totalPages} aria-label="Next page"><Trash2 className="h-3 w-3" /></Button>
                         </div>
                     </div>
 
                     {/* RIGHT: Reading Pane */}
-                    <div className="flex-1 bg-white flex flex-col h-full overflow-hidden">
+                    <div className="flex-1 bg-white flex flex-col h-full overflow-hidden hidden lg:flex">
                         {selectedMessage ? (
                             <>
                                 {/* Toolbar */}
-                                <div className="h-16 border-b flex items-center justify-between px-6 shrink-0 bg-white">
+                                <div className="h-14 md:h-16 border-b flex items-center justify-between px-4 md:px-6 shrink-0 bg-white">
                                     <div className="flex items-center gap-2">
-                                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-red-500" onClick={() => deleteMutation.mutate(selectedMessage.id)}>
+                                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-red-500" onClick={() => deleteMutation.mutate(selectedMessage.id)} aria-label="Delete message">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => updateStatusMutation.mutate({ id: selectedMessage.id, status: 'NEW' })}>
+                                        <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => updateStatusMutation.mutate({ id: selectedMessage.id, status: 'NEW' })} aria-label="Mark as new">
                                             <Mail className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -240,7 +240,7 @@ export default function AdminMessages() {
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <span className="font-medium text-sm">{selectedMessage.name}</span>
                                                         <span className="text-xs text-muted-foreground">&lt;{selectedMessage.email}&gt;</span>
-                                                        <Button variant="ghost" size="icon" className="h-4 w-4 text-muted-foreground" onClick={() => copyEmail(selectedMessage.email)}>
+                                                        <Button variant="ghost" size="icon" className="h-4 w-4 text-muted-foreground" onClick={() => copyEmail(selectedMessage.email)} aria-label="Copy email address">
                                                             <Copy className="h-3 w-3" />
                                                         </Button>
                                                     </div>

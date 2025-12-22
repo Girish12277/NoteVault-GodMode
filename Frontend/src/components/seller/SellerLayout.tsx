@@ -35,6 +35,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 
 const sidebarItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/seller' },
@@ -101,7 +102,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
                     </div>
                     <div>
                       <span className="font-display text-lg font-bold block leading-none">NotesMarket</span>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Seller OS</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Seller OS</span>
                     </div>
                   </Link>
                 </div>
@@ -118,7 +119,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
               </div>
               <div className="flex flex-col">
                 <span className="font-display text-lg font-bold leading-none">Seller Dashboard</span>
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">StudyVault</span>
+                <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">StudyVault</span>
               </div>
             </Link>
 
@@ -154,7 +155,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-50">
                 <Command className="h-3 w-3" />
-                <span className="text-[10px] font-bold">K</span>
+                <span className="text-xs font-bold">K</span>
               </div>
             </div>
           </div>
@@ -169,19 +170,8 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
             </Link>
 
             {/* Notifications */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-                    <Bell className="h-5 w-5" />
-                    {notifications > 0 && (
-                      <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Notifications</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {/* Notifications */}
+            <NotificationBell />
 
             {/* Profile Menu */}
             <DropdownMenu>
@@ -199,7 +189,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium leading-none">Rahul</p>
-                      <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/30 text-primary bg-primary/5">PRO</Badge>
+                      <Badge variant="outline" className="text-xs h-4 px-1 border-primary/30 text-primary bg-primary/5">PRO</Badge>
                     </div>
                     <p className="text-xs leading-none text-muted-foreground">seller@studyvault.com</p>
                   </div>
@@ -230,7 +220,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-64 shrink-0 border-r border-border bg-card/50 backdrop-blur-sm min-h-[calc(100vh-4rem)] sticky top-16">
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-border bg-card/50 backdrop-blur-sm h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto custom-scrollbar">
           <nav className="p-4 space-y-2">
             <NavLinks />
           </nav>
@@ -243,7 +233,7 @@ export default function SellerLayout({ children }: SellerLayoutProps) {
               </div>
               <p className="text-xs font-bold">Seller Tips</p>
             </div>
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Complete your profile to increase trust and sales visibility by <span className="font-bold text-foreground">15%</span>.
             </p>
           </div>

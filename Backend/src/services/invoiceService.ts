@@ -144,11 +144,62 @@ const drawTableHeader = (page: PDFPage, fonts: any, y: number) => {
     // COMPLIANT COLUMNS
     drawText(page, 'SAC/HSN', margin + 10, hY, fonts.bold, 8, rgb(1, 1, 1));
     drawText(page, 'DESCRIPTION', margin + 60, hY, fonts.bold, 8, rgb(1, 1, 1));
-    drawText(page, 'BASE', width - margin - 140, hY, fonts.bold, 8, rgb(1, 1, 1));
-    drawText(page, 'GST (18%)', width - margin - 80, hY, fonts.bold, 8, rgb(1, 1, 1));
+    drawText(page, 'BASE', width - margin - 180, hY, fonts.bold, 8, rgb(1, 1, 1));
+    drawText(page, 'GST (18%)', width - margin - 110, hY, fonts.bold, 8, rgb(1, 1, 1));
     drawText(page, 'TOTAL', width - margin - 30, hY, fonts.bold, 8, rgb(1, 1, 1));
 
     return y - 24;
+};
+
+/**
+ * <DiscountBreakdown /> - Shows coupon/fee breakdown
+ */
+const drawDiscountBreakdown = (page: PDFPage, fonts: any, y: number, orderData: any) => {
+    const { margin, width } = LAYOUT;
+    const startX = width - margin - 280;
+    const valueX = width - margin;
+
+    const hasCoupon = orderData.couponDiscount && orderData.couponDiscount > 0;
+    const hasPlatformFee = orderData.platformFee && orderData.platformFee > 0;
+
+    // Only show section if there's something to display
+    if (!hasCoupon && !hasPlatformFee) {
+        return y; // No changes needed
+    }
+
+    drawText(page, 'DISCOUNT BREAKDOWN (INR)', startX, y, fonts.bold, 9, COLORS.text.tertiary);
+    y -= 15;
+
+    // Original Subtotal
+    const subtotalStr = orderData.originalSubtotal?.toFixed(2) || '0.00';
+    drawText(page, 'Original Subtotal', startX, y, fonts.regular, 9, COLORS.text.secondary);
+    drawText(page, subtotalStr, valueX - fonts.mono.widthOfTextAtSize(subtotalStr, 9), y, fonts.mono, 9, COLORS.text.primary);
+    y -= 12;
+
+    // Coupon Discount (if applied)
+    if (hasCoupon) {
+        const couponStr = `-${orderData.couponDiscount.toFixed(2)}`;
+        const couponLabel = orderData.couponCode
+            ? `Coupon (${orderData.couponCode.length > 15 ? orderData.couponCode.substring(0, 12) + '...' : orderData.couponCode})`
+            : 'Coupon Discount';
+        drawText(page, couponLabel, startX, y, fonts.regular, 9, COLORS.status.paid);
+        drawText(page, couponStr, valueX - fonts.mono.widthOfTextAtSize(couponStr, 9), y, fonts.mono, 9, COLORS.status.paid);
+        y -= 12;
+    }
+
+    // Platform Fee (if applicable)
+    if (hasPlatformFee) {
+        const feeStr = orderData.platformFee.toFixed(2);
+        drawText(page, 'Platform Fee', startX, y, fonts.regular, 9, COLORS.text.secondary);
+        drawText(page, feeStr, valueX - fonts.mono.widthOfTextAtSize(feeStr, 9), y, fonts.mono, 9, COLORS.text.primary);
+        y -= 12;
+    }
+
+    // Divider
+    drawLine(page, { x: startX, y: y + 5 }, { x: valueX, y: y + 5 }, COLORS.border, 0.8);
+    y -= 10;
+
+    return y;
 };
 
 /**
@@ -222,7 +273,8 @@ export const invoiceService = {
             const invoiceId = `NV-IN-${simpleDate}-${entropy}`;
 
             // --- FINANCIAL MATH (GST BACK-CALCULATION) ---
-            const grandTotal = Number(orderData.totalAmount);
+            // Use finalAmount if available (includes coupon discount), fallback to totalAmount for backward compat
+            const grandTotal = Number(orderData.finalAmount || orderData.totalAmount);
             const baseAmount = grandTotal / 1.18; // 18% GST Logic
             const taxAmount = grandTotal - baseAmount;
 
@@ -280,10 +332,16 @@ export const invoiceService = {
                 const safeTitle = item.title.length > 45 ? item.title.substring(0, 42) + '...' : item.title;
                 drawText(page, safeTitle, LAYOUT.margin + 60, currentY - 18, fonts.regular, 9, COLORS.text.primary);
 
-                // Financial Cols
-                drawText(page, itemBase, LAYOUT.width - LAYOUT.margin - 140, currentY - 18, fonts.mono, 9, COLORS.text.secondary);
-                drawText(page, itemTax, LAYOUT.width - LAYOUT.margin - 80, currentY - 18, fonts.mono, 9, COLORS.text.secondary);
-                drawText(page, itemTotal.toFixed(2), LAYOUT.width - LAYOUT.margin - 30 - fonts.mono.widthOfTextAtSize(itemTotal.toFixed(2), 9), currentY - 18, fonts.mono, 9, COLORS.brand);
+                // Financial Cols - Right-aligned with proper spacing
+                const baseX = LAYOUT.width - LAYOUT.margin - 180;
+                const taxX = LAYOUT.width - LAYOUT.margin - 110;
+                const totalX = LAYOUT.width - LAYOUT.margin - 30;
+
+                drawText(page, itemBase, baseX, currentY - 18, fonts.mono, 9, COLORS.text.secondary);
+                drawText(page, itemTax, taxX, currentY - 18, fonts.mono, 9, COLORS.text.secondary);
+                // Right-align TOTAL value
+                const totalWidth = fonts.mono.widthOfTextAtSize(itemTotal.toFixed(2), 9);
+                drawText(page, itemTotal.toFixed(2), totalX - totalWidth, currentY - 18, fonts.mono, 9, COLORS.brand);
 
                 currentY -= 30;
             }
@@ -296,6 +354,12 @@ export const invoiceService = {
 
             drawLine(page, { x: LAYOUT.margin, y: currentY }, { x: LAYOUT.width - LAYOUT.margin, y: currentY });
             currentY -= 20;
+
+            // Discount Breakdown (if applicable)
+            currentY = drawDiscountBreakdown(page, fonts, currentY, orderData);
+            if (orderData.couponDiscount > 0 || orderData.platformFee > 0) {
+                currentY -= 10; // Extra spacing after discount section
+            }
 
             currentY = drawFinancialLedger(page, fonts, currentY, totalStr, baseStr, taxStr);
 

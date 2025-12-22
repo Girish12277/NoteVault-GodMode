@@ -1,0 +1,66 @@
+export const degrees = [
+    "B.Tech",
+    "B.Sc",
+    "B.Com",
+    "B.A.",
+    "B.Pharma",
+    "BBA",
+    "BCA",
+    "MBBS",
+    "MBA",
+    "M.Tech",
+    "M.Sc",
+    "Ph.D",
+];
+
+export const specializations: Record<string, string[]> = {
+    "B.Tech": [
+        "Computer Science",
+        "Information Technology",
+        "Mechanical Engineering",
+        "Civil Engineering",
+        "Electrical Engineering",
+        "Electronics & Communication",
+        "Chemical Engineering",
+        "Biotechnology",
+    ],
+    "B.Sc": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biology",
+        "Computer Science",
+        "Agriculture",
+        "Nursing",
+    ],
+    "B.Com": [
+        "General",
+        "Honors",
+        "Accounting & Finance",
+        "Banking & Insurance",
+        "Taxation",
+    ],
+    "B.A.": [
+        "History",
+        "Political Science",
+        "Psychology",
+        "Sociology",
+        "English Literature",
+        "Economics",
+    ],
+    "B.Pharma": ["Pharmacy"],
+    "BBA": ["General", "Finance", "Marketing", "HR", "International Business"],
+    "BCA": ["General", "Data Science", "Web Development"],
+    "MBBS": ["General Medicine", "Surgery"],
+    "MBA": ["Finance", "Marketing", "Human Resources", "Operations", "IT"],
+    "M.Tech": [
+        "Computer Science",
+        "VLSI",
+        "Thermal Engineering",
+        "Structural Engineering",
+    ],
+    "M.Sc": ["Physics", "Chemistry", "Mathematics", "Biotechnology"],
+    "Ph.D": ["Research"],
+};
+
+export const semesters = [1, 2, 3, 4, 5, 6, 7, 8];

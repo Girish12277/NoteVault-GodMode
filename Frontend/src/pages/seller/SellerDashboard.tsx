@@ -77,7 +77,7 @@ const EarningsGoalRing = ({ current, goal }: { current: number, goal: number }) 
       {/* Center Text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-xs">
         <span className="font-bold text-lg">{Math.round(percentage)}%</span>
-        <span className="text-muted-foreground text-[10px]">to Goal</span>
+        <span className="text-muted-foreground text-xs">to Goal</span>
       </div>
     </div>
   );
@@ -90,15 +90,15 @@ const LevelBadge = ({ sales }: { sales: number }) => {
 
   if (sales >= 100) {
     level = "Empire Builder";
-    color = "bg-purple-500/10 text-purple-600 border-purple-500/20";
+    color = "bg-primary/10 text-primary border-primary/20"; // Top Tier - Primary (Orange)
     nextGoal = 1000;
   } else if (sales >= 50) {
     level = "Power Seller";
-    color = "bg-amber-500/10 text-amber-600 border-amber-500/20";
+    color = "bg-warning/10 text-warning border-warning/20"; // High Tier - Warning (Gold)
     nextGoal = 100;
   } else if (sales >= 10) {
     level = "Rising Star";
-    color = "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
+    color = "bg-accent/10 text-accent border-accent/20"; // Mid Tier - Accent (Green)
     nextGoal = 50;
   }
 
@@ -109,7 +109,7 @@ const LevelBadge = ({ sales }: { sales: number }) => {
       <Award className="w-4 h-4" />
       <div className="flex flex-col">
         <span className="text-xs font-bold leading-none">{level}</span>
-        <span className="text-[10px] opacity-80 leading-tight">Level {sales >= 100 ? 4 : sales >= 50 ? 3 : sales >= 10 ? 2 : 1}</span>
+        <span className="text-xs opacity-80 leading-tight">Level {sales >= 100 ? 4 : sales >= 50 ? 3 : sales >= 10 ? 2 : 1}</span>
       </div>
       {/* Mini Bar */}
       <div className="w-12 h-1 bg-current/20 rounded-full ml-1">
@@ -182,7 +182,7 @@ export default function SellerDashboard() {
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Monthly Goal</p>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-bold">₹{stats.totalEarnings.toLocaleString()}</span>
-              <span className="text-sm text-muted-foreground">/ ₹{earningsGoal.toLocaleString()}</span>
+              <span className="text-xs text-muted-foreground">/ ₹{earningsGoal.toLocaleString()}</span>
             </div>
           </div>
           <EarningsGoalRing current={stats.totalEarnings} goal={earningsGoal} />
@@ -196,14 +196,14 @@ export default function SellerDashboard() {
         <Card className="col-span-1 md:col-span-2 overflow-hidden relative group border-primary/10">
           <div className="absolute right-0 top-0 p-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/10 transition-all" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-2">
               <Wallet className="w-4 h-4" /> Total Revenue
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-foreground mb-1">₹{stats.totalEarnings.toLocaleString()}</div>
-            <div className="flex items-center gap-2 text-sm">
-              <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20">
+            <div className="flex items-center gap-2 text-xs">
+              <Badge variant="secondary" className="bg-accent/10 text-accent hover:bg-accent/20">
                 <TrendingUp className="w-3 h-3 mr-1" /> +12% Growth
               </Badge>
               <span className="text-muted-foreground text-xs">vs last month</span>
@@ -212,9 +212,9 @@ export default function SellerDashboard() {
         </Card>
 
         {/* Available Balance (Action Tile) */}
-        <Card className="col-span-1 border-amber-500/20 bg-amber-500/5 relative overflow-hidden">
+        <Card className="col-span-1 border-warning/20 bg-warning/5 relative overflow-hidden">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-amber-600/80 flex items-center justify-between">
+            <CardTitle className="text-xs font-medium text-warning flex items-center justify-between">
               <span>Available</span>
               <IndianRupee className="w-4 h-4" />
             </CardTitle>
@@ -222,7 +222,7 @@ export default function SellerDashboard() {
           <CardContent>
             <div className="text-3xl font-bold text-foreground mb-4">₹{stats.availableBalance.toLocaleString()}</div>
             <Link to="/seller/wallet">
-              <Button size="sm" className="w-full bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20">
+              <Button size="sm" className="w-full bg-warning hover:bg-warning/90 text-primary-foreground shadow-lg shadow-warning/20">
                 Withdraw Now
               </Button>
             </Link>
@@ -237,7 +237,7 @@ export default function SellerDashboard() {
             </div>
             <div>
               <h3 className="font-bold text-xl">Upload Note</h3>
-              <p className="text-primary-foreground/80 text-sm mt-1">Add to your store</p>
+              <p className="text-primary-foreground/80 text-xs mt-1">Add to your store</p>
             </div>
           </Card>
         </Link>
@@ -245,7 +245,7 @@ export default function SellerDashboard() {
         {/* Stats Row 2 */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
               Downloads
               <Download className="w-4 h-4" />
             </CardTitle>
@@ -260,7 +260,7 @@ export default function SellerDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
               Rating
               <Star className="w-4 h-4" />
             </CardTitle>
@@ -292,7 +292,7 @@ export default function SellerDashboard() {
           <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer group">
             <CardContent className="flex flex-col items-center justify-center p-6 text-center h-full">
               <BarChart3 className="w-8 h-8 text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
-              <h3 className="font-semibold text-sm">Analytics</h3>
+              <h3 className="font-semibold text-xs">Analytics</h3>
             </CardContent>
           </Card>
         </Link>
@@ -323,7 +323,7 @@ export default function SellerDashboard() {
                   </div>
                   <div className="flex-1 pt-1">
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                      <h4 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors">
                         Sold: {tx.note.title}
                       </h4>
                       <span className="font-bold text-green-600">+₹{tx.sellerEarningInr}</span>
@@ -340,7 +340,7 @@ export default function SellerDashboard() {
                   <Target className="w-6 h-6" />
                 </div>
                 <h3 className="font-medium">No activity yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">Start your streak today.</p>
+                <p className="text-xs text-muted-foreground mb-4">Start your streak today.</p>
                 <Link to="/seller/upload"><Button>Upload First Note</Button></Link>
               </div>
             )}
@@ -385,7 +385,7 @@ export default function SellerDashboard() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center justify-between">
                 Messages
-                <span className="text-xs font-normal text-muted-foreground">0 New</span>
+                <span className="text-sm font-normal text-muted-foreground">0 New</span>
               </CardTitle>
             </CardHeader>
             <CardContent>

@@ -191,115 +191,115 @@ export default function AdminDisputes() {
 
       <CardContent className="p-0">
         {/* Case Header */}
-        <div className="p-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="font-mono text-xs text-muted-foreground bg-background px-2 py-1 rounded border border-border">
+        <div className="p-3 md:p-4 bg-muted/20 border-b border-border/50 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+            <div className="font-mono text-[10px] md:text-xs text-muted-foreground bg-background px-1.5 md:px-2 py-0.5 md:py-1 rounded border border-border">
               CASE #{dispute.id.slice(0, 8).toUpperCase()}
             </div>
-            <span className="text-xs text-muted-foreground px-2">•</span>
-            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
-              Filed {new Date(dispute.createdAt).toLocaleDateString()}
+            <span className="text-xs text-muted-foreground px-1 md:px-2 hidden sm:inline">•</span>
+            <div className="flex items-center gap-1 md:gap-1.5 text-[10px] md:text-xs font-medium text-muted-foreground">
+              <Clock className="h-3 w-3 md:h-3.5 md:w-3.5" />
+              <span className="hidden sm:inline">Filed </span>{new Date(dispute.createdAt).toLocaleDateString()}
             </div>
           </div>
           <VerdictBadge status={dispute.status} />
         </div>
 
         {/* The VS Layout */}
-        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-border/50 min-h-[160px]">
+        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-border/50 min-h-[140px] md:min-h-[160px]">
 
           {/* Plaintiff (Buyer) */}
-          <div className="flex-1 p-6 bg-gradient-to-br from-red-50/10 to-transparent">
-            <div className="flex items-center gap-3 mb-4">
-              <Avatar className="h-10 w-10 border border-border shadow-sm">
+          <div className="flex-1 p-4 md:p-6 bg-gradient-to-br from-red-50/10 to-transparent">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-border shadow-sm">
                 <AvatarImage src={`https://ui-avatars.com/api/?name=${dispute.buyer.name}&background=fecaca&color=7f1d1d`} />
-                <AvatarFallback className="bg-red-100 text-red-700">PL</AvatarFallback>
+                <AvatarFallback className="bg-red-100 text-red-700 text-xs">PL</AvatarFallback>
               </Avatar>
               <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-foreground">{dispute.buyer.name}</p>
-                  <Badge variant="outline" className="text-[10px] h-4 px-1 border-red-200 text-red-700 bg-red-50">Plaintiff</Badge>
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <p className="text-xs md:text-sm font-bold text-foreground">{dispute.buyer.name}</p>
+                  <Badge variant="outline" className="text-[10px] md:text-xs h-3.5 md:h-4 px-1 border-red-200 text-red-700 bg-red-50">Plaintiff</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">Buyer</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Buyer</p>
               </div>
             </div>
 
-            <div className="bg-background border border-red-100 rounded-lg p-3 relative">
-              <div className="absolute -top-2 left-3 px-1 bg-background text-[10px] font-bold text-red-500 uppercase">Complaint</div>
-              <p className="text-sm text-foreground/80 leading-relaxed italic">"{dispute.reason}"</p>
+            <div className="bg-background border border-red-100 rounded-lg p-2 md:p-3 relative">
+              <div className="absolute -top-2 left-2 md:left-3 px-1 bg-background text-[10px] md:text-xs font-bold text-red-500 uppercase">Complaint</div>
+              <p className="text-xs md:text-sm text-foreground/80 leading-relaxed italic">"{dispute.reason}"</p>
             </div>
           </div>
 
           {/* VS Badge (Desktop) */}
           <div className="hidden md:flex items-center justify-center w-0 relative z-10">
-            <div className="absolute top-1/2 -translate-y-1/2 bg-background border border-border rounded-full h-8 w-8 flex items-center justify-center font-black text-xs text-muted-foreground shadow-sm">
+            <div className="absolute top-1/2 -translate-y-1/2 bg-background border border-border rounded-full h-7 w-7 md:h-8 md:w-8 flex items-center justify-center font-black text-[10px] md:text-xs text-muted-foreground shadow-sm">
               VS
             </div>
           </div>
 
           {/* Defendant (Seller) & Evidence */}
-          <div className="flex-1 p-6 bg-gradient-to-bl from-blue-50/10 to-transparent">
-            <div className="flex items-center gap-3 mb-4 justify-end">
+          <div className="flex-1 p-4 md:p-6 bg-gradient-to-bl from-blue-50/10 to-transparent">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4 justify-end">
               <div className="text-right">
-                <div className="flex items-center gap-2 justify-end">
-                  <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-700 bg-blue-50">Defendant</Badge>
-                  <p className="text-sm font-bold text-foreground">{dispute.seller.name}</p>
+                <div className="flex items-center gap-1.5 md:gap-2 justify-end">
+                  <Badge variant="outline" className="text-[10px] md:text-xs h-3.5 md:h-4 px-1 border-blue-200 text-blue-700 bg-blue-50">Defendant</Badge>
+                  <p className="text-xs md:text-sm font-bold text-foreground">{dispute.seller.name}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">Seller</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Seller</p>
               </div>
-              <Avatar className="h-10 w-10 border border-border shadow-sm">
+              <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-border shadow-sm">
                 <AvatarImage src={`https://ui-avatars.com/api/?name=${dispute.seller.name}&background=bfdbfe&color=1e3a8a`} />
-                <AvatarFallback className="bg-blue-100 text-blue-700">DF</AvatarFallback>
+                <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">DF</AvatarFallback>
               </Avatar>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-2 rounded bg-background border border-border/50">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-medium truncate max-w-[120px]">{dispute.note?.title}</span>
+            <div className="space-y-2 md:space-y-3">
+              <div className="flex items-center justify-between p-1.5 md:p-2 rounded bg-background border border-border/50">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
+                  <span className="text-[10px] md:text-xs font-medium truncate max-w-[80px] md:max-w-[120px]">{dispute.note?.title}</span>
                 </div>
-                <a href={`/notes/${dispute.note?.id}`} target="_blank" className="text-[10px] text-primary hover:underline font-medium">View Evidence</a>
+                <a href={`/notes/${dispute.note?.id}`} target="_blank" className="text-[10px] md:text-xs text-primary hover:underline font-medium">View</a>
               </div>
 
-              <div className="flex items-center justify-between p-2 rounded bg-background border border-border/50">
-                <div className="flex items-center gap-2">
-                  <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-medium">Disputed Amount</span>
+              <div className="flex items-center justify-between p-1.5 md:p-2 rounded bg-background border border-border/50">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <IndianRupee className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
+                  <span className="text-[10px] md:text-xs font-medium">Disputed Amount</span>
                 </div>
-                <span className="text-sm font-bold">₹{dispute.amount}</span>
+                <span className="text-xs md:text-sm font-bold">₹{dispute.amount}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Verdict Action Bar */}
-        <div className="p-4 bg-muted/10 border-t border-border/50 flex items-center justify-between">
-          <div className="text-xs text-muted-foreground flex items-center gap-2">
+        <div className="p-3 md:p-4 bg-muted/10 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-0">
+          <div className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1.5 md:gap-2">
             <span className="font-medium">Order ID:</span>
             <span className="font-mono">{dispute.orderId}</span>
           </div>
 
           {dispute.status === 'OPEN' ? (
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3">
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
+                className="h-7 md:h-8 text-xs border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
                 onClick={(e) => { e.stopPropagation(); handleReject(dispute); }}
               >
-                <Hammer className="h-3.5 w-3.5 mr-1.5" /> Dismiss
+                <Hammer className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1 md:mr-1.5" /> Dismiss
               </Button>
               <Button
                 size="sm"
-                className="h-8 bg-primary text-primary-foreground shadow-md hover:shadow-lg transition-all"
+                className="h-7 md:h-8 text-xs bg-primary text-primary-foreground shadow-md hover:shadow-lg transition-all"
                 onClick={(e) => { e.stopPropagation(); setSelectedDispute(dispute); }}
               >
-                <Gavel className="h-3.5 w-3.5 mr-1.5" /> Issue Verdict
+                <Gavel className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1 md:mr-1.5" /> Issue Verdict
               </Button>
             </div>
           ) : (
-            <div className="text-xs flex items-center gap-2">
+            <div className="text-[10px] md:text-xs flex items-center gap-1.5 md:gap-2">
               <span className="font-bold text-muted-foreground uppercase">Verdict:</span>
               <span className="italic text-foreground/80">"{dispute.resolution || dispute.reason}"</span>
             </div>
@@ -312,19 +312,19 @@ export default function AdminDisputes() {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-foreground flex items-center gap-3">
-            <Scale className="h-8 w-8 text-primary" /> High Court of Disputes
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <Scale className="h-6 w-6 md:h-8 md:w-8 text-primary" /> High Court of Disputes
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Adjudication system for buyer-seller conflict resolution.
           </p>
         </div>
       </div>
 
       {/* Dockets Summary */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3 mb-6 md:mb-8">
         <Card className="bg-destructive/5 border-destructive/20 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -369,16 +369,17 @@ export default function AdminDisputes() {
       </div>
 
       {/* Case Files List */}
-      <Tabs defaultValue="open" className="space-y-6">
-        <TabsList className="w-full justify-start border-b border-border bg-transparent rounded-none h-auto p-0 gap-6">
-          <TabsTrigger value="open" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-destructive data-[state=active]:bg-transparent data-[state=active]:text-destructive data-[state=active]:font-semibold text-muted-foreground transition-all">
-            Active Dockets
-            {pendingDisputes.length > 0 && <span className="ml-2 bg-destructive text-white text-[10px] px-1.5 py-0.5 rounded-full">{pendingDisputes.length}</span>}
+      <Tabs defaultValue="open" className="space-y-4 md:space-y-6">
+        <TabsList className="w-full justify-start border-b border-border bg-transparent rounded-none h-auto p-0 gap-3 md:gap-6">
+          <TabsTrigger value="open" className="px-0 pb-2 md:pb-3 text-sm md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-destructive data-[state=active]:bg-transparent data-[state=active]:text-destructive data-[state=active]:font-semibold text-muted-foreground transition-all">
+            <span className="hidden sm:inline">Active Dockets</span>
+            <span className="sm:hidden">Active</span>
+            {pendingDisputes.length > 0 && <span className="ml-1.5 md:ml-2 bg-destructive text-white text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded-full">{pendingDisputes.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="rejected" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
+          <TabsTrigger value="rejected" className="px-0 pb-2 md:pb-3 text-sm md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
             Dismissed
           </TabsTrigger>
-          <TabsTrigger value="resolved" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-600 data-[state=active]:bg-transparent data-[state=active]:text-emerald-600 data-[state=active]:font-semibold text-muted-foreground transition-all">
+          <TabsTrigger value="resolved" className="px-0 pb-2 md:pb-3 text-sm md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-600 data-[state=active]:bg-transparent data-[state=active]:text-emerald-600 data-[state=active]:font-semibold text-muted-foreground transition-all">
             Settled
           </TabsTrigger>
         </TabsList>

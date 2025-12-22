@@ -82,7 +82,7 @@ export class ErrorBoundary extends Component<Props, State> {
                                 <AlertTriangle className="h-4 w-4" />
                                 Error Stack (Dev Only)
                             </div>
-                            <pre className="font-mono text-[11px] text-destructive/80 overflow-auto max-h-60 whitespace-pre-wrap break-all custom-scrollbar">
+                            <pre className="font-mono text-xs text-destructive/80 overflow-auto max-h-60 whitespace-pre-wrap break-all custom-scrollbar">
                                 {this.state.error.toString()}
                                 {'\n\n'}
                                 {this.state.error.stack}

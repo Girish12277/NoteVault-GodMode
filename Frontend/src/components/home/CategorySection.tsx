@@ -134,7 +134,7 @@ export function CategorySection() {
   });
 
   return (
-    <section className="py-12 lg:py-20 bg-muted/20 relative overflow-hidden">
+    <section className="py-8 lg:py-20 bg-muted/20 relative overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
         <Code className="w-64 h-64 text-primary" />
@@ -143,7 +143,7 @@ export function CategorySection() {
       <div className="container relative z-10">
         <div className="flex items-end justify-between mb-8 sm:mb-12">
           <div className="max-w-2xl">
-            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
               Explore by <span className="text-primary">Subject</span>
             </h2>
             <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
@@ -210,7 +210,7 @@ export function CategorySection() {
                       {isLarge && config.tags && (
                         <div className="mt-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
                           {config.tags.map(tag => (
-                            <span key={tag} className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium border border-transparent", config.bgColor, config.iconColor)}>
+                            <span key={tag} className={cn("px-2 py-0.5 rounded-full text-xs font-medium border border-transparent", config.bgColor, config.iconColor)}>
                               {tag}
                             </span>
                           ))}

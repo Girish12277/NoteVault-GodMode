@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Command as CommandPrimitive } from "cmdk";
 import {
     Command,
@@ -13,9 +14,11 @@ import {
     Dialog,
     DialogContent
 } from "@/components/ui/dialog";
-import { BookOpen, School, Clock, ShoppingCart, LayoutDashboard, Search, Trash2, ArrowRight, Sparkles } from 'lucide-react';
+import { BookOpen, School, Clock, ShoppingCart, LayoutDashboard, Search, Trash2, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDebounce } from '@/hooks/useDebounce';
+import api from '@/lib/api';
 
 interface OmniSearchProps {
     open: boolean;
@@ -29,6 +32,7 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [recents, setRecents] = useState<string[]>([]);
+    const debouncedQuery = useDebounce(query, 300);
 
     // Load Recents
     useEffect(() => {
@@ -41,6 +45,23 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
             console.error("Failed to load recent searches", e);
         }
     }, []);
+
+    // Autocomplete API query
+    const { data: suggestions, isLoading } = useQuery({
+        queryKey: ['autocomplete', debouncedQuery],
+        queryFn: async () => {
+            if (debouncedQuery.length < 3) return [];
+            try {
+                const res = await api.get(`/search/autocomplete?q=${encodeURIComponent(debouncedQuery)}`);
+                return res.data.data || [];
+            } catch (error) {
+                console.error('Autocomplete error:', error);
+                return [];
+            }
+        },
+        enabled: debouncedQuery.length >= 3,
+        staleTime: 5 * 60 * 1000,
+    });
 
     const saveRecent = (term: string) => {
         if (!term.trim()) return;
@@ -78,9 +99,13 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
                     <Command className="bg-transparent">
                         {/* LIQUID LENS INPUT (Semantic) */}
                         <div className="relative flex items-center border-b border-border/40 px-4 bg-muted/20 transition-colors focus-within:bg-muted/40 font-medium">
-                            <Search className={cn("mr-3 h-5 w-5 text-muted-foreground", query && "text-primary animate-pulse")} />
+                            {isLoading ? (
+                                <Loader2 className="mr-3 h-5 w-5 text-primary animate-spin" />
+                            ) : (
+                                <Search className={cn("mr-3 h-5 w-5 text-muted-foreground", query && "text-primary")} />
+                            )}
                             <CommandPrimitive.Input
-                                placeholder="Search the neural network..."
+                                placeholder="Search notes, subjects, universities..."
                                 value={query}
                                 onValueChange={setQuery}
                                 onKeyDown={(e) => {
@@ -91,7 +116,7 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
                                 className="flex h-14 w-full rounded-md bg-transparent py-3 text-lg outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-foreground selection:bg-primary/20"
                             />
                             {query && (
-                                <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded bg-muted-foreground/10 px-2 font-mono text-[10px] font-medium text-muted-foreground opacity-100 sm:flex">
+                                <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded bg-muted-foreground/10 px-2 font-mono text-xs font-medium text-muted-foreground opacity-100 sm:flex">
                                     ENTER
                                 </kbd>
                             )}
@@ -103,9 +128,37 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
                                     <div className="p-3 rounded-full bg-primary/5 ring-1 ring-primary/20">
                                         <Sparkles className="h-6 w-6 text-primary/50" />
                                     </div>
-                                    <p className="text-muted-foreground">Detailed search for notes, subjects, or sellers.</p>
+                                    <p className="text-muted-foreground">
+                                        {query.length > 0 && query.length < 3
+                                            ? 'Type at least 3 characters to search...'
+                                            : 'Start typing to search notes, subjects, or universities...'
+                                        }
+                                    </p>
                                 </div>
                             </CommandEmpty>
+
+                            {/* API AUTOCOMPLETE SUGGESTIONS */}
+                            {suggestions && suggestions.length > 0 && query.length >= 3 && (
+                                <CommandGroup heading={
+                                    <span className="text-muted-foreground/90 text-xs font-semibold tracking-wider uppercase">
+                                        Suggestions {isLoading && '(Loading...)'}
+                                    </span>
+                                }>
+                                    {suggestions.map((item: any, index: number) => (
+                                        <CommandItem
+                                            key={`${item.title}-${index}`}
+                                            onSelect={() => runSearch(item.title)}
+                                            className="group cursor-pointer aria-selected:bg-primary/5"
+                                        >
+                                            <Search className="mr-3 h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                                            <span className="text-foreground group-hover:text-primary transition-colors font-medium">
+                                                {item.title}
+                                            </span>
+                                            <ArrowRight className="ml-auto h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-primary" />
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            )}
 
                             {/* RECENT SEARCHES */}
                             {recents.length > 0 && !query && (
@@ -114,7 +167,7 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
                                         <span className="text-muted-foreground/90 text-xs font-semibold tracking-wider uppercase">History</span>
                                         <button
                                             onClick={clearRecents}
-                                            className="text-[10px] text-muted-foreground/70 hover:text-destructive flex items-center gap-1 transition-colors"
+                                            className="text-xs text-muted-foreground/70 hover:text-destructive flex items-center gap-1 transition-colors"
                                         >
                                             <Trash2 className="h-3 w-3" /> Clear
                                         </button>
@@ -180,7 +233,7 @@ export const OmniSearch: React.FC<OmniSearchProps> = ({ open, onOpenChange }) =>
                         </CommandList>
 
                         {/* SMART FOOTER (Semantic) */}
-                        <div className="border-t border-border/40 p-2 bg-muted/30 text-[10px] text-muted-foreground flex justify-between gap-3 px-4 backdrop-blur-md">
+                        <div className="border-t border-border/40 p-2 bg-muted/30 text-xs text-muted-foreground flex justify-between gap-3 px-4 backdrop-blur-md">
                             <span className="flex items-center gap-1 font-medium">{getFooterHint()}</span>
                             <div className="flex gap-3">
                                 <span className="flex items-center gap-1"><kbd className="bg-background border border-border rounded px-1.5 min-w-[20px] text-center shadow-sm">↑↓</kbd> navigate</span>

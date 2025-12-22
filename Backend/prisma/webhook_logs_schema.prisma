@@ -1,0 +1,12 @@
+model webhook_logs {
+  id           String   @id
+  event_id     String   @unique  // For idempotency checking
+  event_type   String             // payment.authorized, payment.failed, etc.
+  payload      String             // Raw webhook payload (JSON string)
+  status       String             // PROCESSED, ORDER_NOT_FOUND, ALREADY_PROCESSED, etc.
+  processed_at DateTime
+  created_at   DateTime @default(now())
+
+  @@index([event_id])
+  @@index([created_at])
+}

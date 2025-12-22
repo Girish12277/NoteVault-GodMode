@@ -124,10 +124,10 @@ export default function AdminContent() {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="mb-4 md:mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold">The Panopticon</h1>
-          <p className="text-muted-foreground mt-1 flex items-center gap-2">
+          <h1 className="font-display text-2xl md:text-3xl font-bold">The Panopticon</h1>
+          <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm md:text-base">
             <Shield className="h-4 w-4" /> Content Adjudication System
           </p>
         </div>
@@ -148,9 +148,15 @@ export default function AdminContent() {
       </div>
 
       {/* --- ADJUDICATOR VIEW (No Tabs) --- */}
-      <div className="h-[calc(100vh-200px)] min-h-[600px] flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-14rem)] lg:h-[calc(100vh-200px)] min-h-[600px]">
         {/* Left: List View */}
-        <Card className="w-1/3 flex flex-col overflow-hidden border-border/50">
+        <Card className={cn(
+          "flex flex-col overflow-hidden border-border/50 transition-all duration-300",
+          "w-full lg:w-1/3",
+          // On mobile, if a note is selected, hide the list to show the detail view (optional, or just stack them)
+          // For now, let's stack them but limit height of list on mobile
+          "h-1/3 lg:h-auto"
+        )}>
           <div className="p-4 border-b border-border/50 bg-muted/20">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -162,7 +168,7 @@ export default function AdminContent() {
               />
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
+          <div className="flex-1 overflow-y-auto p-0">
             {pendingNotes.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground">
                 <CheckCircle className="h-10 w-10 mx-auto mb-2 text-emerald-500/50" />
@@ -176,20 +182,29 @@ export default function AdminContent() {
                     key={note.id}
                     onClick={() => setSelectedNote(note)}
                     className={cn(
-                      "p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md",
+                      "group p-4 border-b border-border/40 cursor-pointer transition-all hover:bg-muted/30",
                       selectedNote?.id === note.id
-                        ? "bg-primary/5 border-primary/50 shadow-sm"
-                        : "bg-card border-border/40 hover:border-primary/20"
+                        ? "bg-muted relative"
+                        : "bg-transparent"
                     )}
                   >
+                    {/* Active Indicator Line */}
+                    {selectedNote?.id === note.id && (
+                      <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary" />
+                    )}
+
                     <div className="flex items-start justify-between mb-1">
-                      <h4 className="font-bold text-sm line-clamp-1">{note.title}</h4>
-                      <Badge variant="outline" className="text-[10px] h-5">{note.subject}</Badge>
+                      <h4 className={cn("font-medium text-sm line-clamp-1", selectedNote?.id === note.id ? "text-foreground font-bold" : "text-foreground/80")}>
+                        {note.title}
+                      </h4>
+                      <Badge variant="outline" className="text-[10px] h-5 border-border/60">{note.subject}</Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-2 line-clamp-1">by {note.seller.fullName}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-mono">₹{note.priceInr}</span>
-                      <span>{new Date(note.createdAt).toLocaleDateString()}</span>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                      <span className="truncate max-w-[120px]">by {note.seller.fullName}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-foreground/70">₹{note.priceInr}</span>
+                        <span>{new Date(note.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -198,7 +213,7 @@ export default function AdminContent() {
         </Card>
 
         {/* Right: Adjudication Stage */}
-        <Card className="flex-1 flex flex-col overflow-hidden border-border/50 relative bg-muted/10">
+        <Card className="flex-1 flex flex-col overflow-hidden border-border/50 relative bg-muted/10 h-2/3 lg:h-auto">
           {selectedNote ? (
             <>
               {/* Safe Preview */}
@@ -217,25 +232,25 @@ export default function AdminContent() {
               </div>
 
               {/* Decision Bar */}
-              <div className="p-4 bg-background border-t border-border/50 flex items-center justify-between z-10 shadow-lg">
-                <div className="min-w-0 flex-1 mr-4">
+              <div className="p-4 bg-background border-t border-border/50 flex flex-col sm:flex-row items-center justify-between z-10 shadow-lg gap-4 sm:gap-0">
+                <div className="min-w-0 flex-1 mr-0 sm:mr-4 w-full sm:w-auto text-center sm:text-left">
                   <h3 className="font-bold text-lg truncate" title={selectedNote.title}>{selectedNote.title}</h3>
                   <p className="text-sm text-muted-foreground truncate">
                     Seller: <span className="text-foreground font-medium">{selectedNote.seller.fullName}</span> •
                     Email: <span className="font-mono text-xs">{selectedNote.seller.email}</span>
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  {queueMode && <span className="text-xs font-mono text-muted-foreground mr-2">Queue Mode Active (A/R)</span>}
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-center">
+                  {queueMode && <span className="text-xs font-mono text-muted-foreground mr-2 hidden sm:inline">Queue Mode Active (A/R)</span>}
                   <Button
                     variant="outline"
-                    className="border-red-500/20 text-red-600 hover:bg-red-500/10 hover:text-red-700"
+                    className="border-red-500/20 text-red-600 hover:bg-red-500/10 hover:text-red-700 flex-1 sm:flex-none"
                     onClick={() => handleReject(selectedNote.id)}
                   >
                     <XCircle className="h-4 w-4 mr-2" /> Reject {queueMode && '(R)'}
                   </Button>
                   <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white flex-1 sm:flex-none"
                     onClick={() => handleApprove(selectedNote.id)}
                   >
                     <CheckCircle className="h-4 w-4 mr-2" /> Approve {queueMode && '(A)'}

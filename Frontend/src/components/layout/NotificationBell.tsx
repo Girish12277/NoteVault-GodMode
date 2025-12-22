@@ -121,7 +121,7 @@ export function NotificationBell() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative min-h-[44px] min-w-[44px]" aria-label="Notifications">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-destructive">
@@ -139,10 +139,11 @@ export function NotificationBell() {
                 variant="ghost"
                 size="icon"
                 onClick={() => markAllRead()}
-                className="h-6 w-6 text-muted-foreground hover:text-primary"
+                className="h-9 w-9 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-primary"
                 title="Mark all read"
+                aria-label="Mark all as read"
               >
-                <Check className="h-3.5 w-3.5" />
+                <Check className="h-4 w-4" />
               </Button>
             )}
             {notifications.length > 0 && (
@@ -150,10 +151,11 @@ export function NotificationBell() {
                 variant="ghost"
                 size="icon"
                 onClick={() => clearAllNotifications.mutate()}
-                className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                className="h-9 w-9 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive"
                 title="Clear all"
+                aria-label="Clear all notifications"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             )}
           </div>
@@ -187,7 +189,7 @@ export function NotificationBell() {
                       <p className="text-xs text-muted-foreground line-clamp-3 break-all whitespace-pre-wrap">
                         {notification.message}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {formatTime(notification.createdAt)}
                       </p>
                     </div>

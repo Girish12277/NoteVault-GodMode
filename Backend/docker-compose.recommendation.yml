@@ -1,0 +1,130 @@
+version: "3.8"
+
+services:
+  # PostgreSQL (Already exists in your setup - reusing)
+  # Assuming you have this running separately via Supabase
+
+  # ========================================
+  # REDIS - Caching & Session Storage (FREE)
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: studyvault-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - studyvault-network
+
+  # ========================================
+  # KAFKA - Event Streaming (FREE)
+  # ========================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: studyvault-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - studyvault-network
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: studyvault-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - studyvault-network
+    restart: unless-stopped
+
+  # ========================================
+  # GORSE - Recommendation Engine (FREE)
+  # ========================================
+  gorse-server:
+    image: zhenghaoz/gorse-server:latest
+    container_name: studyvault-gorse-server
+    ports:
+      - "8087:8087"
+    environment:
+      GORSE_CACHE_STORE: redis://redis:6379
+      GORSE_DATA_STORE: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?sslmode=disable
+      GORSE_MASTER_HOST: gorse-master
+      GORSE_MASTER_PORT: 8086
+    depends_on:
+      - redis
+      - gorse-master
+    networks:
+      - studyvault-network
+    restart: unless-stopped
+
+  gorse-master:
+    image: zhenghaoz/gorse-master:latest
+    container_name: studyvault-gorse-master
+    ports:
+      - "8086:8086"
+    environment:
+      GORSE_CACHE_STORE: redis://redis:6379
+      GORSE_DATA_STORE: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?sslmode=disable
+    depends_on:
+      - redis
+    volumes:
+      - ./gorse-config.toml:/etc/gorse/config.toml
+    networks:
+      - studyvault-network
+    restart: unless-stopped
+
+  gorse-worker:
+    image: zhenghaoz/gorse-worker:latest
+    container_name: studyvault-gorse-worker
+    environment:
+      GORSE_CACHE_STORE: redis://redis:6379
+      GORSE_DATA_STORE: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?sslmode=disable
+      GORSE_MASTER_HOST: gorse-master
+      GORSE_MASTER_PORT: 8086
+    depends_on:
+      - redis
+      - gorse-master
+    networks:
+      - studyvault-network
+    restart: unless-stopped
+
+  # ========================================
+  # QDRANT - Vector Database (FREE)
+  # Self-hosted option (or use cloud.qdrant.io FREE tier)
+  # ========================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: studyvault-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - studyvault-network
+    restart: unless-stopped
+
+networks:
+  studyvault-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local
+  qdrant_data:
+    driver: local

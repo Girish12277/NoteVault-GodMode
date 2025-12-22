@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "husky": "^9.0.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "god:verify": "ts-node scripts/verify-all.ts",
+    "prepare": "husky"
+  }
+}

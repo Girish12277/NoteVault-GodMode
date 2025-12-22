@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { AuthRequest } from '../middleware/auth';
 import emailService from '../services/emailService';
+import { alertService } from '../services/alertService';
 
 // Security constants
 const BCRYPT_ROUNDS = 12;
@@ -43,7 +44,7 @@ const generateTokens = (userId: string, sessionId: string) => {
 export const authController = {
     register: async (req: Request, res: Response) => {
         try {
-            const { email, password, name, degree, universityId, collegeName, currentSemester } = req.body;
+            const { email, password, name, degree, universityId, collegeName, currentSemester, referralCode } = req.body;
             const normalizedEmail = email.toLowerCase().trim();
             const prismaAny = prisma as any;
 
@@ -51,7 +52,7 @@ export const authController = {
             // Database unique constraint + error handling provides atomic guarantee
 
             const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-            const referralCode = `REF${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+            const userReferralCode = `REF${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
             try {
                 const user = await prismaAny.users.create({
@@ -64,7 +65,7 @@ export const authController = {
                         university_id: universityId, // Schema uses snake_case
                         college_name: collegeName,   // Schema uses snake_case
                         current_semester: currentSemester, // Schema uses snake_case
-                        referral_code: referralCode, // Schema uses snake_case
+                        referral_code: userReferralCode, // Schema uses snake_case
                         preferred_language: 'en',    // Schema uses snake_case
                         is_active: true,             // Schema uses snake_case
                         is_verified: false,          // Schema uses snake_case
@@ -109,6 +110,12 @@ export const authController = {
                     email: user.email
                 }).catch(err => console.error('Failed to send welcome email:', err));
 
+                // Send WhatsApp welcome message (if phone available)
+                // TODO: Add phone number field to registration
+                // const { whatsappService } = await import('../services/whatsappService');
+                // whatsappService.sendWelcome(user.phone, user.full_name)
+                //     .catch(err => console.error('Failed to send WhatsApp welcome:', err));
+
                 return res.status(201).json({
                     success: true,
                     message: 'Registration successful',
@@ -131,6 +138,7 @@ export const authController = {
                 // SECURITY: Handle database unique constraint violation (race condition protection)
                 if (dbError.code === 'P2002') {
                     console.warn('🔒 SECURITY: Concurrent registration attempt blocked for:', normalizedEmail);
+                    alertService.warning('CONCURRENT_REGISTRATION_BLOCKED', `Concurrent registration attempt for ${normalizedEmail}`, { email: normalizedEmail, ip: req.ip });
                     return res.status(409).json({
                         success: false,
                         message: 'Email already registered',
@@ -187,6 +195,7 @@ export const authController = {
             if (user.lockout_until && new Date() < new Date(user.lockout_until)) {
                 const remaining = Math.ceil((new Date(user.lockout_until).getTime() - Date.now()) / 60000);
                 console.warn(`🔒 SECURITY: Blocked login attempt for ${normalizedEmail} (Locked for ${remaining}m)`);
+                alertService.high('ACCOUNT_LOCKOUT_TRIGGERED', `Account locked: ${normalizedEmail} (${remaining}min remaining)`, { email: normalizedEmail, lockoutMinutes: remaining, ip: req.ip });
                 return res.status(429).json({
                     success: false,
                     message: `Account is locked. Try again in ${remaining} minutes.`,
@@ -224,6 +233,9 @@ export const authController = {
                 });
 
                 console.warn(`🔒 SECURITY: Failed login for ${normalizedEmail} (Attempt ${newAttempts}/5)`);
+                if (newAttempts >= 3) {
+                    alertService.warning('FAILED_LOGIN_ATTEMPTS', `Failed login for ${normalizedEmail} (Attempt ${newAttempts}/5)`, { email: normalizedEmail, attempts: newAttempts, ip: req.ip });
+                }
 
                 if (lockoutUntil) {
                     return res.status(429).json({
@@ -486,6 +498,10 @@ export const authController = {
                 include: {
                     universities: {
                         select: { id: true, name: true, short_name: true }
+                    },
+                    purchases: {
+                        where: { is_active: true },
+                        select: { note_id: true }
                     }
                 }
             });
@@ -519,7 +535,8 @@ export const authController = {
                         purchases: counts.purchases || 0,
                         reviews: counts.reviews || 0
                     },
-                    createdAt: user.created_at
+                    createdAt: user.created_at,
+                    purchasedNoteIds: user.purchases.map((p: any) => p.note_id) // GOD-LEVEL ADDITION
                 }
             });
         } catch (error: unknown) {

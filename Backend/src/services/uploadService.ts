@@ -1,10 +1,13 @@
 import { cloudinary, CLOUDINARY_FOLDERS, UPLOAD_OPTIONS } from '../config/cloudinary';
 import { config } from '../config/env';
 import { Readable } from 'stream';
+import { alertService } from './alertService';
+import { safeCloudinaryService } from './cloudinaryCircuitBreaker';
 
 /**
  * Upload Service
  * Handles all file upload operations with Cloudinary
+ * God-Level Enhancement: Circuit breaker protection (Critical Fix #3)
  */
 
 interface UploadResult {
@@ -16,6 +19,7 @@ interface UploadResult {
     bytes?: number;
     pages?: number; // For PDFs
     error?: string;
+    isFallback?: boolean; // True if using local disk fallback
 }
 
 interface DeleteResult {
@@ -35,7 +39,7 @@ const bufferToStream = (buffer: Buffer): Readable => {
 };
 
 /**
- * Upload a PDF note to Cloudinary
+ * Upload a PDF note to Cloudinary (with circuit breaker protection)
  * @param buffer - File buffer from Multer
  * @param userId - Owner's user ID
  * @param filename - Original filename
@@ -55,46 +59,40 @@ export const uploadNotePdf = async (
     try {
         const publicId = `${CLOUDINARY_FOLDERS.NOTES}/${userId}/${Date.now()}_${filename.replace(/\.[^/.]+$/, '')}`;
 
-        return new Promise((resolve) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-                {
-                    resource_type: 'raw',
-                    public_id: publicId,
-                    access_mode: 'public', // public access for downloadable PDFs
-                    type: 'upload', // upload type for signed URL generation
-                    folder: undefined, // Already in publicId path
-                    format: 'pdf'
-                },
-                (error, result) => {
-                    if (error) {
-                        console.error('Cloudinary upload error:', error);
-                        resolve({
-                            success: false,
-                            error: error.message
-                        });
-                    } else if (result) {
-                        resolve({
-                            success: true,
-                            publicId: result.public_id,
-                            url: result.url,
-                            secureUrl: result.secure_url,
-                            format: result.format,
-                            bytes: result.bytes,
-                            pages: result.pages
-                        });
-                    } else {
-                        resolve({
-                            success: false,
-                            error: 'Unknown upload error'
-                        });
-                    }
-                }
-            );
-
-            bufferToStream(buffer).pipe(uploadStream);
+        // Use circuit breaker protected upload (GOD-LEVEL FIX #3)
+        const result = await safeCloudinaryService.uploadFile(buffer, {
+            resource_type: 'raw',
+            public_id: publicId,
+            access_mode: 'public',
+            type: 'upload',
+            folder: undefined,
+            format: 'pdf'
         });
-    } catch (error) {
+
+        return {
+            success: true,
+            publicId: result.public_id,
+            url: result.url,
+            secureUrl: result.secure_url,
+            format: result.format,
+            bytes: result.bytes,
+            pages: result.pages,
+            isFallback: (result as any).isFallback || false
+        };
+
+    } catch (error: any) {
         console.error('Upload note error:', error);
+
+        // Alert on upload failure (if not already alerted by circuit breaker)
+        if (!safeCloudinaryService.isCircuitOpen()) {
+            alertService.sendAlert({
+                severity: 'HIGH',
+                event: 'NOTE_UPLOAD_FAILED',
+                message: `Note upload failed for user ${userId}`,
+                metadata: { error: error.message, filename }
+            });
+        }
+
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Upload failed'
@@ -261,6 +259,7 @@ export const deleteFile = async (
 
     if (publicId.includes('..')) {
         console.error('🔒 SECURITY: Path traversal attempt detected:', publicId);
+        alertService.critical('PATH_TRAVERSAL_ATTEMPT', `Path traversal attempt detected in publicId: ${publicId}`, { publicId });
         return {
             success: false,
             error: 'Invalid public_id: path traversal not allowed'
@@ -269,6 +268,7 @@ export const deleteFile = async (
 
     if (publicId.includes('\0')) {
         console.error('🔒 SECURITY: Null byte injection attempt detected:', publicId);
+        alertService.critical('NULL_BYTE_INJECTION_ATTEMPT', `Null byte injection attempt detected in publicId: ${publicId}`, { publicId });
         return {
             success: false,
             error: 'Invalid public_id: null bytes not allowed'

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { prisma } from '../config/database';
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth';
 
@@ -228,10 +228,111 @@ userActionsRouter.put('/:id/unban', authenticate, requireAdmin, async (req: Auth
 });
 
 /**
+ * POST /api/admin/users/bulk-ban
+ * Atomic bulk user suspension
+ * Critical: All-or-nothing transaction
+ */
+userActionsRouter.post('/bulk-ban', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+    const { userIds, reason } = req.body;
+    const adminId = req.user!.id;
+
+    // Validation
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'No users selected for bulk suspension'
+        });
+    }
+
+    if (userIds.length > 100) {
+        return res.status(400).json({
+            success: false,
+            message: 'Maximum 100 users per bulk operation. Please select fewer users.'
+        });
+    }
+
+    try {
+        let suspendedCount = 0;
+
+        await prisma.$transaction(async (tx) => {
+            const txAny = tx as any;
+
+            // 1. Check for admin users (MUST prevent banning admins)
+            const adminUsers = await txAny.users.findMany({
+                where: {
+                    id: { in: userIds },
+                    is_admin: true
+                },
+                select: { id: true, full_name: true, email: true }
+            });
+
+            if (adminUsers.length > 0) {
+                const adminNames = adminUsers.map((u: any) => u.full_name || u.email).join(', ');
+                throw new Error(`Cannot suspend admin users: ${adminNames}. Please deselect admin accounts.`);
+            }
+
+            // 2. Atomic bulk suspend (updateMany for performance)
+            const result = await txAny.users.updateMany({
+                where: {
+                    id: { in: userIds },
+                    is_admin: false // Extra safety: only non-admins
+                },
+                data: {
+                    is_active: false,
+                    updated_at: new Date()
+                }
+            });
+
+            suspendedCount = result.count;
+
+            // 3. Audit log (batch operation)
+            await createAuditLog(
+                tx,
+                adminId,
+                'BULK_BAN',
+                'BATCH',
+                {
+                    count: suspendedCount,
+                    userIds,
+                    reason: reason || 'Manual Bulk Suspension'
+                },
+                'SUCCESS'
+            );
+        });
+
+        return res.json({
+            success: true,
+            message: `Successfully suspended ${suspendedCount} user${suspendedCount !== 1 ? 's' : ''}`,
+            data: {
+                suspendedCount,
+                totalRequested: userIds.length
+            }
+        });
+    } catch (error: any) {
+        console.error('Bulk ban error:', error);
+
+        // User-friendly error messages
+        if (error.message.includes('Cannot suspend admin')) {
+            return res.status(403).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Bulk suspension failed. Please try again or contact support.',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+/**
  * POST /api/admin/users/bulk-delete
  * Atomic bulk delete
  */
 userActionsRouter.post('/bulk-delete', authenticate, requireAdmin, async (req: AuthRequest, res) => {
+
     const { userIds } = req.body;
     const adminId = req.user!.id;
 

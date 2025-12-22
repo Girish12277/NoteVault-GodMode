@@ -100,40 +100,40 @@ export default function AdminSettings() {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-foreground flex items-center gap-3">
-            <Settings className="h-8 w-8 text-primary" /> Platform Control
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+            <Settings className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Platform Control
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Global system configuration and policy management.
           </p>
         </div>
-        <Button onClick={handleSave} disabled={saveMutation.isPending} className="shadow-lg hover:shadow-xl transition-all min-w-[160px]">
+        <Button onClick={handleSave} disabled={saveMutation.isPending} className="shadow-lg hover:shadow-xl transition-all">
           {saveMutation.isPending ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Applying Changes...
+              <Loader2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 animate-spin" />
+              <span className="text-xs md:text-sm">Applying...</span>
             </>
           ) : (
             <>
-              <Save className="h-4 w-4 mr-2" />
-              Save Configuration
+              <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+              <span className="text-xs md:text-sm"><span className="hidden sm:inline">Save Configuration</span><span className="sm:hidden">Save</span></span>
             </>
           )}
         </Button>
       </div>
 
-      <Tabs defaultValue="commission" className="space-y-6">
-        <TabsList className="w-full justify-start border-b border-border bg-transparent rounded-none h-auto p-0 gap-6">
-          <TabsTrigger value="commission" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
-            <Percent className="h-4 w-4 mr-2" /> Financials & Commission
+      <Tabs defaultValue="commission" className="space-y-4 md:space-y-6">
+        <TabsList className="w-full justify-start border-b border-border bg-transparent rounded-none h-auto p-0 gap-2 md:gap-6">
+          <TabsTrigger value="commission" className="px-0 pb-2 md:pb-3 text-xs md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:font-semibold text-muted-foreground transition-all">
+            <Percent className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> <span className="hidden sm:inline">Financials & Commission</span><span className="sm:hidden">Financial</span>
           </TabsTrigger>
-          <TabsTrigger value="platform" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-blue-500 data-[state=active]:font-semibold text-muted-foreground transition-all">
-            <Globe className="h-4 w-4 mr-2" /> Global Identity
+          <TabsTrigger value="platform" className="px-0 pb-2 md:pb-3 text-xs md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-blue-500 data-[state=active]:font-semibold text-muted-foreground transition-all">
+            <Globe className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> <span className="hidden sm:inline">Global Identity</span><span className="sm:hidden">Identity</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="px-0 pb-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-destructive data-[state=active]:bg-transparent data-[state=active]:text-destructive data-[state=active]:font-semibold text-muted-foreground transition-all">
-            <ShieldCheck className="h-4 w-4 mr-2" /> Security & Access
+          <TabsTrigger value="security" className="px-0 pb-2 md:pb-3 text-xs md:text-base rounded-none border-b-2 border-transparent data-[state=active]:border-destructive data-[state=active]:bg-transparent data-[state=active]:text-destructive data-[state=active]:font-semibold text-muted-foreground transition-all">
+            <ShieldCheck className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> <span className="hidden sm:inline">Security & Access</span><span className="sm:hidden">Security</span>
           </TabsTrigger>
         </TabsList>
 
@@ -210,7 +210,7 @@ export default function AdminSettings() {
                     </div>
                     <div style={{ width: `${settings.defaultCommission}%` }} className="bg-blue-600 flex flex-col items-center justify-center text-white p-2 transition-all duration-300 relative group">
                       <span className="font-bold text-lg">₹{platformCut.toFixed(0)}</span>
-                      <span className="text-[10px] opacity-90 uppercase font-bold tracking-wider">Platform</span>
+                      <span className="text-xs opacity-90 uppercase font-bold tracking-wider">Platform</span>
                       <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </div>
@@ -327,7 +327,7 @@ export default function AdminSettings() {
                 </div>
                 <div>
                   <p className="font-bold text-sm leading-none">{settings.platformName}</p>
-                  <p className="text-[10px] text-muted-foreground">{settings.supportEmail}</p>
+                  <p className="text-xs text-muted-foreground">{settings.supportEmail}</p>
                 </div>
               </div>
             </CardContent>

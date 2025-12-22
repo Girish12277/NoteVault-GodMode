@@ -169,19 +169,44 @@ export default function AdminUsers() {
   };
 
   const handleBulkSuspend = async () => {
-    toast.promise(
-      Promise.all(selectedUsers.map(id => api.put(`/admin/users/${id}/ban`))),
-      {
-        loading: `Suspending ${selectedUsers.length} users...`,
-        success: () => {
-          queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-          setSelectedUsers([]);
-          return 'Bulk Action Complete';
-        },
-        error: 'Failed to suspend some users'
-      }
-    );
+    if (selectedUsers.length === 0) {
+      toast.error('No users selected');
+      return;
+    }
+
+    if (selectedUsers.length > 100) {
+      toast.error('Maximum 100 users per bulk operation');
+      return;
+    }
+
+    try {
+      const response = await toast.promise(
+        api.post('/admin/users/bulk-ban', {
+          userIds: selectedUsers,
+          reason: 'Admin bulk suspension'
+        }),
+        {
+          loading: `Suspending ${selectedUsers.length} user${selectedUsers.length !== 1 ? 's' : ''}...`,
+          success: (data: any) => {
+            const count = data.data?.data?.suspendedCount || selectedUsers.length;
+            return `✓ Successfully suspended ${count} user${count !== 1 ? 's' : ''}`;
+          },
+          error: (err: any) => {
+            return err.response?.data?.message || 'Failed to suspend users';
+          }
+        }
+      );
+
+      // Refresh data and clear selection
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-dashboard-stats'] });
+      setSelectedUsers([]);
+    } catch (error: any) {
+      // Error already handled by toast.promise
+      console.error('Bulk suspend error:', error);
+    }
   };
+
 
   // --- Logic Helpers ---
   const handleBanUser = (userId: string, currentStatus: string) => {
@@ -207,11 +232,11 @@ export default function AdminUsers() {
   return (
     <AdminLayout>
       {/* Header & Smart Segments */}
-      <div className="flex flex-col gap-6 mb-8">
+      <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-bold">Population Nexus</h1>
-            <p className="text-muted-foreground mt-1 flex items-center gap-2">
+            <h1 className="font-display text-2xl md:text-3xl font-bold">Population Nexus</h1>
+            <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm md:text-base">
               <Shield className="h-4 w-4" /> Governance Grid • {totalUsers} Identities
             </p>
           </div>
@@ -223,13 +248,13 @@ export default function AdminUsers() {
         </div>
 
         {/* Smart Segments & Search */}
-        <div className="flex flex-col xl:flex-row gap-4 items-end xl:items-center justify-between">
+        <div className="flex flex-col xl:flex-row gap-3 md:gap-4 items-end xl:items-center justify-between">
           <Tabs defaultValue="all" value={roleFilter} onValueChange={setRoleFilter} className="w-full xl:w-auto">
-            <TabsList className="bg-muted/50 p-1 h-11">
-              <TabsTrigger value="all" className="h-9 px-4">All Citizens</TabsTrigger>
-              <TabsTrigger value="buyer" className="h-9 px-4">Buyers</TabsTrigger>
-              <TabsTrigger value="seller" className="h-9 px-4">Sellers</TabsTrigger>
-              <TabsTrigger value="admin" className="h-9 px-4">Admins</TabsTrigger>
+            <TabsList className="bg-muted/50 p-0.5 md:p-1 h-9 md:h-11 w-full">
+              <TabsTrigger value="all" className="h-8 md:h-9 px-2 md:px-4 text-xs md:text-sm">All Citizens</TabsTrigger>
+              <TabsTrigger value="buyer" className="h-8 md:h-9 px-2 md:px-4 text-xs md:text-sm">Buyers</TabsTrigger>
+              <TabsTrigger value="seller" className="h-8 md:h-9 px-2 md:px-4 text-xs md:text-sm">Sellers</TabsTrigger>
+              <TabsTrigger value="admin" className="h-8 md:h-9 px-2 md:px-4 text-xs md:text-sm">Admins</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -239,7 +264,7 @@ export default function AdminUsers() {
               placeholder="Search by Hash / Email / Name..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-10 h-11 bg-background"
+              className="pl-10 h-9 md:h-11 bg-background text-sm"
             />
           </div>
         </div>
@@ -247,111 +272,113 @@ export default function AdminUsers() {
 
       {/* Governance Grid */}
       <Card className="border-border/50 shadow-sm overflow-hidden bg-card/50 backdrop-blur-sm">
-        <Table>
-          <TableHeader className="bg-muted/30">
-            <TableRow className="hover:bg-transparent border-border/50">
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={selectedUsers.length === displayUsers.length && displayUsers.length > 0}
-                  onCheckedChange={(c) => handleSelectAll(c as boolean)}
-                />
-              </TableHead>
-              <TableHead>Identity</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>University</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead>Metrics</TableHead>
-              <TableHead className="text-right">Command</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {displayUsers.length > 0 ? (
-              displayUsers.map((user: any) => (
-                <TableRow
-                  key={user.id}
-                  className={cn(
-                    "group transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted",
-                    selectedUsers.includes(user.id) && "bg-primary/5"
-                  )}
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedUsers.includes(user.id)}
-                      onCheckedChange={(c) => handleSelectUser(user.id, c as boolean)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3 cursor-pointer min-w-0" onClick={() => openDossier(user)}>
-                      <div className={cn(
-                        "h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-110",
-                        user.role === 'admin' ? "bg-red-500/10 text-red-600" :
-                          user.role === 'seller' ? "bg-purple-500/10 text-purple-600" : "bg-blue-500/10 text-blue-600"
+        <div className="overflow-x-auto relative w-full">
+          <Table>
+            <TableHeader className="bg-muted/30">
+              <TableRow className="hover:bg-transparent border-border/50">
+                <TableHead className="w-[30px] md:w-[40px] p-2 md:p-4">
+                  <Checkbox
+                    checked={selectedUsers.length === displayUsers.length && displayUsers.length > 0}
+                    onCheckedChange={(c) => handleSelectAll(c as boolean)}
+                  />
+                </TableHead>
+                <TableHead>Identity</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>University</TableHead>
+                <TableHead>Joined</TableHead>
+                <TableHead>Metrics</TableHead>
+                <TableHead className="text-right">Command</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {displayUsers.length > 0 ? (
+                displayUsers.map((user: any) => (
+                  <TableRow
+                    key={user.id}
+                    className={cn(
+                      "group transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted",
+                      selectedUsers.includes(user.id) && "bg-primary/5"
+                    )}
+                  >
+                    <TableCell className="p-2 md:p-4">
+                      <Checkbox
+                        checked={selectedUsers.includes(user.id)}
+                        onCheckedChange={(c) => handleSelectUser(user.id, c as boolean)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3 cursor-pointer min-w-0" onClick={() => openDossier(user)}>
+                        <div className={cn(
+                          "h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-110",
+                          user.role === 'admin' ? "bg-red-500/10 text-red-600" :
+                            user.role === 'seller' ? "bg-purple-500/10 text-purple-600" : "bg-blue-500/10 text-blue-600"
+                        )}>
+                          <User className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-sm group-hover:text-primary transition-colors flex items-center gap-1.5 truncate">
+                            {user.name}
+                            {user.isVerified && <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10 flex-shrink-0" />}
+                          </p>
+                          <p className="text-xs text-muted-foreground font-mono truncate">{user.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={cn(
+                        "h-6 px-2.5 text-xs uppercase font-bold tracking-wider",
+                        user.status === 'active' ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/5" : "border-red-500/30 text-red-600 bg-red-500/5"
                       )}>
-                        <User className="h-5 w-5" />
+                        {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm font-medium text-muted-foreground">{user.university}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{user.joinDate.toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-4 text-xs">
+                        <span className="flex items-center gap-1 text-muted-foreground" title="Purchases">
+                          <CreditCard className="h-3.5 w-3.5" />{user.purchases}
+                        </span>
+                        <span className="flex items-center gap-1 text-muted-foreground" title="Uploads">
+                          <Download className="h-3.5 w-3.5" />{user.uploads}
+                        </span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-bold text-sm group-hover:text-primary transition-colors flex items-center gap-1.5 truncate">
-                          {user.name}
-                          {user.isVerified && <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10 flex-shrink-0" />}
-                        </p>
-                        <p className="text-xs text-muted-foreground font-mono truncate">{user.email}</p>
-                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 md:h-8 md:w-8 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="User actions">
+                            <MoreHorizontal className="h-3 w-3 md:h-4 md:w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => openDossier(user)}><Eye className="h-4 w-4 mr-2" />Inspect Dossier</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleBanUser(user.id, user.status)} className="text-warning">
+                            <Ban className="h-4 w-4 mr-2" />{user.status === 'suspended' ? 'Reinstate' : 'Suspend'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setUserToDelete(user.id)} className="text-destructive">
+                            <Trash2 className="h-4 w-4 mr-2" />Expel
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-64 text-center">
+                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                      <Search className="h-10 w-10 mb-4 opacity-20" />
+                      <p>No identities found in this sector.</p>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={cn(
-                      "h-6 px-2.5 text-[10px] uppercase font-bold tracking-wider",
-                      user.status === 'active' ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/5" : "border-red-500/30 text-red-600 bg-red-500/5"
-                    )}>
-                      {user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm font-medium text-muted-foreground">{user.university}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{user.joinDate.toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="flex items-center gap-1 text-muted-foreground" title="Purchases">
-                        <CreditCard className="h-3.5 w-3.5" />{user.purchases}
-                      </span>
-                      <span className="flex items-center gap-1 text-muted-foreground" title="Uploads">
-                        <Download className="h-3.5 w-3.5" />{user.uploads}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => openDossier(user)}><Eye className="h-4 w-4 mr-2" />Inspect Dossier</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleBanUser(user.id, user.status)} className="text-warning">
-                          <Ban className="h-4 w-4 mr-2" />{user.status === 'suspended' ? 'Reinstate' : 'Suspend'}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setUserToDelete(user.id)} className="text-destructive">
-                          <Trash2 className="h-4 w-4 mr-2" />Expel
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center text-muted-foreground">
-                    <Search className="h-10 w-10 mb-4 opacity-20" />
-                    <p>No identities found in this sector.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
         {/* Pagination */}
         <div className="p-4 border-t border-border/50 flex items-center justify-between bg-muted/20">

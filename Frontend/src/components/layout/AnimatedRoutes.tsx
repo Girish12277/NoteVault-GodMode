@@ -20,6 +20,7 @@ import About from "../../pages/About";
 import Contact from "../../pages/Contact";
 import Terms from "../../pages/Terms";
 import Privacy from "../../pages/Privacy";
+import { Guarantee } from "../../pages/Guarantee";
 import Categories from "../../pages/Categories";
 import Universities from "../../pages/Universities";
 import PaymentSuccess from "../../pages/PaymentSuccess";
@@ -40,6 +41,7 @@ import AdminFinance from "../../pages/admin/AdminFinance";
 import AdminDisputes from "../../pages/admin/AdminDisputes";
 import AdminAnalytics from "../../pages/admin/AdminAnalytics";
 import AdminSettings from "../../pages/admin/AdminSettings";
+import AdminCoupons from "../../pages/admin/AdminCoupons";
 import AdminNotifications from "../../pages/admin/AdminNotifications";
 import AdminMessages from "../../pages/admin/AdminMessages";
 import NotificationDetails from '@/pages/notifications/NotificationDetails';
@@ -72,6 +74,7 @@ export const AnimatedRoutes: React.FC = () => {
                 <Route path="/library" element={<PageTransition><Library /></PageTransition>} />
                 <Route path="/how-it-works" element={<PageTransition><HowItWorks /></PageTransition>} />
                 <Route path="/refund" element={<PageTransition><RefundPolicy /></PageTransition>} />
+                <Route path="/guarantee" element={<PageTransition><Guarantee /></PageTransition>} />
                 <Route path="/about" element={<PageTransition><About /></PageTransition>} />
                 <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
                 <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
@@ -97,6 +100,7 @@ export const AnimatedRoutes: React.FC = () => {
                 <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
                 <Route path="/admin/users" element={<PageTransition><AdminUsers /></PageTransition>} />
                 <Route path="/admin/content" element={<PageTransition><AdminContent /></PageTransition>} />
+                <Route path="/admin/coupons" element={<PageTransition><AdminCoupons /></PageTransition>} />
                 <Route path="/admin/notifications" element={<PageTransition><AdminNotifications /></PageTransition>} />
                 <Route path="/admin/messages" element={<PageTransition><AdminMessages /></PageTransition>} />
                 <Route path="/admin/finance" element={<PageTransition><AdminFinance /></PageTransition>} />

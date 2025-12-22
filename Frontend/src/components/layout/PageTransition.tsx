@@ -8,7 +8,7 @@ const ceramicPhysics = {
     stiffness: 300,
     damping: 30, // Critique: 30 is high enough to kill bounce
     mass: 1
-};
+} as const;
 
 const pageVariants = {
     initial: {

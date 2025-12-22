@@ -79,7 +79,7 @@ export default function SellerGuidelines() {
                 </div>
 
                 <div className="flex gap-4 items-center p-4 bg-background/50 rounded-xl border border-border/50 backdrop-blur-sm">
-                  <Shield className="h-5 w-5 text-green-500" />
+                  <Shield className="h-5 w-5 text-accent" />
                   <p className="text-sm text-muted-foreground">
                     <span className="font-bold text-foreground">Next Day Payouts:</span> Money hits your wallet 24h after sale.
                   </p>
@@ -89,11 +89,11 @@ export default function SellerGuidelines() {
               <div className="flex items-center justify-center">
                 <div className="relative text-center p-10 bg-background rounded-3xl border border-border shadow-xl w-full max-w-xs ring-4 ring-primary/10">
                   <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-2">You Earn</p>
-                  <div className="text-6xl font-bold text-primary mb-2 flex items-center justify-center gap-1">
+                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-2 flex items-center justify-center gap-1">
                     <span className="text-3xl mt-2">₹</span>
                     {earnings}
                   </div>
-                  <Badge variant="secondary" className="mt-2 bg-green-500/10 text-green-600 hover:bg-green-500/20">
+                  <Badge variant="secondary" className="mt-2 bg-accent/10 text-accent hover:bg-accent/20">
                     85% Commission
                   </Badge>
                 </div>
@@ -107,19 +107,19 @@ export default function SellerGuidelines() {
             <div className="grid md:grid-cols-2 gap-8">
               {/* The Good */}
               <div className="space-y-4">
-                <div className="bg-green-500/5 border-2 border-green-500/20 rounded-2xl p-1">
+                <div className="bg-accent/5 border-2 border-accent/20 rounded-2xl p-1">
                   <div className="bg-card rounded-xl p-6 h-64 flex flex-col items-center justify-center text-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?auto=format&fit=crop&q=80&w=800')] opacity-10 bg-cover bg-center" />
-                    <FileText className="h-16 w-16 text-green-600 mb-4" />
-                    <h3 className="font-bold text-green-700 text-lg">Crisp & Clear</h3>
-                    <p className="text-sm text-green-600/80 mt-2 max-w-[200px]">High resolution scans with good lighting. typed text is legible.</p>
-                    <div className="absolute top-4 right-4 bg-green-500 text-white p-1 rounded-full">
+                    <FileText className="h-16 w-16 text-accent mb-4" />
+                    <h3 className="font-bold text-accent text-lg">Crisp & Clear</h3>
+                    <p className="text-sm text-accent/80 mt-2 max-w-[200px]">High resolution scans with good lighting. typed text is legible.</p>
+                    <div className="absolute top-4 right-4 bg-accent text-white p-1 rounded-full">
                       <CheckCircle2 className="h-5 w-5" />
                     </div>
                   </div>
                 </div>
                 <div className="px-4">
-                  <h4 className="font-semibold text-green-600 flex items-center gap-2 mb-2">
+                  <h4 className="font-semibold text-accent flex items-center gap-2 mb-2">
                     <CheckCircle2 className="h-4 w-4" /> Do This
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">

@@ -195,7 +195,7 @@ export default function NotificationDetails() {
                 >
                     <Card className="overflow-hidden border-0 shadow-xl ring-1 ring-black/5">
                         {/* Header Section */}
-                        <div className={cn("px-8 py-8 relative overflow-hidden", config.bg)}>
+                        <div className={cn("p-5 sm:p-8 relative overflow-hidden", config.bg)}>
                             {/* Decorative Background */}
                             <div className="absolute right-0 top-0 opacity-10 transform translate-x-1/3 -translate-y-1/3 pointer-events-none">
                                 <Icon className="w-64 h-64" />
@@ -215,7 +215,7 @@ export default function NotificationDetails() {
                                             {getRelativeTime(notification.createdAt)}
                                         </span>
                                     </div>
-                                    <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
                                         {notification.title}
                                     </h1>
                                 </div>
@@ -223,9 +223,9 @@ export default function NotificationDetails() {
                         </div>
 
                         {/* Content Body */}
-                        <CardContent className="px-8 py-8">
+                        <CardContent className="p-5 sm:p-8">
                             <div className="prose prose-slate max-w-none">
-                                <p className="text-lg text-gray-600 leading-relaxed font-normal whitespace-pre-wrap break-words break-all">
+                                <p className="text-sm sm:text-lg text-gray-600 leading-relaxed font-normal whitespace-pre-wrap break-words">
                                     {notification.message}
                                 </p>
                             </div>

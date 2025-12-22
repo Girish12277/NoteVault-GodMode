@@ -20,7 +20,8 @@ import {
   PlusCircle,
   HelpCircle,
   Zap,
-  Command
+  Command,
+  Ticket
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +32,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 
 const formatCount = (count: number) => {
   if (!count) return null;
@@ -60,6 +62,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
     { icon: Users, label: 'Users', href: '/admin/users', badge: formatCount(stats?.usersCount) },
     { icon: FileText, label: 'Content', href: '/admin/content', badge: formatCount(stats?.contentCount) },
+    { icon: Ticket, label: 'Coupons', href: '/admin/coupons' },
     { icon: Bell, label: 'Notifications', href: '/admin/notifications', badge: formatCount(stats?.unreadNotificationsCount) },
     { icon: MessageSquare, label: 'Messages', href: '/admin/messages', badge: formatCount(stats?.unreadMessagesCount) },
     { icon: IndianRupee, label: 'Finance', href: '/admin/finance' },
@@ -67,6 +70,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
   ];
+
 
   const NavLinks = () => (
     <>
@@ -77,18 +81,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             key={item.label}
             to={item.href}
             className={cn(
-              'flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 group',
+              'flex items-center justify-between px-4 py-3 text-sm transition-all duration-200 group border-l-[3px]',
               isActive
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                ? 'border-primary bg-primary/5 text-primary font-bold'
+                : 'border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium'
             )}
           >
             <div className="flex items-center gap-3">
-              <item.icon className={cn("h-5 w-5 transition-transform group-hover:scale-110", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+              <item.icon className={cn("h-5 w-5 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
               {item.label}
             </div>
             {item.badge && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="text-xs px-1.5 min-w-[20px] justify-center">
+              <Badge variant={isActive ? 'default' : 'outline'} className={cn("text-xs px-1.5 min-w-[20px] justify-center", !isActive && "text-muted-foreground border-border")}>
                 {item.badge}
               </Badge>
             )}
@@ -107,19 +111,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {/* Mobile menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
+                <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open navigation menu">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
                 <div className="p-4 border-b border-border bg-muted/20">
                   <Link to="/" className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-destructive to-red-600 shadow-md">
-                      <Shield className="h-6 w-6 text-white" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shadow-sm">
+                      <Shield className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <span className="font-display text-lg font-bold block leading-none">Admin Panel</span>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">StudyVault</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">StudyVault</span>
                     </div>
                   </Link>
                 </div>
@@ -131,12 +135,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             {/* Logo Desktop */}
             <Link to="/admin" className="hidden lg:flex items-center gap-3 transition-opacity hover:opacity-90">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600 text-white shadow-sm ring-2 ring-red-100 dark:ring-red-900">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm ring-2 ring-primary/20">
                 <Shield className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
                 <span className="font-display text-lg font-bold leading-none">Administration</span>
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">StudyVault v2.4</span>
+                <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">StudyVault v2.4</span>
               </div>
             </Link>
 
@@ -147,10 +151,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-medium cursor-help">
+                  <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-background border border-border text-muted-foreground text-xs font-medium cursor-help">
                     <div className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/50 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                     </div>
                     Systems Nominal
                   </div>
@@ -173,7 +177,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-50">
                 <Command className="h-3 w-3" />
-                <span className="text-[10px] font-bold">K</span>
+                <span className="text-xs font-bold">K</span>
               </div>
             </div>
           </div>
@@ -202,12 +206,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Notifications */}
+            <NotificationBell />
+
             {/* View Site */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link to="/">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="View notifications">
                       <BookOpen className="h-5 w-5" />
                     </Button>
                   </Link>
@@ -224,7 +231,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <AvatarImage src="https://ui-avatars.com/api/?name=Admin+User&background=0f172a&color=fff" />
                     <AvatarFallback>AD</AvatarFallback>
                   </Avatar>
-                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
+                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -256,20 +263,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-64 shrink-0 border-r border-border bg-card/50 backdrop-blur-sm min-h-[calc(100vh-4rem)] sticky top-16">
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-border bg-card/50 backdrop-blur-sm h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto custom-scrollbar">
           <nav className="p-4 space-y-2">
             <NavLinks />
           </nav>
 
           {/* Sidebar Footer info */}
-          <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-gradient-to-br from-primary/5 to-transparent border border-primary/10">
+          <div className="absolute bottom-4 left-4 right-4 p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Zap className="h-4 w-4 text-primary" />
-              </div>
-              <p className="text-xs font-bold">Pro Tips</p>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Pro Tip</span>
             </div>
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Use <kbd className="px-1 py-0.5 rounded bg-background border border-border font-mono text-foreground font-bold">⌘K</kbd> to open quick search anytime.
             </p>
           </div>

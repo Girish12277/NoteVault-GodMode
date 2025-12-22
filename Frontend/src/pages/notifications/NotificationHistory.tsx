@@ -108,16 +108,16 @@ export default function NotificationHistory() {
             case 'PURCHASE':
                 return <ShoppingBag className="h-5 w-5 text-primary" />;
             case 'REFERRAL':
-                return <Gift className="h-5 w-5 text-purple-500" />;
+                return <Gift className="h-5 w-5 text-secondary" />;
             case 'PRICE_DROP':
-                return <TrendingDown className="h-5 w-5 text-emerald-500" />;
+                return <TrendingDown className="h-5 w-5 text-accent" />;
             case 'REVIEW':
-                return <MessageSquare className="h-5 w-5 text-blue-500" />;
+                return <MessageSquare className="h-5 w-5 text-secondary" />;
             case 'WARNING':
-                return <AlertTriangle className="h-5 w-5 text-destructive" />;
+                return <AlertTriangle className="h-5 w-5 text-warning" />;
             case 'SYSTEM':
             default:
-                return <Info className="h-5 w-5 text-zinc-500" />;
+                return <Info className="h-5 w-5 text-muted-foreground" />;
         }
     };
 
@@ -126,16 +126,16 @@ export default function NotificationHistory() {
             case 'PURCHASE':
                 return 'bg-primary/10 border-primary/20';
             case 'REFERRAL':
-                return 'bg-purple-500/10 border-purple-500/20';
+                return 'bg-secondary/10 border-secondary/20';
             case 'PRICE_DROP':
-                return 'bg-emerald-500/10 border-emerald-500/20';
+                return 'bg-accent/10 border-accent/20';
             case 'REVIEW':
-                return 'bg-blue-500/10 border-blue-500/20';
+                return 'bg-secondary/10 border-secondary/20';
             case 'WARNING':
-                return 'bg-destructive/10 border-destructive/20';
+                return 'bg-warning/10 border-warning/20';
             case 'SYSTEM':
             default:
-                return 'bg-zinc-500/10 border-zinc-500/20';
+                return 'bg-muted/10 border-border/20';
         }
     };
 
@@ -222,9 +222,9 @@ export default function NotificationHistory() {
                         // Zen Mode Empty State
                         <div className="text-center py-24 px-4">
                             <div className="relative h-32 w-32 mx-auto mb-6">
-                                <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-pulse-slow"></div>
-                                <div className="relative h-32 w-32 rounded-full bg-gradient-to-tr from-emerald-50 to-background flex items-center justify-center border-2 border-emerald-100 shadow-xl shadow-emerald-500/10">
-                                    <Sparkles className="h-12 w-12 text-emerald-500/80" />
+                                <div className="absolute inset-0 bg-accent/10 rounded-full animate-pulse-slow"></div>
+                                <div className="relative h-32 w-32 rounded-full bg-gradient-to-tr from-accent/10 to-background flex items-center justify-center border-2 border-accent/20 shadow-xl shadow-accent/10">
+                                    <Sparkles className="h-12 w-12 text-accent/80" />
                                 </div>
                             </div>
                             <h3 className="font-display text-2xl font-bold text-foreground tracking-tight mb-2">You're all caught up</h3>

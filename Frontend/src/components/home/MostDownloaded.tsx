@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { formatNumber, formatCurrency } from '@/lib/formatters';
 
 export function MostDownloaded() {
   const { data: topDownloaded = [] } = useQuery({
@@ -52,19 +53,19 @@ export function MostDownloaded() {
   const maxDownloads = topDownloaded.length > 0 ? (topDownloaded[0].totalDownloads || 100) : 100;
 
   return (
-    <section className="py-16 lg:py-24 bg-gradient-to-b from-background to-muted/20">
+    <section className="py-8 lg:py-24 bg-gradient-to-b from-background to-muted/20">
       <div className="container">
 
         {/* Header Center Aligned */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-4 py-1.5 text-sm font-semibold text-orange-600 mb-4 animate-in fade-in slide-in-from-bottom-3 duration-700">
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-16">
+          <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-4 py-1.5 text-sm font-semibold text-orange-600 mb-3 md:mb-4 animate-in fade-in slide-in-from-bottom-3 duration-700">
             <Flame className="h-4 w-4 fill-orange-600" />
             <span>Viral Favorites</span>
           </div>
-          <h2 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-4">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-5xl mb-3 md:mb-4">
             Most <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">Downloaded</span>
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base md:text-lg">
             The most trusted notes on the platform, ranked by real-time student demand.
           </p>
         </div>
@@ -112,7 +113,7 @@ export function MostDownloaded() {
                   <div className="relative h-40 w-full md:h-16 md:w-16 md:flex-none rounded-xl overflow-hidden bg-muted shadow-sm group-hover:shadow-md transition-all shrink-0 z-10">
                     <img
                       src={note.fileUrl?.endsWith('.pdf') ? 'https://placehold.co/100?text=PDF' : (note.coverImage || 'https://placehold.co/100?text=Note')}
-                      alt=""
+                      alt={note.title}
                       className="w-full h-full object-cover"
                       onError={(e) => (e.target as HTMLImageElement).src = 'https://placehold.co/100?text=Note'}
                     />
@@ -144,12 +145,12 @@ export function MostDownloaded() {
                       <span className="flex items-center gap-1.5 text-foreground">
                         <Download className="h-3.5 w-3.5 text-muted-foreground" />
                         {downloads > 5 ? (
-                          <>{downloads} <span className="text-muted-foreground font-normal">downloads</span></>
+                          <>{formatNumber(downloads)} <span className="text-muted-foreground font-normal">downloads</span></>
                         ) : (
                           <span className="text-muted-foreground font-normal">Just Started</span>
                         )}
                       </span>
-                      <span className="md:hidden font-bold text-primary">₹{note.price || note.priceInr || 0}</span>
+                      <span className="md:hidden font-bold text-primary">{formatCurrency(note.price || note.priceInr || 0)}</span>
                     </div>
 
                     {/* Heat Bar */}
@@ -167,8 +168,8 @@ export function MostDownloaded() {
                   {/* Desktop Price & Arrow */}
                   {/* Added shrink-0 and transition for hover-hide */}
                   <div className="hidden md:flex flex-col items-end gap-1 w-24 text-right pl-4 border-l border-border/50 shrink-0 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none z-10">
-                    <span className="font-bold text-lg text-primary">₹{note.price || note.priceInr || 0}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Get Now</span>
+                    <span className="font-bold text-lg text-primary">{formatCurrency(note.price || note.priceInr || 0)}</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Get Now</span>
                   </div>
 
                   {/* Hover Reveal Arrow */}

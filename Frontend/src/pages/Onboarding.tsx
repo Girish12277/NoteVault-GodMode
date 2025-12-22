@@ -1,4 +1,5 @@
 import { useState } from 'react';
+// Force TS Refresh
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, GraduationCap, Building, Calendar, MapPin, Globe, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-import { degrees, specializations, semesters } from '@/data/mockData';
+import { degrees, specializations, semesters } from '@/data/educationConstants';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -60,8 +61,8 @@ export default function Onboarding() {
         degree: fullDegree,
         universityId: universityId, // Send UUID
         university: formData.university, // optimistic update for UI
-        collegeName: formData.college, // Map to snake_case equivalent prop
-        currentSemester: parseInt(formData.semester), // Map to snake_case equivalent prop
+        college: formData.college, // Map to correct User interface prop
+        semester: parseInt(formData.semester), // Map to correct User interface prop
         location: formData.location,
         preferredLanguage: formData.preferredLanguage,
       });
@@ -236,7 +237,7 @@ export default function Onboarding() {
                         setFormData({ ...formData, college: e.target.value })
                       }
                     />
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Since we don't track all colleges, type yours manually.
                     </p>
                   </div>

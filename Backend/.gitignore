@@ -1,7 +1,57 @@
+# Node
 node_modules/
-dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
 .env.local
+.env.*.local
+
+# Build
+dist/
+build/
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Logs - PRECISE PATTERNS (not *.txt!)
 *.log
-.DS_Store
+*_error.txt
+*_error.log
+*_debug.txt
+*_debug.log
+*_fail.txt
+*_fail.log
+*_output.txt
+*_output.log
+verify_log*.txt
+tunnel_url*.txt
+god_tier_output*.log
+
+# Temporary
+_backup/
+temp/
+tmp/
+diag_out.txt
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+.nyc_output
+lib-cov

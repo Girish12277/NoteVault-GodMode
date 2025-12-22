@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatCurrency } from '@/lib/formatters';
 
 export function NewArrivals() {
   const { data: recentNotes = [] } = useQuery({
@@ -36,9 +37,9 @@ export function NewArrivals() {
   };
 
   return (
-    <section className="py-12 lg:py-20 bg-background border-t border-border/40">
+    <section className="py-8 lg:py-20 bg-background border-t border-border/40">
       <div className="container">
-        <div className="flex items-end justify-between mb-8">
+        <div className="flex items-end justify-between mb-6 md:mb-8">
           <div>
             <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary mb-2">
               <span className="relative flex h-2.5 w-2.5">
@@ -47,10 +48,10 @@ export function NewArrivals() {
               </span>
               Live Feed
             </div>
-            <h2 className="font-display text-3xl font-bold text-foreground">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
               Just <span className="text-primary/90">Arrived</span>
             </h2>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-2 text-sm md:text-base">
               Fresh notes uploaded by students across the country in real-time.
             </p>
           </div>
@@ -78,13 +79,13 @@ export function NewArrivals() {
                   {/* Thumbnail */}
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-none rounded-lg overflow-hidden bg-muted">
                     {isFirst && (
-                      <div className="absolute top-0 right-0 z-10 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-bl-lg">
+                      <div className="absolute top-0 right-0 z-10 bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-bl-lg">
                         NEW
                       </div>
                     )}
                     <img
                       src={note.fileUrl?.endsWith('.pdf') ? 'https://placehold.co/200?text=PDF' : (note.coverImage || 'https://placehold.co/200?text=Note')}
-                      alt=""
+                      alt={note.title}
                       onError={(e) => (e.target as HTMLImageElement).src = 'https://placehold.co/200?text=Note'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -103,7 +104,7 @@ export function NewArrivals() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-5 w-5">
                         <AvatarImage src={note.author?.avatar} />
-                        <AvatarFallback className="text-[9px]">{note.author?.name?.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{note.author?.name?.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <span className="text-xs text-muted-foreground truncate max-w-[100px]">{note.author?.name}</span>
 
@@ -122,8 +123,8 @@ export function NewArrivals() {
                     </div>
 
                     <div className="mt-auto">
-                      <span className="block text-lg font-bold text-foreground text-right">₹{note.price || note.priceInr || 0}</span>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Buy Now</span>
+                      <span className="block text-lg font-bold text-foreground text-right">{formatCurrency(note.price || note.priceInr || 0)}</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Buy Now</span>
                     </div>
                   </div>
                 </Link>
