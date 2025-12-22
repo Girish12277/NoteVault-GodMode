@@ -48,7 +48,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
 // Validation
-const validateSignature = (sig: string): boolean => /^[a-f0-9]{64}$/i.test(sig);
+const validateSignature = (sig: string): boolean => /^[A-F0-9]{12,}$/i.test(sig);
 const validateInvoiceId = (id: string): boolean => /^[a-zA-Z0-9_-]{1,50}$/.test(id);
 
 // URL Sanitization
