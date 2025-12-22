@@ -586,7 +586,7 @@ export const queueService = {
         }, { priority: 1, delay: 60000 });
 
         logger.info('[QUEUE] Added Cloudinary retry', { jobId: job?.id });
-        return job?.id!;
+        return job?.id || 'unknown';
     },
 
     // Email sending (Phase 2)
@@ -606,7 +606,7 @@ export const queueService = {
         });
 
         logger.info('[QUEUE] Added email job', { jobId: job?.id, to, template: templateName });
-        return job?.id!;
+        return job?.id || 'unknown';
     },
 
     // Notification broadcast (Phase 2)
@@ -616,7 +616,7 @@ export const queueService = {
         }, { priority: 1, delay: 0 });
 
         logger.info('[QUEUE] Added notification broadcast', { jobId: job?.id, broadcastId });
-        return job?.id!;
+        return job?.id || 'unknown';
     },
 
     // Backup processing (Phase 2)
@@ -634,7 +634,7 @@ export const queueService = {
         });
 
         logger.info('[QUEUE] Added backup job', { jobId: job?.id, type, priority });
-        return job?.id!;
+        return job?.id || 'unknown';
     },
 
     // Queue statistics
