@@ -295,6 +295,8 @@ export default function UploadNotes() {
         categoryId: formData.categoryId,
       };
 
+      console.log('📤 Uploading note with payload:', payload);
+
       await api.post('/notes', payload);
 
       // LAUNCH PAD CELEBRATION
