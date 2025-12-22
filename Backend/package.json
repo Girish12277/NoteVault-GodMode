@@ -61,7 +61,8 @@
         "winston": "^3.19.0",
         "zod": "*",
         "@prisma/client": "^5.22.0",
-        "prisma": "^5.22.0"
+        "prisma": "^5.22.0",
+        "typescript": "^5.9.3"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.2",
@@ -91,7 +92,6 @@
         "supertest": "*",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",
-        "typescript": "^5.9.3",
         "typescript-eslint": "^8.50.0"
     },
     "optionalDependencies": {
