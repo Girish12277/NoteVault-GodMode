@@ -6,7 +6,6 @@ import {
   Heart,
   User,
   Menu,
-  BookOpen,
   LogOut,
   LayoutDashboard,
   Library,
@@ -220,8 +219,8 @@ export function Header() {
               ) : (
                 <div className="pb-3 border-b border-border/50">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                      <BookOpen className="h-5 w-5 text-primary-foreground" />
+                    <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center font-bold text-lg text-primary-foreground">
+                      N
                     </div>
                     <SheetTitle className="font-bold text-lg">{siteName}</SheetTitle>
                   </div>
@@ -380,7 +379,9 @@ export function Header() {
                           to="/browse"
                           className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                         >
-                          <BookOpen className="h-6 w-6" />
+                          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center font-bold text-lg text-primary-foreground mb-2">
+                            N
+                          </div>
                           <div className="mb-2 mt-4 text-lg font-medium">
                             All Notes
                           </div>
