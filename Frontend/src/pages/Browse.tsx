@@ -32,6 +32,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
+import { ItemListSchema } from '@/components/seo/ItemListSchema';
 
 const ITEMS_PER_PAGE = 12;
 

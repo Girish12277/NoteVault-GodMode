@@ -10,6 +10,9 @@ import { HowItWorks } from '@/components/home/HowItWorks';
 import { CTASection } from '@/components/home/CTASection';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
+import { EducationalOrgSchema } from '@/components/seo/EducationalOrgSchema';
+import { WebSiteSchema } from '@/components/seo/WebSiteSchema';
+import { FAQSchema, commonFAQs } from '@/components/seo/FAQSchema';
 
 const Index = () => {
   return (
@@ -21,6 +24,9 @@ const Index = () => {
         canonical="https://frontend-blue-sigma-18.vercel.app/"
       />
       <OrganizationSchema />
+      <EducationalOrgSchema />
+      <WebSiteSchema />
+      <FAQSchema faqs={commonFAQs} />
 
       {/* Zone 1: Attention & Trust (The Hook) */}
       <HeroSection />
