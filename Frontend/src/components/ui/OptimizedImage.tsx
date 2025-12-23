@@ -8,14 +8,24 @@ interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 
     height?: number;
     priority?: boolean;
     className?: string;
+    title?: string; // SEO: Title attribute for additional context
 }
 
 /**
- * Optimized Image Component for Core Web Vitals
+ * Generate SEO-friendly title from alt text if not provided
+ */
+const generateTitle = (alt: string): string => {
+    // Capitalize first letter and add context
+    return alt.charAt(0).toUpperCase() + alt.slice(1);
+};
+
+/**
+ * Optimized Image Component for Core Web Vitals & Visual Search SEO
  * - Automatic WebP conversion via Cloudinary
  * - Lazy loading for non-critical images
  * - Responsive srcset generation
  * - Proper width/height to prevent CLS
+ * - SEO-optimized alt text and title attributes
  */
 export const OptimizedImage = ({
     src,
@@ -24,6 +34,7 @@ export const OptimizedImage = ({
     height,
     priority = false,
     className = '',
+    title,
     ...props
 }: OptimizedImageProps) => {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -36,12 +47,16 @@ export const OptimizedImage = ({
     const imgWidth = width || 600;
     const imgHeight = height || 800;
 
+    // Generate title from alt if not provided
+    const imgTitle = title || generateTitle(alt);
+
     return (
         <img
             src={optimizedSrc}
             srcSet={srcSet}
             sizes={`(max-width: 768px) 100vw, ${imgWidth}px`}
             alt={alt}
+            title={imgTitle}
             width={imgWidth}
             height={imgHeight}
             loading={priority ? 'eager' : 'lazy'}
