@@ -1,11 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-
-interface Note {
-    id: string;
-    title: string;
-    coverImage?: string;
-    priceInr: number;
-}
+import { Note } from '@/types';
 
 interface ItemListSchemaProps {
     notes: Note[];
@@ -29,7 +23,7 @@ export const ItemListSchema = ({ notes, listName = "Academic Notes" }: ItemListS
                 "image": note.coverImage || "https://frontend-blue-sigma-18.vercel.app/placeholder-note.png",
                 "offers": {
                     "@type": "Offer",
-                    "price": note.priceInr.toString(),
+                    "price": note.price.toString(),
                     "priceCurrency": "INR",
                     "availability": "https://schema.org/InStock"
                 }

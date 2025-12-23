@@ -362,6 +362,7 @@ export default function Browse() {
         canonical="https://frontend-blue-sigma-18.vercel.app/browse"
       />
       <BreadcrumbSchema items={breadcrumbItems} />
+      <ItemListSchema notes={allNotes} listName={selectedDegree ? `${selectedDegree} Notes` : 'All Notes'} />
       <div className="container py-2 sm:py-4">
 
         {/* Mobile Filter Trigger - Compact */}
