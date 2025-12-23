@@ -22,6 +22,7 @@ import { SectionReveal } from '@/components/layout/SectionReveal';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 type Persona = 'buyer' | 'seller';
 
@@ -109,6 +110,12 @@ export default function HowItWorksPage() {
 
   return (
     <Layout>
+      <SEOHead
+        title="How It Works - Buy & Sell Academic Notes | NoteVault"
+        description="Learn how to buy verified academic notes or sell your notes for passive income. Simple 4-step process. 24-hour refund guarantee. Join 50K+ students."
+        keywords="how to buy notes, sell notes online, academic notes marketplace, student notes platform"
+        canonical="https://frontend-blue-sigma-18.vercel.app/how-it-works"
+      />
       <div className="relative min-h-screen bg-background overflow-hidden">
         {/* Decorative Background Blobs */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />

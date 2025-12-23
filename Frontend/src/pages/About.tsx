@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function About() {
 
@@ -22,6 +23,12 @@ export default function About() {
 
     return (
         <Layout>
+            <SEOHead
+                title="About Us - NoteVault | India's #1 Academic Notes Marketplace"
+                description="Learn about NoteVault's mission to democratize access to quality academic notes. Built by students, for students. Join 50K+ active students today."
+                keywords="about notevault, academic marketplace, student notes platform, quality study material"
+                canonical="https://frontend-blue-sigma-18.vercel.app/about"
+            />
             <div className="pb-20 bg-background text-foreground">
 
                 {/* --- 1. KINETIC HERO (Light Theme) --- */}
