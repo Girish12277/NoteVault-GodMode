@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/formatters';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export function FeaturedNotes() {
   const fetchNotes = async (sort: string) => {
@@ -67,7 +68,14 @@ export function FeaturedNotes() {
             {/* Hero Image/Preview Area */}
             <div className="relative h-[250px] bg-muted/50 overflow-hidden group/image">
               {heroNote.previewUrl ? (
-                <img src={heroNote.previewUrl} alt={heroNote.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <OptimizedImage
+                  src={heroNote.previewUrl}
+                  alt={`${heroNote.title} - ${heroNote.subject} featured note preview`}
+                  width={800}
+                  height={400}
+                  priority={true}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-muted to-muted/50">
                   <img src="/placeholder-note.png" className="w-24 h-32 opacity-20" alt="No Preview" />
@@ -150,7 +158,14 @@ export function FeaturedNotes() {
                 {/* 2. Visual Thumbnail (New) */}
                 <div className="flex-none w-16 h-16 rounded-lg bg-muted overflow-hidden border border-border/50 relative">
                   {note.previewUrl ? (
-                    <img src={note.previewUrl} className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-500" alt="" />
+                    <OptimizedImage
+                      src={note.previewUrl}
+                      alt={`${note.title} thumbnail`}
+                      width={64}
+                      height={64}
+                      priority={false}
+                      className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-500"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
                       <TrendingUp className="w-6 h-6" />
