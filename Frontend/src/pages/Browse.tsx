@@ -30,6 +30,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { useDebounce } from '@/hooks/use-debounce';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -325,8 +327,40 @@ export default function Browse() {
     </div>
   );
 
+  // Dynamic SEO based on filters
+  const getPageTitle = () => {
+    const parts = [];
+    if (searchQuery) parts.push(searchQuery);
+    if (selectedDegree) parts.push(`${selectedDegree} Notes`);
+    if (selectedSemester) parts.push(`Semester ${selectedSemester}`);
+    if (selectedUniversity) {
+      const uni = universities.find((u: any) => u.id === selectedUniversity);
+      if (uni) parts.push(uni.name);
+    }
+    const base = parts.length > 0 ? parts.join(' | ') : 'Browse Academic Notes';
+    return `${base} - Buy Quality Study Material | NoteVault`;
+  };
+
+  const getPageDescription = () => {
+    if (searchQuery) return `Search results for "${searchQuery}". Find quality academic notes from top students. Instant download, verified content.`;
+    if (selectedDegree) return `Browse ${selectedDegree} notes from top students. ${allNotes.length}+ verified study materials available. Instant download, 24h refunds.`;
+    return `Browse 10,000+ verified academic notes for BTech, MBA, MBBS & more. Quality study material from top students across 500+ universities. Instant download.`;
+  };
+
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://frontend-blue-sigma-18.vercel.app/' },
+    { name: 'Browse Notes', url: 'https://frontend-blue-sigma-18.vercel.app/browse' }
+  ];
+
   return (
     <Layout>
+      <SEOHead
+        title={getPageTitle()}
+        description={getPageDescription()}
+        keywords="browse notes, academic notes, study material, college notes, university notes, exam preparation"
+        canonical="https://frontend-blue-sigma-18.vercel.app/browse"
+      />
+      <BreadcrumbSchema items={breadcrumbItems} />
       <div className="container py-2 sm:py-4">
 
         {/* Mobile Filter Trigger - Compact */}

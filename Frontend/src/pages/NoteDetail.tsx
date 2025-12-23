@@ -57,6 +57,9 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from '@/lib/utils';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { ProductSchema } from '@/components/seo/ProductSchema';
+import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 
 
 // --- HELPERS ---
@@ -486,8 +489,25 @@ export default function NoteDetail() {
   const isUserPurchaser = isAuthenticated && user?.purchasedNoteIds ? user.purchasedNoteIds.includes(note.id) : false;
   const hasAccess = isUserOwner || isUserPurchaser;
 
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://frontend-blue-sigma-18.vercel.app/' },
+    { name: 'Browse', url: 'https://frontend-blue-sigma-18.vercel.app/browse' },
+    { name: note.degree || 'Notes', url: `https://frontend-blue-sigma-18.vercel.app/browse?degree=${note.degree}` },
+    { name: note.title, url: `https://frontend-blue-sigma-18.vercel.app/notes/${note.id}` }
+  ];
+
   return (
     <Layout>
+      <SEOHead
+        title={`${note.title} | ${note.degree} ${note.semester ? `Semester ${note.semester}` : ''} Notes - NoteVault`}
+        description={`${note.description.substring(0, 150)}... Download ${note.pages} pages of quality ${note.subject} notes. ₹${note.price}. Instant PDF download.`}
+        keywords={`${note.subject} notes, ${note.degree} notes, ${note.semester ? `semester ${note.semester}` : ''} notes, ${note.subject} study material, buy notes online`}
+        canonical={`https://frontend-blue-sigma-18.vercel.app/notes/${note.id}`}
+        ogImage={note.coverImage}
+        ogType="product"
+      />
+      <ProductSchema note={note} />
+      <BreadcrumbSchema items={breadcrumbItems} />
       <div className="container py-4 lg:py-8">
         {/* Breadcrumb - Clean */}
         <nav className="flex items-center gap-2 text-[10px] md:text-xs text-muted-foreground mb-4 md:mb-6 overflow-hidden">
