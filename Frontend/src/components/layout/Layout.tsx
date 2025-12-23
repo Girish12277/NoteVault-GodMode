@@ -15,7 +15,7 @@ export function Layout({ children, hideFooter = false }: LayoutProps) {
   const isOnline = useOnlineStatus();
 
   return (
-    <div className="flex min-h-[100dvh] flex-col pb-16 lg:pb-0"> {/* Safe area for MobileNav */}:
+    <div className="flex min-h-[100dvh] flex-col pb-16 lg:pb-0"> {/* Safe area for MobileNav */}
       <OfflineBanner isOnline={isOnline} />
       <ErrorBoundary>
         <Header />
