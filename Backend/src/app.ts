@@ -234,6 +234,7 @@ app.use('/api/posts', postsRouter); // Public Seller Profile
 // app.use('/api/download', downloadKillSwitch);
 app.use('/api/download', downloadRoutes); // Re-enable after signed URLs implemented
 app.use('/api/public', publicRoutes); // Public Verification Routes
+app.use('/api/recommendations', recommendationRoutes); // Phase 3: FREE Recommendation System
 app.use('/api/webhooks', webhookRoutes); // Enhancement #5: Server-Side Webhook Handler
 
 // 404 handler
