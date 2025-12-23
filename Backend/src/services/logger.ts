@@ -15,9 +15,19 @@ import path from 'path';
 import fs from 'fs';
 
 // Ensure logs directory exists
-const logsDir = path.join(process.cwd(), 'logs');
+// In Vercel/serverless environments, use /tmp (only writable directory)
+// In local/traditional environments, use ./logs
+const logsDir = process.env.VERCEL || process.env.NODE_ENV === 'production'
+    ? '/tmp/logs'
+    : path.join(process.cwd(), 'logs');
+
 if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir);
+    try {
+        fs.mkdirSync(logsDir, { recursive: true });
+    } catch (error) {
+        // If we can't create logs directory, just log to console
+        console.warn('Could not create logs directory, logging to console only:', error);
+    }
 }
 
 // Custom format for production
