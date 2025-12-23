@@ -551,7 +551,7 @@ export default function NoteDetail() {
         </Breadcrumb>
 
         {/* --- MAIN GRID LAYOUT --- */}
-        <div className="grid lg:grid-cols-12 gap-8 items-start">
+        <div className="grid lg:grid-cols-12 gap-8 items-start" itemScope itemType="https://schema.org/Product">
 
           {/* LEFT COLUMN: Content (Span 8) */}
           <div className="lg:col-span-8 space-y-8 min-w-0">
@@ -564,7 +564,7 @@ export default function NoteDetail() {
                 <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" /> {note.language === 'en' ? 'English' : note.language === 'hi' ? 'Hindi' : 'Mix'}</Badge>
               </div>
 
-              <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-semibold leading-tight break-words">
+              <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-semibold leading-tight break-words" itemProp="name">
                 {note.title}
               </h1>
 
