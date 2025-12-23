@@ -1,7 +1,11 @@
 # NoteVault Robots.txt
+# Optimized for SEO and crawl efficiency
+
 User-agent: *
 Allow: /
-Disallow: /admin
+
+# Disallow private/user-specific pages
+Disallow: /admin/
 Disallow: /seller/
 Disallow: /account
 Disallow: /cart
@@ -9,13 +13,25 @@ Disallow: /checkout
 Disallow: /library
 Disallow: /wishlist
 Disallow: /auth
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /onboarding
+
+# Disallow URL parameters (prevent duplicate content)
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
 
 # Allow important pages
 Allow: /browse
 Allow: /notes/
+Allow: /hub/
 Allow: /how-it-works
 Allow: /about
 Allow: /contact
+Allow: /categories
+Allow: /universities
 
 # Sitemap
 Sitemap: https://backend-ten-phi-49.vercel.app/sitemap.xml
+Sitemap: https://frontend-blue-sigma-18.vercel.app/sitemap.xml
