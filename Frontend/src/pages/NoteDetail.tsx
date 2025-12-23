@@ -41,6 +41,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { PDFPreview } from '@/components/notes/PDFPreview';
@@ -521,16 +522,32 @@ export default function NoteDetail() {
       />
       <EntityGraphSchema note={note} />
       <div className="container py-4 lg:py-8">
-        {/* Breadcrumb - Clean */}
-        <nav className="flex items-center gap-2 text-[10px] md:text-xs text-muted-foreground mb-4 md:mb-6 overflow-hidden">
-          <Link to="/" className="hover:text-foreground transition-colors shrink-0">Home</Link>
-          <ChevronRight className="h-4 w-4 shrink-0" />
-          <Link to="/browse" className="hover:text-foreground transition-colors shrink-0">Browse</Link>
-          <ChevronRight className="h-4 w-4 shrink-0" />
-          <Link to={`/browse?degree=${note.degree}`} className="hover:text-foreground transition-colors shrink-0">{note.degree}</Link>
-          <ChevronRight className="h-4 w-4 shrink-0" />
-          <span className="text-foreground truncate font-medium max-w-[200px]">{note.title}</span>
-        </nav>
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb className="mb-4 md:mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/browse">Browse</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/browse?degree=${note.degree}`}>{note.degree}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="truncate max-w-[200px]">{note.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         {/* --- MAIN GRID LAYOUT --- */}
         <div className="grid lg:grid-cols-12 gap-8 items-start">
