@@ -27,10 +27,9 @@ export const OptimizedImage = ({
     ...props
 }: OptimizedImageProps) => {
     const [isLoaded, setIsLoaded] = useState(false);
-    const [hasError, setHasError] = useState(false);
 
     // Get optimized URL and srcset
-    const optimizedSrc = getOptimizedImageUrl(src, { width, format: 'auto', quality: 'auto' });
+    const optimizedSrc = getOptimizedImageUrl(src, { width, format: 'auto' });
     const srcSet = generateSrcSet(src);
 
     // Fallback dimensions if not provided
@@ -50,8 +49,9 @@ export const OptimizedImage = ({
             fetchPriority={priority ? 'high' : 'auto'}
             className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
             onLoad={() => setIsLoaded(true)}
-            onError={() => {
-                setHasError(true);
+            onError={(e) => {
+                // Fallback to placeholder on error
+                (e.target as HTMLImageElement).src = 'https://placehold.co/600x800?text=Image+Not+Found';
                 setIsLoaded(true);
             }}
             {...props}

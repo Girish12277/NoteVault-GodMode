@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/formatters';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 interface NoteCardProps {
   note: Note;
@@ -90,12 +91,12 @@ export function NoteCard({ note, className, showBadge, rank, isPurchased = false
         <Link to={`/notes/${note.id}`} className="absolute inset-0 z-0">
           <span className="sr-only">View Note</span>
         </Link>
-        <img
+        <OptimizedImage
           src={note.coverImage || 'https://placehold.co/600x800?text=No+Cover'}
-          alt={note.title}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://placehold.co/600x800?text=Cover+Not+Found';
-          }}
+          alt={`${note.title} - ${note.subject} notes cover image`}
+          width={600}
+          height={800}
+          priority={false}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
 
