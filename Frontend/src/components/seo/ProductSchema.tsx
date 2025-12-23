@@ -37,12 +37,41 @@ export const ProductSchema = ({ note }: ProductSchemaProps) => {
             "priceCurrency": "INR",
             "price": note.priceInr.toString(),
             "priceValidUntil": "2025-12-31",
+            "itemCondition": "https://schema.org/NewCondition",
             "availability": note.isActive
                 ? "https://schema.org/InStock"
                 : "https://schema.org/OutOfStock",
             "seller": {
                 "@type": "Organization",
                 "name": "NoteVault"
+            },
+            "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                    "@type": "MonetaryAmount",
+                    "value": "0",
+                    "currency": "INR"
+                },
+                "deliveryTime": {
+                    "@type": "ShippingDeliveryTime",
+                    "handlingTime": {
+                        "@type": "QuantitativeValue",
+                        "minValue": 0,
+                        "maxValue": 0,
+                        "unitCode": "MIN"
+                    }
+                },
+                "shippingDestination": {
+                    "@type": "DefinedRegion",
+                    "addressCountry": "IN"
+                }
+            },
+            "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 1,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnFees": "https://schema.org/FreeReturn"
             }
         },
         ...(note.averageRating && note.totalReviews ? {
