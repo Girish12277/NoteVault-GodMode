@@ -55,3 +55,4 @@ Thumbs.db
 # Testing
 .nyc_output
 lib-cov
+.vercel

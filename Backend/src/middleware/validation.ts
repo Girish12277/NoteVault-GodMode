@@ -143,8 +143,8 @@ export const schemas = {
             }),
 
         degree: Joi.string()
-            .valid('BTech', 'MTech', 'BBA', 'MBA', 'BSc', 'MSc', 'BA', 'MA', 'MCA', 'BCA', 'Other')
-            .optional(),
+            .optional()
+            .allow(null, '', 'BTech', 'MTech', 'BBA', 'MBA', 'BSc', 'MSc', 'BA', 'MA', 'MCA', 'BCA', 'Other'),
 
         universityId: Joi.string()
             .uuid()
@@ -241,9 +241,8 @@ export const schemas = {
             }),
 
         degree: Joi.string()
-            .valid('BTech', 'MTech', 'BBA', 'MBA', 'BSc', 'MSc', 'BA', 'MA', 'MCA', 'BCA', 'Other')
             .optional()
-            .allow(null, ''),
+            .allow(null, '', 'BTech', 'MTech', 'BBA', 'MBA', 'BSc', 'MSc', 'BA', 'MA', 'MCA', 'BCA', 'Other'),
 
         specialization: Joi.string()
             .max(100)
@@ -424,8 +423,8 @@ export const schemas = {
             .optional(),
 
         degree: Joi.string()
-            .valid('BTech', 'MTech', 'BBA', 'MBA', 'BSc', 'MSc', 'BA', 'MA', 'MCA', 'BCA', 'Other')
-            .optional(),
+            .optional()
+            .allow(null, '', 'BTech', 'MTech', 'BBA', 'MBA', 'BSc', 'MSc', 'BA', 'MA', 'MCA', 'BCA', 'Other'),
 
         universityId: Joi.string()
             .uuid()
