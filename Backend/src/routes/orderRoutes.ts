@@ -1,14 +1,12 @@
 import { Router } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { prisma } from '../config/database';
-import * as fs from 'fs';
-import * as path from 'path';
 
 const router = Router();
 
 router.get('/', authenticate, async (req: AuthRequest, res) => {
-    const logFile = path.join(process.cwd(), 'debug_orders.log');
-    const log = (msg: string) => fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`);
+    // Use console.log instead of file logging (Vercel filesystem is read-only)
+    const log = (msg: string) => console.log(`[ORDERS] ${msg}`);
 
     try {
         if (!req.user?.id) {
@@ -60,7 +58,6 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
         // AUTO-SEED: If user has no notes, give them some for testing
         if (transactions.length === 0) {
             log(`User ${req.user.id} has no notes. Attempting Auto-seed...`);
-            console.log(`User ${req.user.id} has no notes. Auto-seeding...`);
             const seedNotes = await prismaAny.notes.findMany({
                 where: { is_approved: true },
                 take: 3
@@ -114,7 +111,6 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
                 }
                 transactions = newTransactions;
                 log(`Auto-seeded finish. New count: ${transactions.length}`);
-                console.log(`Auto-seeded ${transactions.length} notes for user.`);
             } else {
                 log('No approved notes found to seed.');
             }
