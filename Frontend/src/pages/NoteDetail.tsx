@@ -48,6 +48,7 @@ import { PDFPreview } from '@/components/notes/PDFPreview';
 import { NoteCard } from '@/components/notes/NoteCard';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RelatedNotes } from '@/components/notes/RelatedNotes';
 import {
   Carousel,
   CarouselContent,
@@ -819,6 +820,13 @@ export default function NoteDetail() {
             </div>
           </div>
         </div>
+
+        {/* Related Notes Widget for Internal Linking */}
+        {similarNotes && similarNotes.length > 0 && (
+          <div className="mt-12">
+            <RelatedNotes currentNote={note} relatedNotes={similarNotes} />
+          </div>
+        )}
 
         {/* Similar Notes Section */}
         {similarNotes && similarNotes.length > 0 && (
