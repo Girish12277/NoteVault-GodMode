@@ -356,13 +356,15 @@ export function Header() {
             {logoUrl ? (
               <img src={logoUrl} alt={siteName} className="h-8 w-auto object-contain" />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <BookOpen className="h-5 w-5 text-primary-foreground" />
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-bold text-lg text-primary-foreground">
+                  N
+                </div>
+                <span className="hidden font-bold sm:inline-block whitespace-nowrap">
+                  {siteName}
+                </span>
               </div>
             )}
-            <span className="hidden font-bold sm:inline-block whitespace-nowrap">
-              {siteName}
-            </span>
           </Link>
 
           {/* Mega Menu (Desktop) */}
