@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { HelmetProvider } from 'react-helmet-async';
+import { useEffect } from 'react';
 
 
 // Create a client with optimized defaults for better caching and performance
@@ -24,26 +25,37 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
-              {/* <Toaster /> Removed in favor of Sonner */}
-              <Sonner />
-              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                <ErrorBoundary>
-                  <AnimatedRoutes />
-                </ErrorBoundary>
-              </BrowserRouter>
-            </TooltipProvider>
-          </CartProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
-);
+const App = () => {
+  // Initialize Web Vitals monitoring in production
+  useEffect(() => {
+    if (import.meta.env.PROD) {
+      import('@/lib/webVitals').then(({ initWebVitals }) => {
+        initWebVitals();
+      });
+    }
+  }, []);
+
+  return (
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <AuthProvider>
+            <CartProvider>
+              <TooltipProvider>
+                {/* <Toaster /> Removed in favor of Sonner */}
+                <Sonner />
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                  <ErrorBoundary>
+                    <AnimatedRoutes />
+                  </ErrorBoundary>
+                </BrowserRouter>
+              </TooltipProvider>
+            </CartProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
+};
 
 export default App;

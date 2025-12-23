@@ -59,6 +59,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { ProductSchema } from '@/components/seo/ProductSchema';
+import { EnhancedProductSchema } from '@/components/seo/EnhancedProductSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 
 
@@ -507,6 +508,7 @@ export default function NoteDetail() {
         ogType="product"
       />
       <ProductSchema note={note} />
+      <EnhancedProductSchema note={note} />
       <BreadcrumbSchema items={breadcrumbItems} />
       <div className="container py-4 lg:py-8">
         {/* Breadcrumb - Clean */}
