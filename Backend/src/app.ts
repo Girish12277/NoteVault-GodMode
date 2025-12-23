@@ -49,6 +49,7 @@ import { sellerRouter, adminRouter, cartRouter } from './routes/additionalRoutes
 import sellerAnalyticsRoutes from './routes/sellerAnalyticsRoutes';
 import publicRoutes from './routes/publicRoutes';
 import orderRouter from './routes/orderRoutes';
+import sitemapRoutes from './routes/sitemapRoutes';
 import recommendationRoutes from './routes/recommendationRoutes';  // Phase 3: FREE Recommendation System
 import { setupSwagger } from './config/swagger';
 
@@ -236,6 +237,7 @@ app.use('/api/download', downloadRoutes); // Re-enable after signed URLs impleme
 app.use('/api/public', publicRoutes); // Public Verification Routes
 app.use('/api/recommendations', recommendationRoutes); // Phase 3: FREE Recommendation System
 app.use('/api/webhooks', webhookRoutes); // Enhancement #5: Server-Side Webhook Handler
+app.use('/', sitemapRoutes); // SEO: Sitemap generation
 
 // 404 handler
 app.use((req, res) => {

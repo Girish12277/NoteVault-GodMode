@@ -512,7 +512,7 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <Link to="/auth">
-              <Button size="sm" className="ml-2 font-bold transition-transform hover:scale-105">Login</Button>
+              <Button size="sm" className="h-8 px-2 text-xs font-medium transition-transform hover:scale-105">Login</Button>
             </Link>
           )}
         </div>

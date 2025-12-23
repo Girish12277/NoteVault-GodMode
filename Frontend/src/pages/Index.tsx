@@ -8,10 +8,20 @@ import { NewArrivals } from '@/components/home/NewArrivals';
 import { TopRatedNotes } from '@/components/home/TopRatedNotes';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { CTASection } from '@/components/home/CTASection';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 
 const Index = () => {
   return (
     <Layout>
+      <SEOHead
+        title="Buy & Sell Academic Notes Online | India's #1 Student Notes Marketplace - NoteVault"
+        description="India's largest marketplace for verified academic notes. Buy quality notes for BTech, MBA, MBBS & more. Instant download, 24h refunds. 10,000+ notes from 500+ universities."
+        keywords="buy notes online india, academic notes marketplace, college notes, university notes, study material, exam notes, BTech notes, MBA notes, MBBS notes"
+        canonical="https://frontend-blue-sigma-18.vercel.app/"
+      />
+      <OrganizationSchema />
+
       {/* Zone 1: Attention & Trust (The Hook) */}
       <HeroSection />
 
