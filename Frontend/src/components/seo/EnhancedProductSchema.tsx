@@ -1,23 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-
-interface Note {
-    id: string;
-    title: string;
-    description: string;
-    priceInr: number;
-    coverImage?: string;
-    degree?: string;
-    semester?: number;
-    totalPages?: number;
-    pages?: number;
-    language?: string;
-    isActive: boolean;
-    averageRating?: number;
-    totalReviews?: number;
-    subject?: string;
-    tableOfContents?: string[];
-    sellerName?: string;
-}
+import { Note } from '@/types';
 
 interface EnhancedProductSchemaProps {
     note: Note;
@@ -67,7 +49,7 @@ export const EnhancedProductSchema = ({ note }: EnhancedProductSchemaProps) => {
             "@type": "Offer",
             "url": `https://frontend-blue-sigma-18.vercel.app/notes/${note.id}`,
             "priceCurrency": "INR",
-            "price": note.priceInr.toString(),
+            "price": note.price.toString(),
             "priceValidUntil": "2025-12-31",
             "availability": note.isActive
                 ? "https://schema.org/InStock"
@@ -105,18 +87,18 @@ export const EnhancedProductSchema = ({ note }: EnhancedProductSchemaProps) => {
                 "returnFees": "https://schema.org/FreeReturn"
             }
         },
-        ...(note.averageRating && note.totalReviews ? {
+        ...(note.rating && note.reviewCount ? {
             "aggregateRating": {
                 "@type": "AggregateRating",
-                "ratingValue": note.averageRating.toString(),
-                "reviewCount": note.totalReviews.toString(),
+                "ratingValue": note.rating.toString(),
+                "reviewCount": note.reviewCount.toString(),
                 "bestRating": "5",
                 "worstRating": "1"
             }
         } : {}),
         ...(note.degree ? { "category": note.degree } : {}),
-        ...(note.totalPages || note.pages ? {
-            "numberOfPages": (note.totalPages || note.pages || 0).toString()
+        ...(note.pages ? {
+            "numberOfPages": note.pages.toString()
         } : {})
     };
 

@@ -62,6 +62,7 @@ import { ProductSchema } from '@/components/seo/ProductSchema';
 import { EnhancedProductSchema } from '@/components/seo/EnhancedProductSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
 import { AuthorSchema } from '@/components/seo/AuthorSchema';
+import { EntityGraphSchema } from '@/components/seo/EntityGraphSchema';
 
 
 // --- HELPERS ---
@@ -518,6 +519,7 @@ export default function NoteDetail() {
         university={note.university}
         subjects={[note.subject]}
       />
+      <EntityGraphSchema note={note} />
       <div className="container py-4 lg:py-8">
         {/* Breadcrumb - Clean */}
         <nav className="flex items-center gap-2 text-[10px] md:text-xs text-muted-foreground mb-4 md:mb-6 overflow-hidden">
