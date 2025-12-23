@@ -61,6 +61,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { ProductSchema } from '@/components/seo/ProductSchema';
 import { EnhancedProductSchema } from '@/components/seo/EnhancedProductSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
+import { AuthorSchema } from '@/components/seo/AuthorSchema';
 
 
 // --- HELPERS ---
@@ -510,6 +511,13 @@ export default function NoteDetail() {
       <ProductSchema note={note} />
       <EnhancedProductSchema note={note} />
       <BreadcrumbSchema items={breadcrumbItems} />
+      <AuthorSchema
+        sellerName={note.sellerName}
+        sellerId={note.sellerId}
+        degree={note.degree}
+        university={note.university}
+        subjects={[note.subject]}
+      />
       <div className="container py-4 lg:py-8">
         {/* Breadcrumb - Clean */}
         <nav className="flex items-center gap-2 text-[10px] md:text-xs text-muted-foreground mb-4 md:mb-6 overflow-hidden">
