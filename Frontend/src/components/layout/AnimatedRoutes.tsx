@@ -48,6 +48,7 @@ import NotificationDetails from '@/pages/notifications/NotificationDetails';
 import InvoiceVerifier from "../../pages/public/InvoiceVerifier";
 import SellerProfile from '@/pages/SellerProfile';
 import Messages from '@/pages/Messages';
+import BTechHub from '@/pages/hubs/BTechHub';
 import NotFound from "../../pages/NotFound";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { PageTransition } from './PageTransition';
@@ -83,6 +84,9 @@ export const AnimatedRoutes: React.FC = () => {
                 <Route path="/universities" element={<PageTransition><Universities /></PageTransition>} />
                 <Route path="/payment/success" element={<PageTransition><PaymentSuccess /></PageTransition>} />
                 <Route path="/payment/failed" element={<PageTransition><PaymentFailed /></PageTransition>} />
+
+                {/* HUB PAGES */}
+                <Route path="/hub/btech" element={<PageTransition><BTechHub /></PageTransition>} />
 
                 {/* SELLER ROUTES */}
                 <Route path="/seller" element={<PageTransition><SellerDashboard /></PageTransition>} />
